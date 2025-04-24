@@ -6,6 +6,8 @@
 # c-tag
 **/tags
 
+# VisualStudioCode
+.vscode/
 
 ## generated for visualstudio,visualstudiocode,vim,linux,windows,macos,unity
 
