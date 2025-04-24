@@ -1,7 +1,8 @@
 
 # Unity Imports Assets
-/[Aa]ssets/[Ii]mports/
-/[Aa]ssets/[Ii]mport/
+# private submodule로 처리
+#/[Aa]ssets/[Ii]mports/
+#/[Aa]ssets/[Ii]mport/
 
 # c-tag
 **/tags
