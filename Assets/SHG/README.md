@@ -20,18 +20,34 @@ classDiagram
     GameState State;
     +bool IsPlaying
     +event OnGameStart
+    +event OnGamePause
+
+    +void SetPlayerCharacter(PlayerCharacter player)
+  }
+
+  class PlayerCharacter {
+    +event OnDie
+    +event OnLevelUp
   }
 
   class GameState {
+    <<enumeration>>
     InCombat
     SelectItem
   }
 
   class StageManager {
     +int CurrentStage
-    +void GoToNextStage()
-
+    +event OnStageClear 
     +List~Monster~ CurrentStageMonsters
+    +ID RegisterMonster(Monster monster)
+
+    -void GoToNextStage()
+  }
+
+  class Monster {
+    +ID Id
+    +event OnDie
   }
 
   class SceneManager {
@@ -66,10 +82,10 @@ classDiagram
   }
 
   class PrefabObjectPool {
-    +void SetConfig(string prefabName, string path, int poolSize);
+    +void SetConfig(string prefabName, string path, int poolSize)
 
     +GameObject GetPooledObject(string prefabName)
-    +void ReturnObject(GameObject pooledObject, string prefabName); 
+    +void ReturnObject(GameObject pooledObject, string prefabName)
   }
 ```
 
