@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1514790655536070125}
   - component: {fileID: 5694268703052783952}
   - component: {fileID: 8996251311688851716}
-  - component: {fileID: 2376588318038961237}
+  - component: {fileID: -6174544690486414081}
   m_Layer: 0
   m_Name: monster
   m_TagString: Untagged
@@ -107,7 +107,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2376588318038961237
+--- !u!114 &-6174544690486414081
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -120,9 +120,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Hp: 0
-  Wp: 0
-  moveInterpolation: 0.5
-  rotateInterpolation: 10
+  nearAp: 0
+  farAp: 0
+  attackRadius: 10
+  moveSpeed: 5
+  rotateInterpolation: 7
   target: {fileID: 0}
 --- !u!1 &9129950734192821250
 GameObject:

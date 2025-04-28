@@ -5,16 +5,17 @@ using UnityEngine;
 public class monsterController : MonoBehaviour
 {
     [SerializeField] private int Hp;
-    [SerializeField] private int Wp;
+    [SerializeField] private int nearAp;
+    [SerializeField] private int farAp;
+    [SerializeField] private float attackRadius;
 
-
-    [SerializeField][Range(0, 1)] private float moveInterpolation;
+    [SerializeField] private float moveSpeed;
     [SerializeField] private float rotateInterpolation;
     //[SerializeField] private float attackSpeed;
     [SerializeField] Transform target;
 
-    
-    
+
+
     void Update()
     {
         Move();
@@ -28,12 +29,18 @@ public class monsterController : MonoBehaviour
             rotateInterpolation * Time.deltaTime
             );
 
-        transform.position = Vector3.Lerp(
+        transform.position = Vector3.MoveTowards(
             transform.position,
-            target.position, 
-            moveInterpolation * Time.deltaTime);
+            target.position,
+            moveSpeed * Time.deltaTime);
     }
 
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(transform.position, attackRadius);
+
+    }
 
 }
