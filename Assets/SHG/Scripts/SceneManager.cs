@@ -21,7 +21,7 @@ public class SceneManager : Singleton<SceneManager>
   IEnumerator CreateLoadSceneRoutine(SceneName scene)
   {
     AsyncOperation load = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(Enum.GetName(typeof(SceneName), scene));
-
+    load.allowSceneActivation = true;
     while (!load.isDone) {
       yield return (null);
     }

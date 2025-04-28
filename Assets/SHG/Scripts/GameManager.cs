@@ -21,10 +21,9 @@ public class GameManager: Singleton<GameManager>
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
   new public static void CreateInstance() 
   {
-    Singleton<GameManager>.CreateInstance();
-    Singleton<UIManager>.CreateInstance();
-    Singleton<StageManager>.CreateInstance();
-    Singleton<SceneManager>.CreateInstance();
+    UIManager.CreateInstance();
+    StageManager.CreateInstance();
+    SceneManager.CreateInstance();
   }
 
   new public GameManager Shared => Singleton<GameManager>.Shared;
