@@ -21,13 +21,5 @@ public class Singleton<T>: MonoBehaviour where T: MonoBehaviour
     Singleton<T>.instance = null;
   }
 
-  protected static T Shared  
-  {
-    get {
-      if (Singleton<T>.instance == null) {
-        Singleton<T>.CreateInstance();
-      }
-      return Singleton<T>.instance;
-    }
-  }
+  protected static T Shared => Singleton<T>.instance;
 }

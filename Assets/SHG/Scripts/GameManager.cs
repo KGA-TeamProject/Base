@@ -22,6 +22,9 @@ public class GameManager: Singleton<GameManager>
   new public static void CreateInstance() 
   {
     Singleton<GameManager>.CreateInstance();
+    Singleton<UIManager>.CreateInstance();
+    Singleton<StageManager>.CreateInstance();
+    Singleton<SceneManager>.CreateInstance();
   }
 
   new public GameManager Shared => Singleton<GameManager>.Shared;

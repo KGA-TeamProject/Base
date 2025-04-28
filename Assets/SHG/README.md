@@ -65,6 +65,7 @@ classDiagram
   class PopupUI {
     <<enumeration>>
     ItemSelect,
+    LevelUp,
     StageEnd
   }
 
