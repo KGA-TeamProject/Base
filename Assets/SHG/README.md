@@ -8,7 +8,7 @@ classDiagram
 
   class TileMapGenerator {
     +float ChanceToCreateWalker
-    +float ChanceToReDirect
+    +float ChanceToRedirect
     +float ChanceToRemoveWalker
     +Vector2Int MapSize
     +Vector2Int StartPoint
@@ -16,10 +16,13 @@ classDiagram
     -TwoDimentionalArray~Tile~ tiles
     -List~MapWalker~ walkers
     -void Generate()
+    -void CreateFloors()
     -void RandomlyRemoveWalkers()
     -void RandomlyRedirectWalkers()
     -void RandomlyCreateWalkers()
-    -void ProgressWalkers
+    -Walker AwakeWalker(Vector2Int pos)
+    -void ProgressWalkers()
+    -void FillWalls()
   }
 
   class Tile {
