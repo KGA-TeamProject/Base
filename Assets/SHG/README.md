@@ -21,7 +21,8 @@ classDiagram
     GameState State;
     +bool IsPlaying
     +event OnGameStart
-    +event OnGamePause
+    +event OnGamePaused
+    +event OnGameResumed
 
     +void SetPlayerCharacter(PlayerCharacter player)
   }
