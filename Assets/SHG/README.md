@@ -1,3 +1,72 @@
+## Manager class
+```mermaid
+classDiagram
+
+  GameManager "1" --> "1" GameState
+  GameManager "1" --> "1" StageManager: use
+  GameManager "1" --> "1" UIManager: use
+  GameManager "1" --> "1" SceneManager: use
+  UIManager "1" --* "1" PopupUI: has
+  UIManager "1" --* "1" CombatUI: has
+  CombatUI "1" --* "*" UIComponent: has
+  
+  class GameManager {
+    +bool IsPlaying
+    +event OnGameStart
+  }
+
+  class GameState {
+    InCombat
+    SelectItem
+  }
+
+  class StageManager {
+    +int CurrentStage
+    +void GoToNextStage()
+
+    +List~Monster~ CurrentStageMonsters
+  }
+
+  class SceneManager {
+    +void LoadNextScene()
+    +void MoveToNextScene()
+  }
+  
+  class UIManager {
+    +Nullable~PopupUI~ CurrentPopup
+    CombatUI CombatWindow
+  }
+
+  class PopupUI {
+    <<enumeration>>
+    ItemSelect,
+    StageEnd
+  }
+
+  class CombatUI {
+    +UIComponent CharacterHpUI
+    +UIComponent SkillListUI
+  }
+
+  class UIComponent {
+    <<interface>>
+  }
+```
+
+### Game Manager
+- 다른 매니저를 연결 시키고 게임의 상태를 관리하는 역할
+
+### Stage Manager
+- 현재 스테이지 상태를 관리하고 스테이지를 진행시키는 역할
+
+### Scene Manager
+- 상황에 맞는 scene을 로딩하고 전환하는 역할
+
+### UI Manager
+- 게임 상태를 보여주고 사용자가 캐릭터, 아이템 등을 변경할 수 있게 하는 역할
+
+---
+
 ## 게임 컨셉
 <table>
 <tr>
@@ -50,3 +119,5 @@
 - 송재오: 플레이어 이동, 스탯
 - 이세준: 아이템, 인벤토리
 - 최연호: 플레이어 공격
+
+
