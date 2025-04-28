@@ -43,13 +43,13 @@ classDiagram
     +event OnStageClear 
     +ID RegisterMonster(Monster monster)
 
-    -List~Monster~ CurrentStageMonsters
+    -Set~Monster~ CurrentStageMonsters
     -void GoToNextStage()
   }
 
   class Monster {
     +ID Id
-    +event OnDie
+    +event Action<ID> OnDie
   }
 
   class SceneManager {
@@ -78,8 +78,8 @@ classDiagram
   }
 
   class Singleton~T~ {
-    Singleton~T~ Shared$
-    +void CreateInstnace()
+    +Singleton~T~ Shared$
+    -void CreateInstnace()
   }
 
   class PrefabObjectPool {
