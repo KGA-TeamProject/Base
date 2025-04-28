@@ -10,6 +10,7 @@ classDiagram
   UIManager "x" --* "1" PopupUI: has
   UIManager "x" --* "1" CombatUI: has
   CombatUI "1" --* "*" UIComponent: has
+  SceneManager "x" --> "1" SceneName: use
 
   GameManager --<| Singleton
   UIManager --<| Singleton
@@ -34,6 +35,7 @@ classDiagram
 
   class GameState {
     <<enumeration>>
+    Title
     InCombat
     SelectItem
   }
@@ -53,8 +55,15 @@ classDiagram
   }
 
   class SceneManager {
-    +void LoadNextScene()
+    +void StartLoadScene()
     +void MoveToNextScene()
+    +event Action<SceneName> OnSceneLoaded
+  }
+
+  note for SceneName "미리 Resources에 넣어둔 파일 이름"
+  class SceneName {
+    <<enumeration>>
+    FirstScene
   }
   
   class UIManager {
@@ -64,8 +73,9 @@ classDiagram
 
   class PopupUI {
     <<enumeration>>
-    ItemSelect,
-    LevelUp,
+    Loading
+    ItemSelect
+    LevelUp
     StageEnd
   }
 
