@@ -6,15 +6,16 @@ classDiagram
   GameManager "x" --> "1" StageManager: use
   GameManager "x" --> "1" UIManager: use
   GameManager "x" --> "1" SceneManager: use
+  StageManager "x" --> "*" Monster: has
   UIManager "x" --* "1" PopupUI: has
   UIManager "x" --* "1" CombatUI: has
   CombatUI "1" --* "*" UIComponent: has
 
-  GameManager --|> ISingleton
-  UIManager --|> ISingleton
-  SceneManager --|> ISingleton
-  StageManager --|> ISingleton
-  PrefabObjectPool --|> ISingleton
+  GameManager --<| Singleton
+  UIManager --<| Singleton
+  SceneManager --<| Singleton
+  StageManager --<| Singleton
+  PrefabObjectPool --<| Singleton
   
   class GameManager {
     GameState State;
@@ -39,9 +40,9 @@ classDiagram
   class StageManager {
     +int CurrentStage
     +event OnStageClear 
-    +List~Monster~ CurrentStageMonsters
     +ID RegisterMonster(Monster monster)
 
+    -List~Monster~ CurrentStageMonsters
     -void GoToNextStage()
   }
 
@@ -75,9 +76,8 @@ classDiagram
     <<interface>>
   }
 
-  class ISingleton {
-    <<interface>>
-    ISingleton Shared$
+  class Singleton~T~ {
+    Singleton~T~ Shared$
     +void CreateInstnace()
   }
 
