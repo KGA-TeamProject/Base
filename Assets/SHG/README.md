@@ -2,15 +2,22 @@
 ```mermaid
 classDiagram
 
-  GameManager "1" --> "1" GameState
-  GameManager "1" --> "1" StageManager: use
-  GameManager "1" --> "1" UIManager: use
-  GameManager "1" --> "1" SceneManager: use
-  UIManager "1" --* "1" PopupUI: has
-  UIManager "1" --* "1" CombatUI: has
+  GameManager "x" --* "1" GameState
+  GameManager "x" --> "1" StageManager: use
+  GameManager "x" --> "1" UIManager: use
+  GameManager "x" --> "1" SceneManager: use
+  UIManager "x" --* "1" PopupUI: has
+  UIManager "x" --* "1" CombatUI: has
   CombatUI "1" --* "*" UIComponent: has
+
+  GameManager --|> ISingleton
+  UIManager --|> ISingleton
+  SceneManager --|> ISingleton
+  StageManager --|> ISingleton
+  PrefabObjectPool --|> ISingleton
   
   class GameManager {
+    GameState State;
     +bool IsPlaying
     +event OnGameStart
   }
@@ -51,19 +58,34 @@ classDiagram
   class UIComponent {
     <<interface>>
   }
+
+  class ISingleton {
+    <<interface>>
+    ISingleton Shared$
+    +void CreateInstnace()
+  }
+
+  class PrefabObjectPool {
+    +void SetConfig(string prefabName, string path, int poolSize);
+
+    +GameObject GetPooledObject(string prefabName)
+    +void ReturnObject(GameObject pooledObject, string prefabName); 
+  }
 ```
 
 ### Game Manager
-- 다른 매니저를 연결 시키고 게임의 상태를 관리하는 역할
-
+- 다른 매니저를 연결 시키고 게임의 상태를 관리하는 역할  
 ### Stage Manager
-- 현재 스테이지 상태를 관리하고 스테이지를 진행시키는 역할
-
+- 현재 스테이지 상태를 관리하고 스테이지를 진행시키는 역할  
 ### Scene Manager
-- 상황에 맞는 scene을 로딩하고 전환하는 역할
-
+- 상황에 맞는 scene을 로딩하고 전환하는 역할  
 ### UI Manager
-- 게임 상태를 보여주고 사용자가 캐릭터, 아이템 등을 변경할 수 있게 하는 역할
+- 게임 상태를 보여주고 사용자가 캐릭터, 아이템 등을 변경할 수 있게 하는 역할   
+#### CombatUI
+- 전투 플레이중 사용자에게 제공되는 UI   
+#### PrefabObjectPool 
+- Prefab에 따른 Object pool을 관리하는 역할   
+- Resources 디렉토리에 넣어둔 prefab들을 생성할 수 있다   
 
 ---
 
