@@ -42,6 +42,9 @@ public class GameManager: Singleton<GameManager>
     player.OnDie += this.OnGameOver; 
   }
 
+  void Start() {
+    this.Init();
+  }
 
   void Init() 
   {
