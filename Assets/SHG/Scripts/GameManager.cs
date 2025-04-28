@@ -21,6 +21,7 @@ public class GameManager: Singleton<GameManager>
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
   new public static void CreateInstance() 
   {
+    Singleton<GameManager>.CreateInstance();
     UIManager.CreateInstance();
     StageManager.CreateInstance();
     SceneManager.CreateInstance();
@@ -44,6 +45,7 @@ public class GameManager: Singleton<GameManager>
 
   void Init() 
   {
+    SceneManager.Shared.StartLoadScene(SceneManager.SceneName.FirstScene);
   }
 
   /*
