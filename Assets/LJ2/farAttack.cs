@@ -73,6 +73,15 @@ public class farAttack : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (attackCoroutine != null)
+        {
+            attackCoroutine = null;
+        }
+    }
+
+
     private IEnumerator AttackCoroutine()
     {
 

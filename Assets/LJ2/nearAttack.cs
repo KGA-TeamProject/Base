@@ -21,6 +21,15 @@ public class nearAttack : MonoBehaviour
     {
         detactPlayer();
     }
+
+    private void OnDestroy()
+    {
+        if (attackCoroutine != null)
+        {
+            attackCoroutine = null;
+        }
+    }
+
     private void detactPlayer()
     {
         if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0) // 오버랩스피어에 플레이어 레이어를 가진 콜라이더가 하나라도 있으면

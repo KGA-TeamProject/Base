@@ -20,4 +20,18 @@ public class monsterController : MonoBehaviour
     }
 
 
+
+    private void TakeDamage(int damage)
+    {
+        Hp -= damage;
+        if (Hp < 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die() 
+    {
+        Destroy(gameObject);
+    }
 }
