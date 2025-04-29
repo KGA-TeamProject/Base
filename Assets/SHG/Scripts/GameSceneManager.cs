@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class SceneManager : Singleton<SceneManager>
+public class GameSceneManager : Singleton<GameSceneManager>
 {
   public enum SceneName
   {
