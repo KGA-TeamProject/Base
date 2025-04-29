@@ -75,9 +75,13 @@ public class TileMapSpawner : MonoBehaviour
     GameObject tileObj = tile switch  {
       TileMapGenerator.Tile.Floor => PrefabObjectPool.Shared.GetPooledObject("floorTile"),
       TileMapGenerator.Tile.Wall => PrefabObjectPool.Shared.GetPooledObject("wallTile"),
+      TileMapGenerator.Tile.Obstacle => PrefabObjectPool.Shared.GetPooledObject("floorTile"),
       TileMapGenerator.Tile.None => null,
       _ => null
     };
+    if (tile == TileMapGenerator.Tile.Obstacle) {
+      Debug.Log($"o {pos.x}, {pos.y}");
+    }
     var cellPos = new Vector3Int(
         pos.x - this.halfMapSize.x,
         pos.y - this.halfMapSize.y, 0);

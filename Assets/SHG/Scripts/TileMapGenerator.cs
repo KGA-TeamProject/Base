@@ -79,6 +79,7 @@ public class TileMapGenerator
       this.iteration += 1;
     }
     this.FillWalls();
+    this.FillHoles();
     return (this.tiles);
   }
 
@@ -118,7 +119,7 @@ public class TileMapGenerator
       }
     }
     if (isNearFloor && !this.IsTileType(Tile.Floor, pos)) {
-      this.SetWall(pos);
+      this.SetTile(Tile.Wall, pos);
     }
   }
 
@@ -134,9 +135,9 @@ public class TileMapGenerator
     return (this.tiles[pos.y, pos.x] == tileType);
   }
 
-  void SetWall(Vector2Int pos) 
+  void SetTile(Tile tileType, Vector2Int pos) 
   {
-    this.tiles[pos.y, pos.x] = Tile.Wall;
+    this.tiles[pos.y, pos.x] = tileType;
   }
 
   void CreateFloors()
@@ -149,6 +150,33 @@ public class TileMapGenerator
       if (this.tiles[pos.y, pos.x] == Tile.None) {
         this.tiles[pos.y, pos.x] = Tile.Floor;
         this.floorCount += 1;
+      }
+    }
+  }
+
+  void FillHoles()
+  {
+    bool[,] visited = new bool[this.config.MapSize.y, this.config.MapSize.x];
+    this.FillHoleFrom(this.config.StartPos, visited);
+  }
+
+  void FillHoleFrom(Vector2Int pos, bool[,] visited)
+  {
+    if (visited[pos.y, pos.x]) {
+      return ;
+    }
+    visited[pos.y, pos.x] = true;
+    if (this.IsTileType(Tile.None, pos)) {
+      this.SetTile(Tile.Obstacle, pos);
+    }
+    for (int i = -1; i < 2; ++i) {
+      for (int j = -1; j < 2; ++j) {
+        var cur = new Vector2Int(pos.x + i, pos.y + j);
+        if ((i != 0 || j != 0) &&
+            this.IsInRange(cur) &&
+            !this.IsTileType(Tile.Wall, cur)) {
+          this.FillHoleFrom(cur, visited);
+        }
       }
     }
   }
