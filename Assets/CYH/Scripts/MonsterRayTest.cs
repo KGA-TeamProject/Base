@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MonsterRayTest : MonoBehaviour
 {
+    public int hp = 10;
     // Start is called before the first frame update
     void Start()
     {

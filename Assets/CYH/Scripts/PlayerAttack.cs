@@ -6,13 +6,11 @@ public class PlayerAttack : MonoBehaviour
 {
     public Projectile prefab;
 
-    [SerializeField] private GameObject monster;
-
     public int shootCount;
     public float angle = 15;
+    
     [SerializeField] public float sightRange;
     [SerializeField] private bool isMove;
-
 
     private void Update()
     {
@@ -27,6 +25,7 @@ public class PlayerAttack : MonoBehaviour
             float arrowAngle = -angle / 2 + angle / (shootCount + 1) * (i + 1);
             Quaternion arrowRotation = Quaternion.Euler(0, arrowAngle, 0);
 
+            // 화살 
             Projectile instance = Instantiate(prefab, transform.position, transform.rotation * arrowRotation);
             instance.rigid.velocity = instance.transform.forward * instance.speed;
         }
@@ -44,11 +43,6 @@ public class PlayerAttack : MonoBehaviour
                 Debug.DrawLine(transform.position, hitInfo.point, Color.green);
                 Debug.Log($" 맞음 : {hitInfo.collider.gameObject.name}");
                 Shoot();
-            }
-            else
-            {
-                Debug.DrawLine(transform.position, hitInfo.point, Color.red);
-                Debug.Log($" 안 맞음 : {hitInfo.collider.gameObject.name}");
             }
         }
     }
