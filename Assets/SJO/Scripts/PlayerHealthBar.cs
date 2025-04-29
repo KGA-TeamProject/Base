@@ -17,5 +17,15 @@ public class PlayerHealthBar : MonoBehaviour
         set => hp = Mathf.Clamp(value, 0, hp);
     }
 
+    // Awake 단계에서 초기 세팅
+    private void Awake()
+    {
+        // 초기 체력 설정
+        hp = 100;
+    }
 
+    private void SetMaxHealth()
+    {
+
+    }
 }
