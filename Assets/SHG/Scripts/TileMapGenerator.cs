@@ -4,16 +4,24 @@ using UnityEngine;
 
 public class TileMapGenerator 
 {
+  [Serializable]
   public class Config 
   {
+    [Range(0f, 1.0f)]
     public float ChanceToCreateWalker; 
+    [Range(0f, 1.0f)]
     public float ChanceToRemoveWalker;
+    [Range(0f, 1.0f)]
     public float ChanceToRedirect;
     public Vector2Int MapSize;
     public Vector2Int StartPos;
+    [Range(5, 20)]
     public int WalkerMaximum;
+    [Range(0f, 1.0f)]
     public float FloorPercentage;
-    public Config(float chanceToCreate, float chanceToRedirect, float chanceToRemove, Vector2Int mapSize, Vector2Int startPos, float floorPercentage, int walkerMaximum = 10)
+    [Range(1000, 10000)]
+    public int maxIteration;
+    public Config(float chanceToCreate, float chanceToRedirect, float chanceToRemove, Vector2Int mapSize, Vector2Int startPos, float floorPercentage, int walkerMaximum = 10, int maxIteration = 100000)
     {
       this.ChanceToCreateWalker = chanceToCreate;
       this.ChanceToRemoveWalker = chanceToRemove;
@@ -22,6 +30,7 @@ public class TileMapGenerator
       this.StartPos = startPos;
       this.FloorPercentage = floorPercentage;
       this.WalkerMaximum  = walkerMaximum;
+      this.maxIteration = maxIteration;
     }
   }
 
@@ -29,7 +38,8 @@ public class TileMapGenerator
   {
     None,
     Floor,
-    Wall
+    Wall,
+    Obstacle
   }
 
   public Config config { get; private set; }
@@ -38,7 +48,6 @@ public class TileMapGenerator
   int numberOfActiveWalkers = 0;
   int floorCount = 0;
   int maxFloorCount;
-  const int MAX_ITERATION = 10000;
   int iteration = 0;
 
   public TileMapGenerator(Config config) 
@@ -58,8 +67,11 @@ public class TileMapGenerator
   {
     var walker = this.AwakeWalker(this.config.StartPos); 
     while (this.floorCount < this.maxFloorCount && 
-        this.iteration < TileMapGenerator.MAX_ITERATION) {
+        this.iteration < this.config.maxIteration) {
       this.CreateFloors();
+      if (this.floorCount >= this.maxFloorCount) {
+        break;
+      }
       this.RandomlyRemoveWalker();
       this.RandomlyRedirect();
       this.RandomlyCreateWalker();
@@ -72,28 +84,59 @@ public class TileMapGenerator
 
   void FillWalls()
   {
-    for (int y = 0; y < this.tiles.GetLength(0); ++y) {
-      for (int x = 0; x < this.tiles.GetLength(1); ++x) {
-        if (this.tiles[y, x] != Tile.Floor) {
-          continue;
+    var topLeft = new Vector2Int(0, this.config.MapSize.y - 1);
+    var topRight = new Vector2Int(this.config.MapSize.x - 1, this.config.MapSize.y - 1);
+    var bottomLeft = new Vector2Int(0, 0);
+    var bottomRight = new Vector2Int(this.config.MapSize.x - 1, 0);
+    bool[,] visited = new bool[this.config.MapSize.y, this.config.MapSize.x];
+    this.FillWallFrom(topLeft, visited);
+    this.FillWallFrom(topRight, visited);
+    this.FillWallFrom(bottomLeft, visited);
+    this.FillWallFrom(bottomRight, visited);
+  }
+
+  void FillWallFrom(Vector2Int pos, bool[,] visited)
+  {
+    if (visited[pos.y, pos.x]) {
+      return ;
+    }
+    visited[pos.y, pos.x] = true;
+    bool isNearFloor = false;
+    bool isWall = this.IsTileType(Tile.Wall, pos);
+    for (int i = -1; i < 2; ++i) {
+      for (int j = -1; j < 2; ++j) {
+        var cur = new Vector2Int(pos.x + i, pos.y + j);
+        if ((i != 0 || j != 0) &&
+            this.IsInRange(cur)) {
+          if (this.IsTileType(Tile.Floor, cur)) {
+            isNearFloor = true;
+          }
+          else if (!isWall) {
+            this.FillWallFrom(cur, visited);
+          }
         }
-        this.FillWallIfNone(x - 1, y - 1);
-        this.FillWallIfNone(x - 1, y);
-        this.FillWallIfNone(x - 1, y + 1);
-        this.FillWallIfNone(x, y - 1);
-        this.FillWallIfNone(x, y + 1);
-        this.FillWallIfNone(x + 1, y);
-        this.FillWallIfNone(x + 1, y - 1);
-        this.FillWallIfNone(x + 1, y + 1);
       }
+    }
+    if (isNearFloor && !this.IsTileType(Tile.Floor, pos)) {
+      this.SetWall(pos);
     }
   }
 
-  void FillWallIfNone(int x, int y)
+  bool IsInRange(Vector2Int pos) 
   {
-    if (this.tiles[y, x] == Tile.None) {
-      this.tiles[y, x] = Tile.Wall;
-    }
+    return (pos.x > 0 && pos.y > 0 &&
+      pos.x < this.config.MapSize.x &&
+      pos.y < this.config.MapSize.y);
+  }
+
+  bool IsTileType(Tile tileType, Vector2Int pos) 
+  {
+    return (this.tiles[pos.y, pos.x] == tileType);
+  }
+
+  void SetWall(Vector2Int pos) 
+  {
+    this.tiles[pos.y, pos.x] = Tile.Wall;
   }
 
   void CreateFloors()
@@ -114,7 +157,7 @@ public class TileMapGenerator
   {
     var removedWalkers = 0;
     for (int i = 0; i < this.numberOfActiveWalkers; i++) {
-      if (this.numberOfActiveWalkers == 1) {
+      if (this.numberOfActiveWalkers - removedWalkers == 1) {
         break;
       }
       var chance = (float)Walker.Random.Next(0, 100) / 100f;

@@ -389,11 +389,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1844127743}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9fc8fc99e749bf9fa22bbf26ad6048c, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e832fd4f47c6c34a9773929a273b83e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   floorTile: {fileID: 1979290889500462, guid: 98dd8e405a3f26848b63e1b78dfb7c5b, type: 3}
-  wallTile: {fileID: 1890052976583762, guid: 53b9e2e8c2c1ed2439a09c2ab3fb11e4, type: 3}
+  wallTile: {fileID: 1799435524067490, guid: d3f0fd641e48029479051f84e7668e6e, type: 3}
+  config:
+    ChanceToCreateWalker: 0.554
+    ChanceToRemoveWalker: 0.076
+    ChanceToRedirect: 0.7
+    MapSize: {x: 200, y: 200}
+    StartPos: {x: 100, y: 100}
+    WalkerMaximum: 10
+    FloorPercentage: 0.518
+    maxIteration: 5674
 --- !u!1 &2111170234
 GameObject:
   m_ObjectHideFlags: 0

@@ -12,17 +12,18 @@ public class TileMapSpawner : MonoBehaviour
   [SerializeField]
   TileMapGenerator.Config config = new (
       chanceToCreate: 0.4f,
-      chanceToRedirect: 0.4f,
+      chanceToRedirect: 0.7f,
       chanceToRemove: 0.15f,
-      mapSize: new (100, 100),
-      startPos: new (50, 50),
-      floorPercentage: 0.3f
+      mapSize: new (200, 200),
+      startPos: new (100, 100),
+      floorPercentage: 0.15f
       );
   Grid grid;
   TileMapGenerator.Tile [,] tiles;
   TileMapGenerator mapGenerator;
   Vector3 tileSize = new(1.0f, 1.0f, 1.0f);
   int WallPosY = 1;
+  Vector2Int halfMapSize;
 
   void Awake() 
   {
@@ -44,6 +45,7 @@ public class TileMapSpawner : MonoBehaviour
 
   void Init()
   {
+    this.halfMapSize = new (this.config.MapSize.x / 2, this.config.MapSize.y / 2);
     this.grid = this.GetComponent<Grid>();
     this.mapGenerator = new TileMapGenerator(this.config);
     this.ScalePrefabs();
@@ -76,14 +78,26 @@ public class TileMapSpawner : MonoBehaviour
       TileMapGenerator.Tile.None => null,
       _ => null
     };
-    var cellPos = new Vector3Int(pos.x, pos.y, 0);
+    var cellPos = new Vector3Int(
+        pos.x - this.halfMapSize.x,
+        pos.y - this.halfMapSize.y, 0);
+    var worldPos = this.grid.GetCellCenterWorld(cellPos);
+    this.PutTileObj(tileObj, worldPos);
+
     if (tile == TileMapGenerator.Tile.Wall) {
-      cellPos.z = this.WallPosY;
+      var wallObj = PrefabObjectPool.Shared.GetPooledObject("wallTile"); 
+      var wallPos = this.grid.GetCellCenterWorld(
+          new (cellPos.x, cellPos.y, this.WallPosY)
+          );
+      this.PutTileObj(wallObj, wallPos);
     }
-    var worldPos = this.grid.GetCellCenterWorld( cellPos);
-    tileObj.transform.position = worldPos;
-    tileObj.SetActive(true);
   }
 
+  void PutTileObj(GameObject tileObj, Vector3 pos)
+  {
+    tileObj.transform.position = pos;
+    tileObj.SetActive(true);
+    tileObj.transform.SetParent(this.transform);
+  }
 }
 
