@@ -13,7 +13,7 @@ public class TileMapGenerator
     public Vector2Int StartPos;
     public int WalkerMaximum;
     public float FloorPercentage;
-    public Config(float chanceToCreate, float chanceToRedirect, float chanceToRemove, Vector2Int mapSize, Vector2Int startPos, int walkerMaximum, float floorPercentage)
+    public Config(float chanceToCreate, float chanceToRedirect, float chanceToRemove, Vector2Int mapSize, Vector2Int startPos, float floorPercentage, int walkerMaximum = 10)
     {
       this.ChanceToCreateWalker = chanceToCreate;
       this.ChanceToRemoveWalker = chanceToRemove;
@@ -38,6 +38,8 @@ public class TileMapGenerator
   int numberOfActiveWalkers = 0;
   int floorCount = 0;
   int maxFloorCount;
+  const int MAX_ITERATION = 10000;
+  int iteration = 0;
 
   public TileMapGenerator(Config config) 
   {
@@ -55,14 +57,43 @@ public class TileMapGenerator
   public Tile[,] Generate() 
   {
     var walker = this.AwakeWalker(this.config.StartPos); 
-    while (this.floorCount < this.maxFloorCount) {
+    while (this.floorCount < this.maxFloorCount && 
+        this.iteration < TileMapGenerator.MAX_ITERATION) {
       this.CreateFloors();
       this.RandomlyRemoveWalker();
       this.RandomlyRedirect();
       this.RandomlyCreateWalker();
       this.ProgressWalkers();
+      this.iteration += 1;
     }
+    this.FillWalls();
     return (this.tiles);
+  }
+
+  void FillWalls()
+  {
+    for (int y = 0; y < this.tiles.GetLength(0); ++y) {
+      for (int x = 0; x < this.tiles.GetLength(1); ++x) {
+        if (this.tiles[y, x] != Tile.Floor) {
+          continue;
+        }
+        this.FillWallIfNone(x - 1, y - 1);
+        this.FillWallIfNone(x - 1, y);
+        this.FillWallIfNone(x - 1, y + 1);
+        this.FillWallIfNone(x, y - 1);
+        this.FillWallIfNone(x, y + 1);
+        this.FillWallIfNone(x + 1, y);
+        this.FillWallIfNone(x + 1, y - 1);
+        this.FillWallIfNone(x + 1, y + 1);
+      }
+    }
+  }
+
+  void FillWallIfNone(int x, int y)
+  {
+    if (this.tiles[y, x] == Tile.None) {
+      this.tiles[y, x] = Tile.Wall;
+    }
   }
 
   void CreateFloors()

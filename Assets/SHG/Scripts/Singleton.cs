@@ -21,5 +21,5 @@ public class Singleton<T>: MonoBehaviour where T: MonoBehaviour
     Singleton<T>.instance = null;
   }
 
-  protected static T Shared => Singleton<T>.instance;
+  public static T Shared => Singleton<T>.instance;
 }
