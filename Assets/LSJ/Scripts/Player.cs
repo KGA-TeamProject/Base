@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public Inventory inventory; // 플레이어의 인벤토리
+    //public Inventory inventory; // 플레이어의 인벤토리
 
     private int curHP; // 플레이어의 체력
     public int CurHP // 플레이어의 현재 체력
@@ -20,9 +20,7 @@ public class Player : MonoBehaviour
     }
 
     public Player()
-    {
-        inventory = new Inventory(); // 인벤토리 초기화
-        
+    {    
         maxHP = 100; // 최대 체력 초기화
         curHP = maxHP; // 현재 체력 초기화
     }
