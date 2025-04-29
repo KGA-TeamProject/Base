@@ -22,6 +22,7 @@ public class PlayerHealthBar : MonoBehaviour
     {
         // 초기 체력 설정
         hp = 100;
+        SetMaxHealth(hp);
     }
 
     // 체력 최대값 설정을 위한 함수 세팅
