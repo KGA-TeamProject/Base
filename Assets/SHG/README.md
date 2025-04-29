@@ -1,3 +1,54 @@
+## Tile Map generator class
+```mermaid
+classDiagram
+
+  TileMapGenerator "x" --* "*" MapWalker: has
+  TileMapGenerator "x" --> "*" Tile: use
+  MapWalker "x" --* "1" Direction: has
+
+  class TileMapGenerator {
+    +float ChanceToCreateWalker
+    +float ChanceToRedirect
+    +float ChanceToRemoveWalker
+    +Vector2Int MapSize
+    +Vector2Int StartPoint
+
+    -TwoDimentionalArray~Tile~ tiles
+    -List~MapWalker~ walkers
+    -void Generate()
+    -void CreateFloors()
+    -void RandomlyRemoveWalkers()
+    -void RandomlyRedirectWalkers()
+    -void RandomlyCreateWalkers()
+    -Walker AwakeWalker(Vector2Int pos)
+    -void ProgressWalkers()
+    -void FillWalls()
+  }
+
+  class Tile {
+    <<enumeration>>
+    Empty
+    Floor
+    Wall
+  }
+
+  class MapWalker {
+    +Direction Dir
+    +Vector2Int Position
+    +bool IsActive
+    +void Redirect()
+  }
+
+  class Direction {
+    <<enumeration>>
+    Up
+    Down
+    Left
+    Right
+  }
+```
+
+> [알고리즘](https://bartshin.github.io/TIL/unity/2025.04.28_Resources%2CTile_map_generate/#tile-map-generate)   
 ## Manager class
 ```mermaid
 classDiagram
