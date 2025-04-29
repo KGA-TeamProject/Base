@@ -4,24 +4,19 @@ using UnityEngine;
 
 public class nearAttack : MonoBehaviour
 {
-    [SerializeField] GameObject target;
+   
     [SerializeField] Transform targetPos;
     [SerializeField] LayerMask targetLayer;
 
-    [SerializeField] private int nearAp;
-    [SerializeField] private float nearAs;
-    [SerializeField] private float introDelay;
+    
+    [SerializeField] private float rushSpeed;
     private Coroutine attackCoroutine;
-    private YieldInstruction attackDelay;
+    
 
     [SerializeField] private float attackRadius;
     [SerializeField] monsterController monsterController;
 
-    private void Start()
-    {
-        attackDelay = new WaitForSeconds(introDelay);
-    }
-
+    
     private void Update()
     {
         detactPlayer();
@@ -59,8 +54,8 @@ public class nearAttack : MonoBehaviour
             transform.position = Vector3.MoveTowards(
                 transform.position,
                 targetPos.position,
-                nearAs * Time.deltaTime);
-            yield return attackDelay;
+                rushSpeed * Time.deltaTime);
+            yield return null;
         }
         
     }

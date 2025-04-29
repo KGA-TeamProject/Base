@@ -6,7 +6,8 @@ public class monsterController : MonoBehaviour
 {
     [SerializeField] private int Hp;
     [SerializeField] private float moveSpeed;
-    
+
+    [SerializeField] private int bumpDamage;
 
     public void Move(Transform target)
     {

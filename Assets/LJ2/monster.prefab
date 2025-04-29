@@ -122,7 +122,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Hp: 0
   moveSpeed: 5
-  rotateInterpolation: 7
+  bumpDamage: 0
 --- !u!114 &2330207616173526157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,14 +135,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40bdb78997300ab46b005382c83afc32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
   targetPos: {fileID: 0}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 0
-  nearAp: 0
-  nearAs: 10
-  introDelay: 0.5
+    m_Bits: 256
+  rushSpeed: 10
+  introDelay: -0
   attackRadius: 5
   monsterController: {fileID: -6174544690486414081}
 --- !u!1 &9129950734192821250
