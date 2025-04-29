@@ -25,6 +25,7 @@ public class GameManager: Singleton<GameManager>
     UIManager.CreateInstance();
     StageManager.CreateInstance();
     GameSceneManager.CreateInstance();
+    PrefabObjectPool.CreateInstance();
   }
 
   new public GameManager Shared => Singleton<GameManager>.Shared;
@@ -48,7 +49,7 @@ public class GameManager: Singleton<GameManager>
 
   void Init() 
   {
-    GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.FirstScene);
+    //GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.FirstScene);
   }
 
   /*
