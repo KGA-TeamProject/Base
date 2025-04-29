@@ -9,14 +9,24 @@ public class monsterController : MonoBehaviour
 
     [SerializeField] private int bumpDamage;
 
+    [SerializeField] LayerMask targetLayer;
+
     public void Move(Transform target)
     {
         transform.LookAt(target);
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            target.position,
-            moveSpeed * Time.deltaTime);
+        Ray ray = new Ray(transform.position, transform.forward);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit) )
+        {
+            if (hit.collider.gameObject.tag == "Player")
+            {
+                transform.position = Vector3.MoveTowards(
+                    transform.position,
+                    target.position,
+                    moveSpeed * Time.deltaTime);
+            }
+        }
     }
 
 

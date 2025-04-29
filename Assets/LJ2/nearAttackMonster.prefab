@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8996251311688851716}
   - component: {fileID: -6174544690486414081}
   - component: {fileID: 2330207616173526157}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: nearAttackMonster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -140,7 +140,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   rushSpeed: 10
-  introDelay: -0
   attackRadius: 5
   monsterController: {fileID: -6174544690486414081}
 --- !u!1 &9129950734192821250
@@ -155,7 +154,7 @@ GameObject:
   - component: {fileID: 7467118886493851826}
   - component: {fileID: 842731332479262813}
   - component: {fileID: 8218879606876330887}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}

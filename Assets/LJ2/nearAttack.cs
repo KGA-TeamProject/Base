@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class nearAttack : MonoBehaviour
 {
@@ -34,7 +35,7 @@ public class nearAttack : MonoBehaviour
     {
         if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0) // 오버랩스피어에 플레이어 레이어를 가진 콜라이더가 하나라도 있으면
         {
-            // 총구가 플레이어를 바라봐야함.
+            
             Vector3 lookPos = new Vector3(targetPos.position.x, transform.position.y, targetPos.position.z);
             transform.LookAt(lookPos);
 
@@ -42,7 +43,7 @@ public class nearAttack : MonoBehaviour
             if (attackCoroutine == null)
                 attackCoroutine = StartCoroutine(Attack());
         }
-        else // 아니면
+        else
         {
             monsterController.Move(targetPos); 
             
@@ -59,11 +60,18 @@ public class nearAttack : MonoBehaviour
         
         while (true)
         {
-            
-            transform.position = Vector3.MoveTowards(
+            Ray ray = new Ray(transform.position, transform.forward);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.collider.gameObject.tag == "Player")
+                {
+                    transform.position = Vector3.MoveTowards(
                 transform.position,
                 targetPos.position,
                 rushSpeed * Time.deltaTime);
+                }
+            }
             yield return null;
         }
         
