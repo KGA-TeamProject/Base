@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Item : GameObject
+public abstract class Item : GameObject2
 {
     public string itemName; // 아이템 이름
     public string itemDescription; // 아이템 설명
