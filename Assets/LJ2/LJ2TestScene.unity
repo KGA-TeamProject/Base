@@ -244,6 +244,10 @@ PrefabInstance:
       propertyPath: targetPos
       value: 
       objectReference: {fileID: 1891039916}
+    - target: {fileID: 2330207616173526157, guid: dd0114b549e26b040b656b80398fe6a3, type: 3}
+      propertyPath: targetLayer.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9055859157018247789, guid: dd0114b549e26b040b656b80398fe6a3, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.58064

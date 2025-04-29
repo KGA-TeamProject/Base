@@ -229,6 +229,9 @@ MonoBehaviour:
   Hp: 0
   moveSpeed: 5
   bumpDamage: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &5269934504471708502
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,12 +247,13 @@ MonoBehaviour:
   targetPos: {fileID: 0}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   setDelay: 1
   attackRadius: 15
   monsterController: {fileID: 2914418350642934664}
   attackPrefab: {fileID: 8658905745883790664, guid: b99aa9214bda69c428c8bad782b7f4ef, type: 3}
   poolSize: 3
+  attackDamage: 0
   shotPower: 10
   attackPos: {fileID: 2159929461036717565}
 --- !u!1 &7285391041805396622

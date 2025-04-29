@@ -123,6 +123,9 @@ MonoBehaviour:
   Hp: 0
   moveSpeed: 5
   bumpDamage: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &2330207616173526157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,7 +141,7 @@ MonoBehaviour:
   targetPos: {fileID: 0}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   rushSpeed: 10
   attackRadius: 5
   monsterController: {fileID: -6174544690486414081}
