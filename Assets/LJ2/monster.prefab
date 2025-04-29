@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5694268703052783952}
   - component: {fileID: 8996251311688851716}
   - component: {fileID: -6174544690486414081}
+  - component: {fileID: 2330207616173526157}
   m_Layer: 0
   m_Name: monster
   m_TagString: Untagged
@@ -120,12 +121,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Hp: 0
-  nearAp: 0
-  farAp: 0
-  attackRadius: 10
   moveSpeed: 5
   rotateInterpolation: 7
+--- !u!114 &2330207616173526157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1358736805030249269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40bdb78997300ab46b005382c83afc32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   target: {fileID: 0}
+  targetPos: {fileID: 0}
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  nearAp: 0
+  nearAs: 10
+  introDelay: 0.5
+  attackRadius: 5
+  monsterController: {fileID: -6174544690486414081}
 --- !u!1 &9129950734192821250
 GameObject:
   m_ObjectHideFlags: 0

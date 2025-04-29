@@ -5,23 +5,15 @@ using UnityEngine;
 public class monsterController : MonoBehaviour
 {
     [SerializeField] private int Hp;
-    [SerializeField] private int nearAp;
-    [SerializeField] private int farAp;
-    [SerializeField] private float attackRadius;
-
     [SerializeField] private float moveSpeed;
     [SerializeField] private float rotateInterpolation;
-    //[SerializeField] private float attackSpeed;
-    [SerializeField] Transform target;
+    
 
 
 
-    void Update()
-    {
-        Move();
-    }
+    
 
-    private void Move()
+    public void Move(Transform target)
     {
         transform.rotation = Quaternion.Lerp(
             transform.rotation,
@@ -35,12 +27,5 @@ public class monsterController : MonoBehaviour
             moveSpeed * Time.deltaTime);
     }
 
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.black;
-        Gizmos.DrawWireSphere(transform.position, attackRadius);
-
-    }
 
 }
