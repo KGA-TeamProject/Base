@@ -7,14 +7,18 @@ public class NewBehaviourScript : MonoBehaviour
     [SerializeField] private float deActiveTime;
     private Rigidbody rigid;
     private float countTime;
-    [SerializeField] private int attackDamage;
-
+    [SerializeField] public int attackDamage;
+    
     
 
 
     private void Awake()
     {
         Init();
+    }
+    private void Start()
+    {
+        
     }
 
     private void OnEnable()
@@ -28,6 +32,7 @@ public class NewBehaviourScript : MonoBehaviour
 
     }
 
+    // 비활성화 시 속도를 0으로 초기화
     private void OnDisable()
     {
         rigid.velocity = Vector3.zero;
@@ -37,6 +42,7 @@ public class NewBehaviourScript : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
     }
 
+    // 생성과 동시에 카운트 다운 시작
     private void TimeCount()
     {
         countTime -= Time.deltaTime;
@@ -51,4 +57,6 @@ public class NewBehaviourScript : MonoBehaviour
         countTime = deActiveTime;
 
     }
+
+
 }

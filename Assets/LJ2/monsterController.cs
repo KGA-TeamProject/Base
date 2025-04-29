@@ -11,10 +11,14 @@ public class monsterController : MonoBehaviour
 
     [SerializeField] LayerMask targetLayer;
 
+
+    // 몬스터 이동을 각각의 Attack컴포넌트에서 참조
     public void Move(Transform target)
-    {
+    {   
+        // 먼저 플레이어를 바라보고
         transform.LookAt(target);
 
+        // 장애물이 없으면 이동
         Ray ray = new Ray(transform.position, transform.forward);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit) )

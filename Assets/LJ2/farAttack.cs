@@ -20,6 +20,8 @@ public class farAttack : MonoBehaviour
     [SerializeField] private int poolSize;
     private GameObject[] attackPool;
     private Rigidbody attackRigid;
+    [SerializeField] private int attackDamage;
+
     [SerializeField] private float shotPower;
 
     [SerializeField] Transform attackPos;
@@ -35,6 +37,7 @@ public class farAttack : MonoBehaviour
         attackDelay = new WaitForSeconds(setDelay);
     }
 
+    // 오브젝트 풀 생성
     private void Init()
     {
         attackPool = new GameObject[poolSize];
@@ -49,6 +52,8 @@ public class farAttack : MonoBehaviour
     {
         detactPlayer();
     }
+
+    // attackRadius 안에 들어오면
     private void detactPlayer()
     {
         if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0) // 오버랩스피어에 플레이어 레이어를 가진 콜라이더가 하나라도 있으면
@@ -81,19 +86,19 @@ public class farAttack : MonoBehaviour
         }
     }
 
-
+    // attackDelay 만큼의 간격으로
     private IEnumerator AttackCoroutine()
     {
 
         while (true)
         {
-
             Attack();
             yield return attackDelay;
         }
 
     }
 
+    // 원거리 공격
     public void Attack()
     {
         foreach (GameObject bullet in attackPool)
