@@ -6,6 +6,7 @@ public class Projectile : MonoBehaviour
     public int speed;
     public Rigidbody rigid;
 
+    [SerializeField] private GameObject explosionEffect;
     [SerializeField] private int damage;
 
     private void Start()
@@ -21,6 +22,7 @@ public class Projectile : MonoBehaviour
         MonsterRayTest monsterRayTest = collision.gameObject.GetComponent<MonsterRayTest>();
         if (monsterRayTest != null)
         {
+            Instantiate(explosionEffect, transform.position, transform.rotation);
             collision.gameObject.GetComponent<MonsterRayTest>().hp -= damage;
             Debug.Log($"몬스터 체력 : {collision.gameObject.GetComponent<MonsterRayTest>().hp}");
         }
