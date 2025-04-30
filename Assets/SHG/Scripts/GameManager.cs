@@ -22,10 +22,10 @@ public class GameManager: Singleton<GameManager>
   new public static void CreateInstance() 
   {
     Singleton<GameManager>.CreateInstance();
+    PrefabObjectPool.CreateInstance();
     UIManager.CreateInstance();
     StageManager.CreateInstance();
     GameSceneManager.CreateInstance();
-    PrefabObjectPool.CreateInstance();
   }
 
   new public static GameManager Shared => Singleton<GameManager>.Shared;
@@ -33,10 +33,13 @@ public class GameManager: Singleton<GameManager>
   public GameState State { get; private set; }
 
   /// <summary> 게임 일시 정지일 때 false </summary>
-  public bool IsPlaying { get; private set; }
+  public bool IsPlaying => this.isPlaying;
   public event Action OnGameStart;
   public event Action OnGamePaused;
   public event Action OnGameResumed;
+
+  [SerializeField]
+  bool isPlaying;
 
   /// <summary> player에는 OnDie, OnLevelUp등의 이벤트가 존재해야 함 </summary>
   public void SetPlayerCharacter(IPlayer player) 
@@ -46,7 +49,6 @@ public class GameManager: Singleton<GameManager>
 
   void Start() {
     this.Init();
-    this.IsPlaying = true;
     this.State = GameState.InCombat;
   }
 

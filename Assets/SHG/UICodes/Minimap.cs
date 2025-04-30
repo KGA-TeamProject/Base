@@ -8,7 +8,7 @@ public class Minimap : VisualElement, IUIComponent
   public Camera Camera;
   public const string CONTAINER_NAME = "minimap_container";
   RenderTexture renderTexture;
-  public float ZoomLerp = 0.5f;
+  public float ZoomLerp = 0.8f;
 
   public Minimap()
   {

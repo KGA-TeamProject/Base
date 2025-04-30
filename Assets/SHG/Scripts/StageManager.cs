@@ -15,8 +15,19 @@ public class StageManager : Singleton<StageManager>
   public int CurrentStage { get; private set; }
   public event Action OnStageClear;
   HashSet<int> currentStageMonsterIds;
+  MapGenerator map;
 
   private int nextMonsterId = 0;
+
+  void Awake()
+  {
+    this.map = new MapGenerator();
+  }
+
+  void Start()
+  {
+    UIManager.Shared.MinimapCamera = this.map.minimapCamera;
+  }
   
   void OnClear() 
   {

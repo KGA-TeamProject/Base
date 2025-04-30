@@ -5,11 +5,12 @@ using UnityEngine.UIElements;
 
 public class CombatUI : MonoBehaviour 
 {
+  public const string PREFAB_NAME = "CombatUI";
   public bool IsShowing { get; private set; }
+  public Minimap minimap { get; private set; }
   IUIComponent CharacterHpUI;
   IUIComponent SkillListUI;
   const string CONTAINER_NAME = "combatUI_container";
-  Minimap minimap;
   VisualElement root;
   Transform playerTransform;
   Coroutine zoomMinimapRoutine;
@@ -23,7 +24,6 @@ public class CombatUI : MonoBehaviour
   {
     this.playerTransform = GameObject.FindWithTag("Player").transform;
     this.Show();
-    this.ZoomMinimap();
   }
 
   // Update is called once per frame
@@ -37,10 +37,9 @@ public class CombatUI : MonoBehaviour
 
   void Init()
   {
-    this.minimap = new();
-    this.minimap.Camera = GameObject.Find("Minimap Camera").GetComponent<Camera>();
     this.root = this.GetComponent<UIDocument>().rootVisualElement;
     this.root.AddToClassList(CombatUI.CONTAINER_NAME);
+    this.minimap = new ();
     this.root.Add(this.minimap);
   }
 
@@ -56,7 +55,7 @@ public class CombatUI : MonoBehaviour
     this.IsShowing = false;
   }
 
-  void ZoomMinimap()
+  public void ZoomMinimap()
   {
     if (this.zoomMinimapRoutine != null) {
       this.StopCoroutine(this.zoomMinimapRoutine);

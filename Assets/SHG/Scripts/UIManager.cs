@@ -7,6 +7,14 @@ public class UIManager : Singleton<UIManager>
 {
 
   public PopupUI? CurrentPopup { get; private set; }
+  public CombatUI combatUI;
+  public Camera MinimapCamera { set {
+    if (this.combatUI.minimap == null) {
+      return ;
+    }
+    this.combatUI.minimap.Camera = value;
+    this.combatUI.ZoomMinimap();
+  }}
 
   public enum PopupUI
   {
@@ -15,8 +23,14 @@ public class UIManager : Singleton<UIManager>
     StageEnd
   }
 
-  public void ShowCombatUI()
+  void Awake()
   {
-    var uiObject = GameObject.Find("CombatUI");
+    this.Init();
+  }
+
+  void Init()
+  {
+    var prefab = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
+    this.combatUI = Instantiate(prefab).GetComponent<CombatUI>();
   }
 }
