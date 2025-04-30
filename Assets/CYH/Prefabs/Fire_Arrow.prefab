@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2297601796738701994}
   - component: {fileID: 3509618975085539839}
   m_Layer: 7
-  m_Name: Arrow
+  m_Name: Fire_Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -75,7 +75,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 10
   rigid: {fileID: 2297601796738701994}
-  explosionEffect: {fileID: 7828834462941795764, guid: 7501dcd32431767468878f6c49542e1e, type: 3}
+  explosionEffect: {fileID: 3742533780279901621, guid: 7fe425a55d01f03419a67e465b2a74ab, type: 3}
   damage: 2
 --- !u!1001 &9186438534913188291
 PrefabInstance:
@@ -137,6 +137,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 813c797d33d49d24d914feb55a210474, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e6adab012a4ec304c9f00affc399c1d4, type: 2}
+    - target: {fileID: -7511558181221131132, guid: 813c797d33d49d24d914feb55a210474, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: c6b37ab97fba44846b71be1e2a8a4387, type: 2}
     - target: {fileID: 919132149155446097, guid: 813c797d33d49d24d914feb55a210474, type: 3}
       propertyPath: m_Name
       value: AP_Arrow

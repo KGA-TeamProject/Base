@@ -6,6 +6,7 @@ public class Projectile : MonoBehaviour
     public int speed;
     public Rigidbody rigid;
 
+    [SerializeField] private GameObject explosionEffect;
     [SerializeField] private int damage;
 
     private void Start()
@@ -16,6 +17,7 @@ public class Projectile : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Destroy(gameObject);
+        Instantiate(explosionEffect, transform.position, transform.rotation);
         
         // 충돌한 몬스터 체력 감소
         MonsterRayTest monsterRayTest = collision.gameObject.GetComponent<MonsterRayTest>();

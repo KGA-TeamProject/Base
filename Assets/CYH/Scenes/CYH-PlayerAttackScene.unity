@@ -166,10 +166,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e2fedef197366940b15af432478449d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3509618975085539839, guid: 7119b58c1ca526e4da173e135ccfd3f6, type: 3}
+  prefab: {fileID: 3509618975085539839, guid: 95e3ec389b3862545b182580ad162bf5, type: 3}
   shootCount: 3
   angle: 15
-  delaysecond: 0.25
+  delaysecond: 1
   sightRange: 10
   isMove: 0
 --- !u!1 &275334641
