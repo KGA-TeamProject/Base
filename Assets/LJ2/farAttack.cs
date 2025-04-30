@@ -24,7 +24,7 @@ public class farAttack : MonoBehaviour
 
     [SerializeField] private float shotPower;
 
-    [SerializeField] Transform attackPos;
+    
 
     
 
@@ -56,17 +56,20 @@ public class farAttack : MonoBehaviour
     // attackRadius 안에 들어오면
     private void detactPlayer()
     {
-        if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0) // 오버랩스피어에 플레이어 레이어를 가진 콜라이더가 하나라도 있으면
+        if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0)
         {
-            // 총구가 플레이어를 바라봐야함.
+            
             Vector3 lookPos = new Vector3(targetPos.position.x, transform.position.y, targetPos.position.z);
             transform.LookAt(lookPos);
 
 
             if (attackCoroutine == null)
+            { 
                 attackCoroutine = StartCoroutine(AttackCoroutine());
+                Debug.Log("Attack Start");   
+            }
         }
-        else // 아니면
+        else
         {
             monsterController.Move(targetPos);
 
@@ -105,11 +108,11 @@ public class farAttack : MonoBehaviour
         {
             if (!bullet.activeSelf)
             {
-                bullet.transform.position = attackPos.position;
-                bullet.transform.rotation = attackPos.rotation;
+                bullet.transform.position = gameObject.transform.position;
+                bullet.transform.rotation = gameObject.transform.rotation;
                 attackRigid = bullet.GetComponent<Rigidbody>();
                 bullet.SetActive(true);
-                attackRigid.AddForce(attackPos.forward * shotPower, ForceMode.Impulse);
+                attackRigid.AddForce(gameObject.transform.forward * shotPower, ForceMode.Impulse);
 
                 return;
             }
