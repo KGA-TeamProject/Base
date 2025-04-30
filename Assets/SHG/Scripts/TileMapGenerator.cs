@@ -292,8 +292,8 @@ struct Walker
         newPos.x += 1;
         break;
     }
-    newPos.x = Math.Clamp(newPos.x, 1, MapSize.x - 2);
-    newPos.y = Math.Clamp(newPos.y, 1, MapSize.y - 2);
+    newPos.x = Math.Clamp(newPos.x, 2, MapSize.x - 2);
+    newPos.y = Math.Clamp(newPos.y, 2, MapSize.y - 2);
     return (newPos);
   }
 
