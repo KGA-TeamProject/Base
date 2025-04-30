@@ -64,7 +64,7 @@ public class PlayerAttack : MonoBehaviour
 
             if (monsterRayTest != null)
             {
-                Debug.DrawLine(transform.position, hitInfo.point, Color.green);
+                Debug.DrawLine(transform.position, hitInfo.point, Color.red);
                 if (shootCoroutine == null)
                 {
                     shootCoroutine = StartCoroutine(ShootRoutine());
