@@ -78,7 +78,12 @@ public class PlayerHealthBar : MonoBehaviour
         if (currentHP <= 0)
         {
             // 플레이어 사망
-            Destroy(gameObject);
+            Die();
         }
+    }
+
+    private void Die()
+    {
+        Destroy(gameObject);
     }
 }
