@@ -38,6 +38,7 @@ public class Inventory : MonoBehaviour
     }
     #endregion
 
+    #region Item
     public List<Item> items;
 
     // 아이템 추가
@@ -89,12 +90,14 @@ public class Inventory : MonoBehaviour
         // 아이템 제거 로직
         items.Remove(item); // 아이템 제거
     }
-    
+
 
     // 아이템 목록 반환
     //public List<Item> GetItems()
     //{
     //    return items; // 아이템 목록 반환
     //}
+    #endregion
+
 
 }

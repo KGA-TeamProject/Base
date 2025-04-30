@@ -16,7 +16,7 @@ public class Shooter : MonoBehaviour
         // 총알을 발사하는 메서드
         GameObject instance = Instantiate(bulletPrefab, muzzlePoint.position, muzzlePoint.rotation); // 총알 인스턴스 생성
                                                                                                      // 머즐 포인트 위치와 회전으로 총알 생성
-                                                                                                     //Destroy(instance, 3); // 3초 후 총알 삭제
+        Destroy(instance, 3); // 3초 후 총알 삭제
 
         Rigidbody bulletRigidbody = instance.GetComponent<Rigidbody>(); // 총알의 리지드바디 컴포넌트 가져오기
         bulletRigidbody.velocity = muzzlePoint.forward * bulletSpeed; // 총알의 속도 설정

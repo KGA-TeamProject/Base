@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class FireArrow : Skill
 {
     [Header("Conponents")]
     [SerializeField] Rigidbody rigid;
@@ -10,12 +10,15 @@ public class Bullet : MonoBehaviour
     [Header("Propertis")]
     [SerializeField] GameObject explosionEffectPrefab;
 
-    //public int attackPoint;
+    //public float damage; // 스킬 데미지
+    //public float range; // 스킬 사거리
+    //public float cooldown; // 스킬 쿨타임
 
-    //private void Awake()
-    //{
-    //    rigid = GetComponent<Rigidbody>();
-    //}
+    public FireArrow()
+    {
+        SkillName = "화염 화살"; // 스킬 이름 설정
+        SkillDescription = "화염으로 된 화살을 발사"; // 스킬 설명 설정
+    }
 
     private void Update()
     {
@@ -23,7 +26,6 @@ public class Bullet : MonoBehaviour
         {
             transform.forward = rigid.velocity; // 불릿의 앞방향이 속도 방향으로
         }
-
     }
 
     private void OnCollisionEnter(Collision collision) // OnCollisionEnter -> 충돌체가 접촉이 시작될 때
@@ -50,10 +52,4 @@ public class Bullet : MonoBehaviour
         //    rigidbody.AddForce(transform.forward * 10f, ForceMode.Impulse); // 앞쪽으로 10f만큼 밀께
         //}
     }
-
-    //private void Attack(IDamagable damagable)   // 몬스터에 IDamagable 이 있기 때문에 damagable -> Monster 가 됨. 
-    //{
-    //    // TODO : 
-    //    damagable.TakeDamage(gameObject, attackPoint);  // 몬스터의 TakeDamage가 실행 됨
-    //}
 }
