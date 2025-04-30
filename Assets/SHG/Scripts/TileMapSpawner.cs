@@ -22,12 +22,10 @@ public class TileMapSpawner : MonoBehaviour
   Vector2Int halfMapSize;
   bool isMapReady = false;
 
-  public void SetTilePrefabs(params (TileMapGenerator.Tile tileType, string prefabName)[] tiles) 
+  public void SetTilePrefabs(TileMapGenerator.Tile tileType, string prefabName) 
   {
-    foreach (var (tileType, prefabName) in tiles) {
-      this.tilePrefabNames[tileType] = prefabName;
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/" + prefabName);
-    }
+    this.tilePrefabNames[tileType] = prefabName;
+    PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/" + prefabName);
   }
   public void ReleaseTimePrefab(params (TileMapGenerator.Tile tileType, string prefabName)[] tiles)
   {
@@ -62,6 +60,8 @@ public class TileMapSpawner : MonoBehaviour
   {
     this.isMapReady = true;
     this.SpawnTiles();
+    // TODO: Move Start Game
+    GameManager.Shared.StartGame();
   }
 
   void ScalePrefabs()

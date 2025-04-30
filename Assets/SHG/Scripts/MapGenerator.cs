@@ -22,14 +22,13 @@ public class MapGenerator
     var containerPrefab = (GameObject)Resources.Load("Prefabs/" + MapGenerator.CONTAINER_NAME);
     this.container = Object.Instantiate(containerPrefab);
     this.tileMapSpawner = this.container.GetComponent<TileMapSpawner>();
-    this.SetMapTiles();
   }
 
-  void SetMapTiles()
+  public void SetMapTiles(params (TileMapGenerator.Tile tileType, string prefabName)[] tiles)
   {
-    this.tileMapSpawner.SetTilePrefabs(
-        (TileMapGenerator.Tile.Floor, "floor_grass"),
-        (TileMapGenerator.Tile.Wall, "wall_brick_brown")
-        );
+    foreach (var (tileType, prefabName) in tiles) {
+      this.tileMapSpawner.SetTilePrefabs(tileType, prefabName);
+    }
   }
 }
+

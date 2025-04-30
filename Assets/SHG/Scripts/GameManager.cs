@@ -57,6 +57,11 @@ public class GameManager: Singleton<GameManager>
     //GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.FirstScene);
   }
 
+  public void StartGame()
+  {
+    this.isPlaying = true;
+  }
+
   /*
    * event
    */
