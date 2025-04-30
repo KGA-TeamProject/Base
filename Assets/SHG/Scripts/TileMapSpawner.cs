@@ -19,11 +19,11 @@ public class TileMapSpawner : MonoBehaviour
       floorPercentage: 0.15f
       );
   Grid grid;
-  TileMapGenerator.Tile [,] tiles;
   TileMapGenerator mapGenerator;
   Vector3 tileSize = new(1.0f, 1.0f, 1.0f);
   int WallPosY = 1;
   Vector2Int halfMapSize;
+  bool isMapReady = false;
 
   void Awake() 
   {
@@ -33,8 +33,7 @@ public class TileMapSpawner : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    this.tiles = this.mapGenerator.Generate();
-    this.SpawnTiles();
+    this.StartCoroutine(this.mapGenerator.Generate(this.OnMapGenerated));
   }
 
   // Update is called once per frame
@@ -53,6 +52,12 @@ public class TileMapSpawner : MonoBehaviour
     PrefabObjectPool.Shared.RegisterPrefab("wallTile", this.wallTile, 100);
   }
 
+  void OnMapGenerated() 
+  {
+    this.isMapReady = true;
+    this.SpawnTiles();
+  }
+
   void ScalePrefabs()
   {
     
@@ -60,9 +65,9 @@ public class TileMapSpawner : MonoBehaviour
 
   void SpawnTiles() 
   {
-    for (int y = 0; y < this.tiles.GetLength(0); y++) {
-      for (int x = 0; x < this.tiles.GetLength(1); x++) {
-        var tile = this.tiles[y, x];
+    for (int y = 0; y < this.mapGenerator.tiles.GetLength(0); y++) {
+      for (int x = 0; x < this.mapGenerator.tiles.GetLength(1); x++) {
+        var tile = this.mapGenerator.tiles[y, x];
         if (tile != TileMapGenerator.Tile.None) {
           this.SpawnTile(tile, new(x, y));
         }
@@ -79,9 +84,6 @@ public class TileMapSpawner : MonoBehaviour
       TileMapGenerator.Tile.None => null,
       _ => null
     };
-    if (tile == TileMapGenerator.Tile.Obstacle) {
-      Debug.Log($"o {pos.x}, {pos.y}");
-    }
     var cellPos = new Vector3Int(
         pos.x - this.halfMapSize.x,
         pos.y - this.halfMapSize.y, 0);

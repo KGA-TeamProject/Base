@@ -401,8 +401,8 @@ MonoBehaviour:
     MapSize: {x: 200, y: 200}
     StartPos: {x: 100, y: 100}
     WalkerMaximum: 10
-    FloorPercentage: 0.518
-    maxIteration: 5674
+    FloorPercentage: 0.315
+    maxIteration: 5651
 --- !u!1 &2111170234
 GameObject:
   m_ObjectHideFlags: 0

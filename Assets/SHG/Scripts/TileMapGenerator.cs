@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class TileMapGenerator 
@@ -44,7 +44,7 @@ public class TileMapGenerator
 
   public Config config { get; private set; }
   Walker[] walkers;
-  Tile[,] tiles;
+  public Tile[,] tiles { get; private set; }
   int numberOfActiveWalkers = 0;
   int floorCount = 0;
   int maxFloorCount;
@@ -63,7 +63,7 @@ public class TileMapGenerator
     this.maxFloorCount = (int)((float)(this.config.MapSize.x * this.config.MapSize.y) * this.config.FloorPercentage);
   }
 
-  public Tile[,] Generate() 
+  public IEnumerator Generate(Action callback = null) 
   {
     var walker = this.AwakeWalker(this.config.StartPos); 
     while (this.floorCount < this.maxFloorCount && 
@@ -79,8 +79,10 @@ public class TileMapGenerator
       this.iteration += 1;
     }
     this.FillWalls();
+    yield return (null);
     this.FillHoles();
-    return (this.tiles);
+    yield return (null);
+    callback?.Invoke();
   }
 
   void FillWalls()
