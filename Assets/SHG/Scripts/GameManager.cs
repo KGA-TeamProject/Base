@@ -28,11 +28,12 @@ public class GameManager: Singleton<GameManager>
     PrefabObjectPool.CreateInstance();
   }
 
-  new public GameManager Shared => Singleton<GameManager>.Shared;
+  new public static GameManager Shared => Singleton<GameManager>.Shared;
 
   public GameState State { get; private set; }
+
   /// <summary> 게임 일시 정지일 때 false </summary>
-  public bool IsPlaying { get; }
+  public bool IsPlaying { get; private set; }
   public event Action OnGameStart;
   public event Action OnGamePaused;
   public event Action OnGameResumed;
@@ -45,6 +46,8 @@ public class GameManager: Singleton<GameManager>
 
   void Start() {
     this.Init();
+    this.IsPlaying = true;
+    this.State = GameState.InCombat;
   }
 
   void Init() 
