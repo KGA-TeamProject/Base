@@ -9,7 +9,7 @@ public class Singleton<T>: MonoBehaviour where T: MonoBehaviour
     if (Singleton<T>.instance != null) {
       return ;
     }
-    var instance = new GameObject().AddComponent<T>();  
+    var instance = new UnityEngine.GameObject().AddComponent<T>();  
     instance.name = instance.GetType().ToString();
     UnityEngine.Object.DontDestroyOnLoad(instance);
     Singleton<T>.instance = instance;
@@ -21,5 +21,5 @@ public class Singleton<T>: MonoBehaviour where T: MonoBehaviour
     Singleton<T>.instance = null;
   }
 
-  protected static T Shared => Singleton<T>.instance;
+  public static T Shared => Singleton<T>.instance;
 }
