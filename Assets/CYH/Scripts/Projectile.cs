@@ -17,12 +17,12 @@ public class Projectile : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Destroy(gameObject);
-        Instantiate(explosionEffect, transform.position, transform.rotation);
         
         // 충돌한 몬스터 체력 감소
         MonsterRayTest monsterRayTest = collision.gameObject.GetComponent<MonsterRayTest>();
         if (monsterRayTest != null)
         {
+            Instantiate(explosionEffect, transform.position, transform.rotation);
             collision.gameObject.GetComponent<MonsterRayTest>().hp -= damage;
             Debug.Log($"몬스터 체력 : {collision.gameObject.GetComponent<MonsterRayTest>().hp}");
         }
