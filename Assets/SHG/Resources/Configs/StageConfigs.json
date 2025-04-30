@@ -1,0 +1,16 @@
+{
+  "Maps": [
+    {
+      "Floor": "floor_grass",
+      "Wall": "wall_brick_brown"
+    },
+    {
+      "Floor": "floor_dirt",
+      "Wall": "wall_metal"
+    },
+    {
+      "Floor": "floor_sand",
+      "Wall": "wall_rock"
+    }
+  ]
+}

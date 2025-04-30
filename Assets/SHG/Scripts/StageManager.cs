@@ -15,8 +15,37 @@ public class StageManager : Singleton<StageManager>
   public int CurrentStage { get; private set; }
   public event Action OnStageClear;
   HashSet<int> currentStageMonsterIds;
+  MapGenerator map;
+  StageConfig config;
 
   private int nextMonsterId = 0;
+
+  void Awake()
+  {
+    this.LoadConfigs();
+    this.map = new MapGenerator();
+    this.ApplyStageConfig(3);
+  }
+
+  void Start()
+  {
+    UIManager.Shared.MinimapCamera = this.map.minimapCamera;
+  }
+
+  void LoadConfigs()
+  {
+    var json = Resources.Load<TextAsset>("Configs/StageConfigs").text;
+    this.config = JsonUtility.FromJson<StageConfig>(json);
+  }
+
+  void ApplyStageConfig(int stage)
+  {
+    var maps = this.config.Maps[stage - 1];
+    this.map.SetMapTiles(
+        (TileMapGenerator.Tile.Floor, maps.Floor),
+        (TileMapGenerator.Tile.Wall , maps.Wall)
+        );
+  }
   
   void OnClear() 
   {
@@ -39,5 +68,17 @@ public class StageManager : Singleton<StageManager>
   void RemoveMonster(IMonster monster)
   {
     this.currentStageMonsterIds.Remove(monster.Id);
+  }
+}
+
+[System.Serializable]
+public class StageConfig
+{
+  public MapConfig[] Maps;
+  [System.Serializable]
+  public struct MapConfig
+  {
+    public string Floor;
+    public string Wall;
   }
 }
