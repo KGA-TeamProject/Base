@@ -168,8 +168,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 3509618975085539839, guid: 7119b58c1ca526e4da173e135ccfd3f6, type: 3}
   shootCount: 3
-  angle: 30
-  sightRange: 5
+  angle: 15
+  delaysecond: 0.25
+  sightRange: 10
   isMove: 0
 --- !u!1 &275334641
 GameObject:
@@ -727,7 +728,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8508255091531207093, guid: f29bf4e5fce354541bdda2a57a0c1f2b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 3.27
       objectReference: {fileID: 0}
     - target: {fileID: 8508255091531207093, guid: f29bf4e5fce354541bdda2a57a0c1f2b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -735,7 +736,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8508255091531207093, guid: f29bf4e5fce354541bdda2a57a0c1f2b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.68
       objectReference: {fileID: 0}
     - target: {fileID: 8508255091531207093, guid: f29bf4e5fce354541bdda2a57a0c1f2b, type: 3}
       propertyPath: m_LocalRotation.w

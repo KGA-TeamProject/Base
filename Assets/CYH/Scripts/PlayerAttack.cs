@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
@@ -7,25 +6,50 @@ public class PlayerAttack : MonoBehaviour
     public Projectile prefab;
 
     public int shootCount;
-    public float angle = 15;
-    
-    [SerializeField] public float sightRange;
-    [SerializeField] private bool isMove;
+    public float angle;
+    public float delaysecond;
+    private Coroutine shootCoroutine;
+
+    [SerializeField] public float sightRange;       // 적 탐지 범위
+    [SerializeField] private bool isMove = false; 
 
     private void Update()
     {
-        DetectMonster();
+        // 플레이어가 움직이지 않을 때만 공격
+        if (isMove == false)
+        {
+            DetectMonster();
+        }
+    }
+
+    IEnumerator ShootRoutine()
+    {
+        float timer = 0;
+
+        while (true)
+        {
+            timer += Time.deltaTime;
+
+            // delaysecond 마다 발사 ex) delaysecond = 0.5f -> 2번/초
+            if (timer >= delaysecond)
+            {
+                Shoot();
+                timer = 0f;
+            }
+            yield return null;
+        }
     }
 
     public void Shoot()
     {
-        // 발사 총알 개수에 따른 발사 각도 조절
+        Debug.Log("발사");
+        
+        // 발사 화살 개수에 따른 발사 각도 조절
         for (int i = 0; i < shootCount; i++)
         {
             float arrowAngle = -angle / 2 + angle / (shootCount + 1) * (i + 1);
             Quaternion arrowRotation = Quaternion.Euler(0, arrowAngle, 0);
 
-            // 화살 
             Projectile instance = Instantiate(prefab, transform.position, transform.rotation * arrowRotation);
             instance.rigid.velocity = instance.transform.forward * instance.speed;
         }
@@ -37,12 +61,23 @@ public class PlayerAttack : MonoBehaviour
         {
             // 해당 스크립트를 가진 오브젝트 판별 후 공격
             MonsterRayTest monsterRayTest = hitInfo.collider.gameObject.GetComponent<MonsterRayTest>();
-            
+
             if (monsterRayTest != null)
             {
                 Debug.DrawLine(transform.position, hitInfo.point, Color.green);
-                Debug.Log($" 맞음 : {hitInfo.collider.gameObject.name}");
-                Shoot();
+                if (shootCoroutine == null)
+                {
+                    shootCoroutine = StartCoroutine(ShootRoutine());
+                }
+            }
+            else
+            {
+                // 범위에 몬스터가 없으면 발사 코루틴 삭제
+                if (shootCoroutine != null)
+                {
+                    StopCoroutine(shootCoroutine);
+                    shootCoroutine = null;
+                }
             }
         }
     }
