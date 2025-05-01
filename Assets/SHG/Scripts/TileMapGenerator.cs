@@ -39,16 +39,32 @@ public class TileMapGenerator
     None,
     Floor,
     Wall,
-    Obstacle
+    ObstacleSmall
+  }
+
+  public enum Edge
+  {
+    Top,
+    Left,
+    Right,
+    Bottom,
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight
   }
 
   public Config config { get; private set; }
-  Walker[] walkers;
   public Tile[,] tiles { get; private set; }
+  public Vector2Int[] EdgePositions { get; private set; }
+  public Vector2Int CenterPosition { get; private set; }
+  Walker[] walkers;
   int numberOfActiveWalkers = 0;
   int floorCount = 0;
   int maxFloorCount;
   int iteration = 0;
+  int width;
+  int height;
 
   public TileMapGenerator(Config config) 
   {
@@ -58,6 +74,12 @@ public class TileMapGenerator
 
   void Init()
   {
+    this.EdgePositions = new Vector2Int[Enum.GetValues(typeof(Edge)).Length];
+    for (int i = 0; i < this.EdgePositions.Length; ++i) {
+      this.EdgePositions[i] = this.config.StartPos;
+    }
+    this.width = this.config.MapSize.x;
+    this.height = this.config.MapSize.y;
     this.walkers = new Walker[this.config.WalkerMaximum];
     this.tiles = new Tile[this.config.MapSize.x, this.config.MapSize.y];
     this.maxFloorCount = (int)((float)(this.config.MapSize.x * this.config.MapSize.y) * this.config.FloorPercentage);
@@ -81,6 +103,7 @@ public class TileMapGenerator
     this.FillWalls();
     yield return (null);
     this.FillHoles();
+    this.SetCenter();
     yield return (null);
     callback?.Invoke();
   }
@@ -150,9 +173,44 @@ public class TileMapGenerator
       }
       var pos = this.walkers[i].Pos; 
       if (this.tiles[pos.y, pos.x] == Tile.None) {
-        this.tiles[pos.y, pos.x] = Tile.Floor;
+        this.SetTile(Tile.Floor, pos);
+        this.UpdateEdge(pos);
         this.floorCount += 1;
       }
+    }
+  }
+
+  void UpdateEdge(Vector2Int pos)
+  {
+    if (this.EdgePositions[(int)Edge.Top].y < pos.y) {
+      this.EdgePositions[(int)Edge.Top] = pos;
+    }
+    if (this.EdgePositions[(int)Edge.Bottom].y > pos.y) {
+      this.EdgePositions[(int)Edge.Bottom] = pos;
+    }
+    if (this.EdgePositions[(int)Edge.Left].x > pos.x) {
+      this.EdgePositions[(int)Edge.Left] = pos;
+    }
+    if (this.EdgePositions[(int)Edge.Right].x < pos.x) {
+      this.EdgePositions[(int)Edge.Right] = pos;
+    }
+    var topLeft = this.EdgePositions[(int)Edge.TopLeft];
+    if (this.width - topLeft.x + topLeft.y < this.width - pos.x + pos.y) {
+      this.EdgePositions[(int)Edge.TopLeft] = pos;
+    }
+    var topRight = this.EdgePositions[(int)Edge.TopRight];
+    if (topRight.x + topRight.y < pos.x + pos.y) {
+      this.EdgePositions[(int)Edge.TopRight] = pos;
+    }
+    var bottomLeft = this.EdgePositions[(int)Edge.BottomLeft];
+    if (this.width - bottomLeft.x + this.height - bottomLeft.y 
+        < this.width - pos.x + height - pos.y) {
+      this.EdgePositions[(int)Edge.BottomLeft] = pos;
+    }
+    var bottomRight = this.EdgePositions[(int)Edge.BottomRight];
+    if (bottomRight.x + this.height - bottomRight.y < 
+        pos.x + this.height - pos.y) {
+      this.EdgePositions[(int)Edge.BottomRight] = pos;
     }
   }
 
@@ -169,7 +227,7 @@ public class TileMapGenerator
     }
     visited[pos.y, pos.x] = true;
     if (this.IsTileType(Tile.None, pos)) {
-      this.SetTile(Tile.Obstacle, pos);
+      this.SetTile(Tile.Floor, pos);
     }
     for (int i = -1; i < 2; ++i) {
       for (int j = -1; j < 2; ++j) {
@@ -181,6 +239,16 @@ public class TileMapGenerator
         }
       }
     }
+  }
+
+  void SetCenter()
+  {
+    var center = new Vector2Int();
+    foreach (var edge in this.EdgePositions) {
+       center += edge; 
+    }
+    center /= this.EdgePositions.Length;
+    this.CenterPosition = center;
   }
 
   void RandomlyRemoveWalker()

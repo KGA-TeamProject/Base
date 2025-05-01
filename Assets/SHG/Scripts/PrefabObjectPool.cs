@@ -41,6 +41,7 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
         prefabName, (prefab: loaded, size: poolSize)
         ); 
   }
+
   public void RegisterPrefab(string name, GameObject prefab, int poolSize = PrefabObjectPool.POOL_SIZE)
   {
     if (this.pools.ContainsKey(name))
@@ -58,6 +59,10 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
     if (pooledObject == null)
       pooledObject = Instantiate(this.pools[prefabName].prefab);
     return (pooledObject);
+  }
+  
+  public void ModifyPrefab()
+  {
   }
 
   public void ReturnObject(UnityEngine.GameObject pooledObject, string prefabName) {

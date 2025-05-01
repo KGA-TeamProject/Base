@@ -83,14 +83,14 @@ public class TileMapSpawner : MonoBehaviour
 
   void SpawnTile(TileMapGenerator.Tile tile, Vector2Int pos)
   {
-    string prefabName = tile switch {
+    string groundPrefab = tile switch {
       TileMapGenerator.Tile.Floor => this.tilePrefabNames[TileMapGenerator.Tile.Floor],
       TileMapGenerator.Tile.Wall => this.tilePrefabNames[TileMapGenerator.Tile.Wall],
-      TileMapGenerator.Tile.Obstacle => this.tilePrefabNames[TileMapGenerator.Tile.Floor],
+      TileMapGenerator.Tile.ObstacleSmall => this.tilePrefabNames[TileMapGenerator.Tile.Floor],
       TileMapGenerator.Tile.None => null,
       _ => null
     };
-    var tileObj = PrefabObjectPool.Shared.GetPooledObject(prefabName);
+    var tileObj = PrefabObjectPool.Shared.GetPooledObject(groundPrefab);
     var cellPos = new Vector3Int(
         pos.x - this.halfMapSize.x,
         pos.y - this.halfMapSize.y, 0);
@@ -98,7 +98,7 @@ public class TileMapSpawner : MonoBehaviour
     this.PutTileObj(tileObj, worldPos);
 
     if (tile == TileMapGenerator.Tile.Wall) {
-      var wallObj = PrefabObjectPool.Shared.GetPooledObject(prefabName); 
+      var wallObj = PrefabObjectPool.Shared.GetPooledObject(groundPrefab); 
       var wallPos = this.grid.GetCellCenterWorld(
           new (cellPos.x, cellPos.y, this.WallPosY)
           );
