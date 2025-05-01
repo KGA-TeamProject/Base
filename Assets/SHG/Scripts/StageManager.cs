@@ -15,7 +15,7 @@ public class StageManager : Singleton<StageManager>
   public int CurrentStage { get; private set; }
   public event Action OnStageClear;
   HashSet<int> currentStageMonsterIds;
-  MapGenerator map;
+  MapManager map;
   StageConfig config;
 
   private int nextMonsterId = 0;
@@ -23,7 +23,7 @@ public class StageManager : Singleton<StageManager>
   void Awake()
   {
     this.LoadConfigs();
-    this.map = new MapGenerator();
+    this.map = new MapManager();
     this.ApplyStageConfig(1);
   }
 

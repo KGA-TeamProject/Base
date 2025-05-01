@@ -6,7 +6,7 @@
         "Wall": "wall_brick_brown"
       },
       "Objects": {
-        "Small": [],
+        "Small": ["small_grass", "small_grass_swamp"],
         "Medium": [],
         "Large": []
       }
