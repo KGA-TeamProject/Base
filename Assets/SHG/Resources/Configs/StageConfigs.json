@@ -1,16 +1,37 @@
 {
   "Maps": [
     {
-      "Floor": "floor_grass",
-      "Wall": "wall_brick_brown"
+      "Tiles": {
+        "Floor": "floor_grass",
+        "Wall": "wall_brick_brown"
+      },
+      "Objects": {
+        "Small": [],
+        "Medium": [],
+        "Large": []
+      }
     },
     {
-      "Floor": "floor_dirt",
-      "Wall": "wall_metal"
+      "Tiles": {
+        "Floor": "floor_dirt",
+        "Wall": "wall_metal"
+      },
+      "Objects": {
+        "Small": [],
+        "Medium": [],
+        "Large": []
+      }
     },
     {
-      "Floor": "floor_sand",
-      "Wall": "wall_rock"
+      "Tiles": {
+        "Floor": "floor_sand",
+        "Wall": "wall_rock"
+      },
+      "Objects": {
+        "Small": [],
+        "Medium": [],
+        "Large": []
+      }
     }
   ]
 }

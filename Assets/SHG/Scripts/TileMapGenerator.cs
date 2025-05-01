@@ -34,28 +34,8 @@ public class TileMapGenerator
     }
   }
 
-  public enum Tile
-  {
-    None,
-    Floor,
-    Wall,
-    ObstacleSmall
-  }
-
-  public enum Edge
-  {
-    Top,
-    Left,
-    Right,
-    Bottom,
-    TopLeft,
-    TopRight,
-    BottomLeft,
-    BottomRight
-  }
-
   public Config config { get; private set; }
-  public Tile[,] tiles { get; private set; }
+  public MapTypes.TileType[,] tiles { get; private set; }
   public Vector2Int[] EdgePositions { get; private set; }
   public Vector2Int CenterPosition { get; private set; }
   Walker[] walkers;
@@ -74,14 +54,14 @@ public class TileMapGenerator
 
   void Init()
   {
-    this.EdgePositions = new Vector2Int[Enum.GetValues(typeof(Edge)).Length];
+    this.EdgePositions = new Vector2Int[Enum.GetValues(typeof(MapTypes.TileEdge)).Length];
     for (int i = 0; i < this.EdgePositions.Length; ++i) {
       this.EdgePositions[i] = this.config.StartPos;
     }
     this.width = this.config.MapSize.x;
     this.height = this.config.MapSize.y;
     this.walkers = new Walker[this.config.WalkerMaximum];
-    this.tiles = new Tile[this.config.MapSize.x, this.config.MapSize.y];
+    this.tiles = new MapTypes.TileType[this.config.MapSize.x, this.config.MapSize.y];
     this.maxFloorCount = (int)((float)(this.config.MapSize.x * this.config.MapSize.y) * this.config.FloorPercentage);
   }
 
@@ -128,13 +108,13 @@ public class TileMapGenerator
     }
     visited[pos.y, pos.x] = true;
     bool isNearFloor = false;
-    bool isWall = this.IsTileType(Tile.Wall, pos);
+    bool isWall = this.IsTileType(MapTypes.TileType.Wall, pos);
     for (int i = -1; i < 2; ++i) {
       for (int j = -1; j < 2; ++j) {
         var cur = new Vector2Int(pos.x + i, pos.y + j);
         if ((i != 0 || j != 0) &&
             this.IsInRange(cur)) {
-          if (this.IsTileType(Tile.Floor, cur)) {
+          if (this.IsTileType(MapTypes.TileType.Floor, cur)) {
             isNearFloor = true;
           }
           else if (!isWall) {
@@ -143,8 +123,8 @@ public class TileMapGenerator
         }
       }
     }
-    if (isNearFloor && !this.IsTileType(Tile.Floor, pos)) {
-      this.SetTile(Tile.Wall, pos);
+    if (isNearFloor && !this.IsTileType(MapTypes.TileType.Floor, pos)) {
+      this.SetTile(MapTypes.TileType.Wall, pos);
     }
   }
 
@@ -155,12 +135,12 @@ public class TileMapGenerator
       pos.y < this.config.MapSize.y);
   }
 
-  bool IsTileType(Tile tileType, Vector2Int pos) 
+  bool IsTileType(MapTypes.TileType tileType, Vector2Int pos) 
   {
     return (this.tiles[pos.y, pos.x] == tileType);
   }
 
-  void SetTile(Tile tileType, Vector2Int pos) 
+  void SetTile(MapTypes.TileType tileType, Vector2Int pos) 
   {
     this.tiles[pos.y, pos.x] = tileType;
   }
@@ -172,8 +152,8 @@ public class TileMapGenerator
         return ;
       }
       var pos = this.walkers[i].Pos; 
-      if (this.tiles[pos.y, pos.x] == Tile.None) {
-        this.SetTile(Tile.Floor, pos);
+      if (this.tiles[pos.y, pos.x] == MapTypes.TileType.None) {
+        this.SetTile(MapTypes.TileType.Floor, pos);
         this.UpdateEdge(pos);
         this.floorCount += 1;
       }
@@ -182,35 +162,35 @@ public class TileMapGenerator
 
   void UpdateEdge(Vector2Int pos)
   {
-    if (this.EdgePositions[(int)Edge.Top].y < pos.y) {
-      this.EdgePositions[(int)Edge.Top] = pos;
+    if (this.EdgePositions[(int)MapTypes.TileEdge.Top].y < pos.y) {
+      this.EdgePositions[(int)MapTypes.TileEdge.Top] = pos;
     }
-    if (this.EdgePositions[(int)Edge.Bottom].y > pos.y) {
-      this.EdgePositions[(int)Edge.Bottom] = pos;
+    if (this.EdgePositions[(int)MapTypes.TileEdge.Bottom].y > pos.y) {
+      this.EdgePositions[(int)MapTypes.TileEdge.Bottom] = pos;
     }
-    if (this.EdgePositions[(int)Edge.Left].x > pos.x) {
-      this.EdgePositions[(int)Edge.Left] = pos;
+    if (this.EdgePositions[(int)MapTypes.TileEdge.Left].x > pos.x) {
+      this.EdgePositions[(int)MapTypes.TileEdge.Left] = pos;
     }
-    if (this.EdgePositions[(int)Edge.Right].x < pos.x) {
-      this.EdgePositions[(int)Edge.Right] = pos;
+    if (this.EdgePositions[(int)MapTypes.TileEdge.Right].x < pos.x) {
+      this.EdgePositions[(int)MapTypes.TileEdge.Right] = pos;
     }
-    var topLeft = this.EdgePositions[(int)Edge.TopLeft];
+    var topLeft = this.EdgePositions[(int)MapTypes.TileEdge.TopLeft];
     if (this.width - topLeft.x + topLeft.y < this.width - pos.x + pos.y) {
-      this.EdgePositions[(int)Edge.TopLeft] = pos;
+      this.EdgePositions[(int)MapTypes.TileEdge.TopLeft] = pos;
     }
-    var topRight = this.EdgePositions[(int)Edge.TopRight];
+    var topRight = this.EdgePositions[(int)MapTypes.TileEdge.TopRight];
     if (topRight.x + topRight.y < pos.x + pos.y) {
-      this.EdgePositions[(int)Edge.TopRight] = pos;
+      this.EdgePositions[(int)MapTypes.TileEdge.TopRight] = pos;
     }
-    var bottomLeft = this.EdgePositions[(int)Edge.BottomLeft];
+    var bottomLeft = this.EdgePositions[(int)MapTypes.TileEdge.BottomLeft];
     if (this.width - bottomLeft.x + this.height - bottomLeft.y 
         < this.width - pos.x + height - pos.y) {
-      this.EdgePositions[(int)Edge.BottomLeft] = pos;
+      this.EdgePositions[(int)MapTypes.TileEdge.BottomLeft] = pos;
     }
-    var bottomRight = this.EdgePositions[(int)Edge.BottomRight];
+    var bottomRight = this.EdgePositions[(int)MapTypes.TileEdge.BottomRight];
     if (bottomRight.x + this.height - bottomRight.y < 
         pos.x + this.height - pos.y) {
-      this.EdgePositions[(int)Edge.BottomRight] = pos;
+      this.EdgePositions[(int)MapTypes.TileEdge.BottomRight] = pos;
     }
   }
 
@@ -226,15 +206,15 @@ public class TileMapGenerator
       return ;
     }
     visited[pos.y, pos.x] = true;
-    if (this.IsTileType(Tile.None, pos)) {
-      this.SetTile(Tile.Floor, pos);
+    if (this.IsTileType(MapTypes.TileType.None, pos)) {
+      this.SetTile(MapTypes.TileType.Floor, pos);
     }
     for (int i = -1; i < 2; ++i) {
       for (int j = -1; j < 2; ++j) {
         var cur = new Vector2Int(pos.x + i, pos.y + j);
         if ((i != 0 || j != 0) &&
             this.IsInRange(cur) &&
-            !this.IsTileType(Tile.Wall, cur)) {
+            !this.IsTileType(MapTypes.TileType.Wall, cur)) {
           this.FillHoleFrom(cur, visited);
         }
       }

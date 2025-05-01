@@ -24,11 +24,15 @@ public class MapGenerator
     this.tileMapSpawner = this.container.GetComponent<TileMapSpawner>();
   }
 
-  public void SetMapTiles(params (TileMapGenerator.Tile tileType, string prefabName)[] tiles)
+  public void SetMapTiles(params (MapTypes.TileType tileType, string prefabName)[] tiles)
   {
     foreach (var (tileType, prefabName) in tiles) {
       this.tileMapSpawner.SetTilePrefabs(tileType, prefabName);
     }
+  }
+
+  public void SetMapObjects(MapTypes.MapObjectSize size, params string[] prefabNames) 
+  {
   }
 }
 

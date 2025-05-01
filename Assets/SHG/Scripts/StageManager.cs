@@ -24,7 +24,7 @@ public class StageManager : Singleton<StageManager>
   {
     this.LoadConfigs();
     this.map = new MapGenerator();
-    this.ApplyStageConfig(3);
+    this.ApplyStageConfig(1);
   }
 
   void Start()
@@ -42,8 +42,17 @@ public class StageManager : Singleton<StageManager>
   {
     var maps = this.config.Maps[stage - 1];
     this.map.SetMapTiles(
-        (TileMapGenerator.Tile.Floor, maps.Floor),
-        (TileMapGenerator.Tile.Wall , maps.Wall)
+        (MapTypes.TileType.Floor, maps.Tiles.Floor),
+        (MapTypes.TileType.Wall , maps.Tiles.Wall)
+        );
+    this.map.SetMapObjects(
+        MapTypes.MapObjectSize.Small, maps.Objects.Small
+        );
+    this.map.SetMapObjects(
+        MapTypes.MapObjectSize.Medium, maps.Objects.Medium
+        );
+    this.map.SetMapObjects(
+        MapTypes.MapObjectSize.Large, maps.Objects.Large
         );
   }
   
@@ -71,14 +80,3 @@ public class StageManager : Singleton<StageManager>
   }
 }
 
-[System.Serializable]
-public class StageConfig
-{
-  public MapConfig[] Maps;
-  [System.Serializable]
-  public struct MapConfig
-  {
-    public string Floor;
-    public string Wall;
-  }
-}

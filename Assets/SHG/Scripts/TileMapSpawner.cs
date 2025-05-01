@@ -15,21 +15,23 @@ public class TileMapSpawner : MonoBehaviour
       floorPercentage: 0.15f
       );
   Grid grid;
-  Dictionary<TileMapGenerator.Tile, string> tilePrefabNames = new();
+  Dictionary<MapTypes.TileType, string> tilePrefabNames = new();
   TileMapGenerator mapGenerator;
   Vector3 tileSize = new(1.0f, 1.0f, 1.0f);
   int WallPosY = 1;
   Vector2Int halfMapSize;
   bool isMapReady = false;
 
-  public void SetTilePrefabs(TileMapGenerator.Tile tileType, string prefabName) 
+  public void SetTilePrefabs(MapTypes.TileType tileType, string prefabName) 
   {
     this.tilePrefabNames[tileType] = prefabName;
     PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/" + prefabName);
   }
-  public void ReleaseTimePrefab(params (TileMapGenerator.Tile tileType, string prefabName)[] tiles)
+
+  public void ReleaseTilePrefab(params (MapTypes.TileType tileType, string prefabName)[] tiles)
   {
   }
+
 
   void Awake() 
   {
@@ -74,20 +76,20 @@ public class TileMapSpawner : MonoBehaviour
     for (int y = 0; y < this.mapGenerator.tiles.GetLength(0); y++) {
       for (int x = 0; x < this.mapGenerator.tiles.GetLength(1); x++) {
         var tile = this.mapGenerator.tiles[y, x];
-        if (tile != TileMapGenerator.Tile.None) {
+        if (tile != MapTypes.TileType.None) {
           this.SpawnTile(tile, new(x, y));
         }
       }
     }
   }
 
-  void SpawnTile(TileMapGenerator.Tile tile, Vector2Int pos)
+  void SpawnTile(MapTypes.TileType tile, Vector2Int pos)
   {
     string groundPrefab = tile switch {
-      TileMapGenerator.Tile.Floor => this.tilePrefabNames[TileMapGenerator.Tile.Floor],
-      TileMapGenerator.Tile.Wall => this.tilePrefabNames[TileMapGenerator.Tile.Wall],
-      TileMapGenerator.Tile.ObstacleSmall => this.tilePrefabNames[TileMapGenerator.Tile.Floor],
-      TileMapGenerator.Tile.None => null,
+      MapTypes.TileType.Floor => this.tilePrefabNames[MapTypes.TileType.Floor],
+      MapTypes.TileType.Wall => this.tilePrefabNames[MapTypes.TileType.Wall],
+      MapTypes.TileType.ObstacleSmall => this.tilePrefabNames[MapTypes.TileType.Floor],
+      MapTypes.TileType.None => null,
       _ => null
     };
     var tileObj = PrefabObjectPool.Shared.GetPooledObject(groundPrefab);
@@ -97,7 +99,7 @@ public class TileMapSpawner : MonoBehaviour
     var worldPos = this.grid.GetCellCenterWorld(cellPos);
     this.PutTileObj(tileObj, worldPos);
 
-    if (tile == TileMapGenerator.Tile.Wall) {
+    if (tile == MapTypes.TileType.Wall) {
       var wallObj = PrefabObjectPool.Shared.GetPooledObject(groundPrefab); 
       var wallPos = this.grid.GetCellCenterWorld(
           new (cellPos.x, cellPos.y, this.WallPosY)
