@@ -17,8 +17,8 @@ public class MapSpawner : MonoBehaviour
   //[SerializeField]
   MapObjectPlacer.Config placingConfig = new(
       numberOfSmallObject: 15,
-      numberOfMediumObject: 10,
-      numberOfLargeObject: 5,
+      numberOfMediumObject: 15,
+      numberOfLargeObject: 10,
       stepsBetweenPlacement: 50,
       chanceToCreate: 0.2f,
       chanceToRedirect: 0.2f
@@ -81,7 +81,7 @@ public class MapSpawner : MonoBehaviour
   {
     
     this.SpawnTiles();
-    this.objectPlacer.SetMapCenter(this.mapGenerator.CenterPosition);
+    this.objectPlacer.SetStartPoints(this.mapGenerator.CenterPosition, this.mapGenerator.EdgePositions);
     this.objectPlacer.PlaceObjects();
     this.SpawnObjects();
     this.IsReady = true;

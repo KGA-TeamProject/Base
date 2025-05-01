@@ -6,20 +6,9 @@
         "Wall": "wall_brick_brown"
       },
       "Objects": {
-        "Small": ["small_grass", "small_grass_swamp", "small_carrot", "small_corn", "small_salad", "small_potato"],
-        "Medium": ["medium_philodendron_green"],
-        "Large": ["large_banana_tree"]
-      }
-    },
-    {
-      "Tiles": {
-        "Floor": "floor_dirt",
-        "Wall": "wall_metal"
-      },
-      "Objects": {
-        "Small": [],
-        "Medium": [],
-        "Large": []
+        "Small": ["small_grass", "small_grass_swamp", "small_carrot", "small_corn", "small_salad", "small_potato", "small_log"],
+        "Medium": ["medium_philodendron_green", "medium_fern_tree", "medium_oval_leave_plant_flower"],
+        "Large": ["large_banana_tree", "large_hollow_log"]
       }
     },
     {
@@ -28,9 +17,20 @@
         "Wall": "wall_rock"
       },
       "Objects": {
-        "Small": [],
-        "Medium": [],
-        "Large": []
+        "Small": ["small_vase_yellow", "small_vase_purple", "small_sand_pile", "small_sandstone_pillar_bottom", "small_cactus_top"],
+        "Medium": ["medium_skull_pile", "medium_sarcophagus_lid", "medium_pipe_up", "medium_vine", "medium_cactus"],
+        "Large": ["large_throne"]
+      }
+    },
+    {
+      "Tiles": {
+        "Floor": "floor_rock",
+        "Wall": "wall_lava_cube"
+      },
+      "Objects": {
+        "Small": ["small_coal_nuggets", "small_bush_dead", "small_arrow_target", "small_wick"],
+        "Medium": ["medium_coal_pile", "medium_ore_gold", "medium_ore_ruby"],
+        "Large": ["large_minecart", "large_dummy1", "large_dummy2"]
       }
     }
   ]

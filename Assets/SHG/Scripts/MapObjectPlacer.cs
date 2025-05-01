@@ -40,6 +40,7 @@ public class MapObjectPlacer
   bool[] tilemask;
   MapWalker[] walkers;
   Vector2Int mapSize;
+  float[] minDistToCenter;
 
   public MapObjectPlacer(
       Config config,
@@ -72,11 +73,12 @@ public class MapObjectPlacer
       }
     }
   }
-  public void SetMapCenter(Vector2Int center)
+  public void SetStartPoints(Vector2Int center, Vector2Int[] edges)
   {
     this.centerPos = center;
-    for (int i = 0; i < this.walkers.Length; ++i) {
-      this.walkers[i] = this.CreateWalker(centerPos); 
+    this.walkers[0] = this.CreateWalker(centerPos); 
+    for (int i = 0; i < Math.Min(this.walkers.Length, edges.Length); ++i) {
+      this.walkers[i] = this.CreateWalker(edges[i % edges.Length]);
     }
   }
 
@@ -99,6 +101,10 @@ public class MapObjectPlacer
     this.tilemask= new bool[Enum.GetValues(typeof(MapTypes.TileType)).Length];
     this.tilemask[(int)MapTypes.TileType.Wall] = true;
     this.tilemask[(int)MapTypes.TileType.Obstacle] = true;
+    this.minDistToCenter = new float[numberOfSize];
+    foreach (var size in MapTypes.AllObjectSizes) {
+      this.minDistToCenter[(int)size] = (float)((int)size + 1);   
+    }
   }
 
   bool HasChanceToPlace(MapTypes.MapObjectSize size, in MapWalker walker)
@@ -159,8 +165,15 @@ public class MapObjectPlacer
     if (this.objectPlaced[pos.y, pos.x]) {
       return (false);
     }
+    var distToCenter = Vector2Int.Distance(pos, this.centerPos);
+    if (distToCenter < this.minDistToCenter[(int)size]) {
+      return (false);
+    }
     if (size == MapTypes.MapObjectSize.Small) {
       return (true);
+    }
+    if (!MapWalker.IsInRange(pos, this.mapSize - new Vector2Int(2, 2))) {
+      return (false);
     }
     foreach (var dir in MapTypes.AllTileDirections) {
        var cur = pos + dir; 
@@ -171,6 +184,9 @@ public class MapObjectPlacer
     }
     if (size == MapTypes.MapObjectSize.Medium) {
       return (true);
+    }
+    if (!MapWalker.IsInRange(pos, this.mapSize - new Vector2Int(3, 3))) {
+      return (false);
     }
     foreach (var twoStepDir in MapTypes.AllTileDirectionsTwoStep) {
        var cur = pos + twoStepDir; 
