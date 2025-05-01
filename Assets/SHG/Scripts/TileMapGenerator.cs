@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TileMapGenerator 
 {
-  [Serializable]
+  //[Serializable]
   public class Config 
   {
     [Range(0f, 1.0f)]
@@ -111,8 +111,7 @@ public class TileMapGenerator
     bool isWall = this.IsTileType(MapTypes.TileType.Wall, pos);
     foreach (var dir in MapTypes.AllTileDirections) {
       var cur = pos + dir;
-      if (pos != cur &&
-          MapWalker.IsInRange(cur, this.config.MapSize)) {
+      if (MapWalker.IsInRange(cur, this.config.MapSize)) {
         if (this.IsTileType(MapTypes.TileType.Floor, cur)) {
           isNearFloor = true;
         }
@@ -202,8 +201,7 @@ public class TileMapGenerator
     }
     foreach (var dir in MapTypes.AllTileDirections) {
       var cur = pos + dir;
-      if ((cur != pos) &&
-          MapWalker.IsInRange(cur, this.config.MapSize) &&
+      if (MapWalker.IsInRange(cur, this.config.MapSize) &&
           !this.IsTileType(MapTypes.TileType.Wall, cur)) {
         this.FillHoleFrom(cur, visited);
       }

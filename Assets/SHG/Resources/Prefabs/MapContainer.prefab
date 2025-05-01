@@ -178,14 +178,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e832fd4f47c6c34a9773929a273b83e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorTile: {fileID: 0}
-  wallTile: {fileID: 0}
-  config:
-    ChanceToCreateWalker: 0.554
-    ChanceToRemoveWalker: 0.076
-    ChanceToRedirect: 0.7
-    MapSize: {x: 100, y: 100}
+  mapConfig:
+    ChanceToCreate: 0.4
+    ChanceToRemove: 0.15
+    ChanceToRedirect: 0.219
+    MapSize: {x: 150, y: 150}
     StartPos: {x: 50, y: 50}
     WalkerMaximum: 10
-    FloorPercentage: 0.462
-    maxIteration: 2000
+    FloorPercentage: 0.181
+    maxIteration: 5198
+  placingConfig:
+    NumberOfSmallObject: 5
+    NumberOfMediumObject: 0
+    NumberOfLargeObject: 0
+    StepsBetweenPlacement: 0

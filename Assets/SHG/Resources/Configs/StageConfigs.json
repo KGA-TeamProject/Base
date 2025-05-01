@@ -6,9 +6,9 @@
         "Wall": "wall_brick_brown"
       },
       "Objects": {
-        "Small": ["small_grass", "small_grass_swamp"],
-        "Medium": [],
-        "Large": []
+        "Small": ["small_grass", "small_grass_swamp", "small_carrot", "small_corn", "small_salad", "small_potato"],
+        "Medium": ["medium_philodendron_green"],
+        "Large": ["large_banana_tree"]
       }
     },
     {

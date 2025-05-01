@@ -1,28 +1,34 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MapSpawner : MonoBehaviour
 {
   public bool IsReady { get; private set; } = false;
-  [SerializeField]
-  TileMapGenerator.Config config = new (
+  //[SerializeField]
+  TileMapGenerator.Config mapConfig = new (
       chanceToCreate: 0.4f,
       chanceToRedirect: 0.7f,
       chanceToRemove: 0.15f,
-      mapSize: new (200, 200),
-      startPos: new (100, 100),
-      floorPercentage: 0.15f
+      mapSize: new (100, 100),
+      startPos: new (50, 50),
+      floorPercentage: 0.35f
       );
-  int[] numberOfObjectsBySize;
-  int[] maxNumberOfObjectsBySize;
+  //[SerializeField]
+  MapObjectPlacer.Config placingConfig = new(
+      numberOfSmallObject: 15,
+      numberOfMediumObject: 10,
+      numberOfLargeObject: 5,
+      stepsBetweenPlacement: 50,
+      chanceToCreate: 0.2f,
+      chanceToRedirect: 0.2f
+      );
+  TileMapGenerator mapGenerator;
+  MapObjectPlacer objectPlacer;
   int WallPosY = 1;
   float halfTileHeight = 0.5f;
-  TileMapGenerator mapGenerator;
   Grid grid;
   string[] tilePrefabNames;
-  List<string>[] objectPrefabNames;
   Vector2Int halfMapSize;
 
   public void SetTilePrefabs(MapTypes.TileType tileType, string prefabName) 
@@ -37,7 +43,7 @@ public class MapSpawner : MonoBehaviour
 
   public void SetObjectPrefab(MapTypes.MapObjectSize size, string prefabName) 
   {
-    this.objectPrefabNames[(int)size].Add(prefabName);
+    this.objectPlacer.objectPrefabNames[(int)size].Add(prefabName);
     PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapObjects/{prefabName}");
   }
 
@@ -60,25 +66,24 @@ public class MapSpawner : MonoBehaviour
 
   void Init()
   {
-    var numberOfSize = Enum.GetValues(typeof(MapTypes.MapObjectSize)
-        ).Length;
     this.tilePrefabNames = new string[Enum.GetValues(typeof(MapTypes.TileType)).Length];
-    this.objectPrefabNames = Enumerable.Repeat(
-      new List<string>(), numberOfSize).ToArray();
-    this.numberOfObjectsBySize = new int[numberOfSize];
-    this.maxNumberOfObjectsBySize = new int[numberOfSize];
     // TODO: Load object count
-    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Small] = 5;
-    this.halfMapSize = new (this.config.MapSize.x / 2, this.config.MapSize.y / 2);
+    this.halfMapSize = new (this.mapConfig.MapSize.x / 2, this.mapConfig.MapSize.y / 2);
     this.grid = this.GetComponent<Grid>();
-    this.mapGenerator = new TileMapGenerator(this.config);
+    this.mapGenerator = new TileMapGenerator(this.mapConfig);
+    this.objectPlacer = new MapObjectPlacer(
+        this.placingConfig,
+        this.mapGenerator.tiles);
     this.ScalePrefabs();
   }
 
   void OnMapGenerated() 
   {
+    
     this.SpawnTiles();
-    this.SetMapObjects();
+    this.objectPlacer.SetMapCenter(this.mapGenerator.CenterPosition);
+    this.objectPlacer.PlaceObjects();
+    this.SpawnObjects();
     this.IsReady = true;
     // TODO: Move Start Game
     GameManager.Shared.StartGame();
@@ -126,7 +131,14 @@ public class MapSpawner : MonoBehaviour
     }
   }
 
-  void PutSmallMapObject(string prefabName, Vector2Int pos)
+  void SpawnObjects()
+  {
+    foreach(var (pos, size, prefabName) in this.objectPlacer.ObjectPlacement) {
+      this.PutMapObject(prefabName, pos);
+    }
+  }
+
+  void PutMapObject(string prefabName, Vector2Int pos)
   {
     var obj = PrefabObjectPool.Shared.GetPooledObject(prefabName);
     var cellPos = new Vector3Int(pos.x, pos.y, 0);  
@@ -139,41 +151,6 @@ public class MapSpawner : MonoBehaviour
     obj.transform.position = pos;
     obj.transform.SetParent(this.transform);
     obj.SetActive(true);
-  }
-
-  void SetMapObjects()
-  {
-    if (this.objectPrefabNames[(int)MapTypes.MapObjectSize.Small].Count ==0 ) {
-      return ;
-    }
-    var walker = this.CreateWalker(this.mapGenerator.CenterPosition); 
-    while (this.numberOfObjectsBySize[(int)MapTypes.MapObjectSize.Small] < this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Small]) {
-      var chance = MapWalker.GetRandomPercentage();
-      if (chance < this.config.ChanceToRedirect) {
-        walker.Dir = walker.Redirect();
-      }
-      walker.Pos = walker.ProgressIn(this.config.MapSize);
-      if (chance < 0.01f) {
-        var prefabName = this.GetRandomObjectPrefab(MapTypes.MapObjectSize.Small);
-        this.PutSmallMapObject(prefabName, walker.Pos);
-        this.numberOfObjectsBySize[(int)MapTypes.MapObjectSize.Small] += 1;
-      }
-    }
-  }
-
-  string GetRandomObjectPrefab(MapTypes.MapObjectSize size)
-  {
-    var index = UnityEngine.Random.Range(0, this.objectPrefabNames[(int)size].Count);
-    return (this.objectPrefabNames[(int)size][index]);
-  }
-
-  MapWalker CreateWalker(Vector2Int pos)
-  {
-    var walker = new MapWalker();
-    walker.Dir = walker.GetDirection();
-    walker.IsActive = true;
-    walker.Pos = pos;
-    return (walker);
   }
 }
 

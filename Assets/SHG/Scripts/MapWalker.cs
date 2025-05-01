@@ -67,11 +67,26 @@ struct MapWalker
     return (dir);
   }
 
-  public int CountNeigborTile(MapTypes.TileType[] tilesToCount, MapTypes.TileType[] map, Vector2Int MapSize)
+  public int CountNeigborTile(bool[] tileMask, MapTypes.TileType[,] map)
   {
+    var mapSize = new Vector2Int(map.GetLength(1), map.GetLength(0));
     var count = 0;
-    
-
+    foreach (var dir in MapTypes.AllTileDirections) {
+      var cur = this.Pos + dir;
+      if (this.IsInRange(mapSize) &&
+          tileMask[(int)map[cur.y, cur.x]]) {
+        count += 1;
+      }
+    }    
     return (count);
+  }
+
+  public bool IsFacingTile(MapTypes.TileType tile, MapTypes.TileType[,] map)
+  {
+    var nextPos = this.ProgressIn(new (map.GetLength(1), map.GetLength(0)));
+    if (nextPos != this.Pos) {
+      return (map[nextPos.y, nextPos.x] == tile);
+    }
+    return (false);
   }
 }
