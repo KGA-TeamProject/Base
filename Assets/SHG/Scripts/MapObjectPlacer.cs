@@ -42,12 +42,9 @@ public class MapObjectPlacer
   Vector2Int mapSize;
   float[] minDistToCenter;
 
-  public MapObjectPlacer(
-      Config config,
-      MapTypes.TileType[,] map)
+  public MapObjectPlacer(MapTypes.TileType[,] map)
   {
 
-    this.config = config;
     this.map = map;
     this.Init();
   }
@@ -73,6 +70,15 @@ public class MapObjectPlacer
       }
     }
   }
+
+  public void SetConfig(Config config)
+  {
+    this.config = config;
+    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Small] = this.config.NumberOfSmallObject;
+    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Medium] = this.config.NumberOfMediumObject;
+    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Large] = this.config.NumberOfLargeObject;
+  }
+
   public void SetStartPoints(Vector2Int center, Vector2Int[] edges)
   {
     this.centerPos = center;
@@ -89,9 +95,6 @@ public class MapObjectPlacer
     this.walkers = new MapWalker[MapObjectPlacer.NUMBER_OF_WALKERS];
     this.numberOfObjectsBySize = new int[numberOfSize];
     this.maxNumberOfObjectsBySize = new int[numberOfSize];
-    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Small] = this.config.NumberOfSmallObject;
-    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Medium] = this.config.NumberOfMediumObject;
-    this.maxNumberOfObjectsBySize[(int)MapTypes.MapObjectSize.Large] = this.config.NumberOfLargeObject;
     this.objectPrefabNames = Enumerable.Repeat(
       new List<string>(), numberOfSize).ToArray();
     this.mapSize = new Vector2Int(this.map.GetLength(1), this.map.GetLength(0));

@@ -24,7 +24,7 @@ public class StageManager : Singleton<StageManager>
   {
     this.LoadConfigs();
     this.map = new MapManager();
-    this.ApplyStageConfig(3);
+    this.ApplyStageConfig(1);
   }
 
   void Start()

@@ -28,6 +28,7 @@ public class MapManager
   {
     foreach (var (tileType, prefabName) in tiles) {
       this.tileMapSpawner.SetTilePrefabs(tileType, prefabName);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/{prefabName}", this.InitTile, 100);
     }
   }
 
@@ -35,7 +36,20 @@ public class MapManager
   {
     foreach (var prefabName in prefabNames) {
       this.tileMapSpawner.SetObjectPrefab(size, prefabName);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapObjects/{prefabName}", this.InitMapObject);
     }
+  }
+
+  GameObject InitTile(GameObject tile)
+  {
+    tile.AddComponent<BoxCollider>();
+    return (tile);
+  }
+  
+  GameObject InitMapObject(GameObject obj)
+  {
+    obj.AddComponent<BoxCollider>();
+    return (obj);
   }
 }
 

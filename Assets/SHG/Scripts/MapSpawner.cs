@@ -15,14 +15,10 @@ public class MapSpawner : MonoBehaviour
       floorPercentage: 0.35f
       );
   //[SerializeField]
-  MapObjectPlacer.Config placingConfig = new(
-      numberOfSmallObject: 15,
-      numberOfMediumObject: 15,
-      numberOfLargeObject: 10,
-      stepsBetweenPlacement: 50,
-      chanceToCreate: 0.2f,
-      chanceToRedirect: 0.2f
-      );
+  MapObjectPlacer.Config placingConfig;
+  const float smallObjectPercentage = 0.005f;
+  const float mediumObjectPercentage = 0.002f;
+  const float largeObjectPercentage = 0.0001f;
   TileMapGenerator mapGenerator;
   MapObjectPlacer objectPlacer;
   int WallPosY = 1;
@@ -34,7 +30,6 @@ public class MapSpawner : MonoBehaviour
   public void SetTilePrefabs(MapTypes.TileType tileType, string prefabName) 
   {
     this.tilePrefabNames[(int)tileType] = prefabName;
-    PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/{prefabName}");
   }
 
   public void ReleaseTilePrefab(params (MapTypes.TileType tileType, string prefabName)[] tiles)
@@ -44,7 +39,6 @@ public class MapSpawner : MonoBehaviour
   public void SetObjectPrefab(MapTypes.MapObjectSize size, string prefabName) 
   {
     this.objectPlacer.objectPrefabNames[(int)size].Add(prefabName);
-    PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapObjects/{prefabName}");
   }
 
   void Awake() 
@@ -71,9 +65,7 @@ public class MapSpawner : MonoBehaviour
     this.halfMapSize = new (this.mapConfig.MapSize.x / 2, this.mapConfig.MapSize.y / 2);
     this.grid = this.GetComponent<Grid>();
     this.mapGenerator = new TileMapGenerator(this.mapConfig);
-    this.objectPlacer = new MapObjectPlacer(
-        this.placingConfig,
-        this.mapGenerator.tiles);
+    this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles);
     this.ScalePrefabs();
   }
 
@@ -81,6 +73,16 @@ public class MapSpawner : MonoBehaviour
   {
     
     this.SpawnTiles();
+    var tileCount = this.mapConfig.FloorPercentage * this.mapConfig.MapSize.x * this.mapConfig.MapSize.y;
+    this.placingConfig = new (
+        numberOfSmallObject: (int)(tileCount * MapSpawner.smallObjectPercentage),
+        numberOfMediumObject: (int)(tileCount * MapSpawner.mediumObjectPercentage),
+        numberOfLargeObject: (int)(tileCount * MapSpawner.largeObjectPercentage),
+        stepsBetweenPlacement: (int)(tileCount / 10),
+        chanceToCreate: 0.2f,
+        chanceToRedirect: 0.2f
+        );
+    this.objectPlacer.SetConfig(this.placingConfig);
     this.objectPlacer.SetStartPoints(this.mapGenerator.CenterPosition, this.mapGenerator.EdgePositions);
     this.objectPlacer.PlaceObjects();
     this.SpawnObjects();
