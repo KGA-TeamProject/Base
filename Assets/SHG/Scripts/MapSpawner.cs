@@ -7,9 +7,27 @@ public class MapSpawner : MonoBehaviour
 {
   public bool IsReady { get; private set; } = false;
   public event Action OnSpawned;
-  public string[] tilePrefabNames;
   public Vector3 Center;
-  public List<string>[] objectPrefabNames;
+  public string[] TilePrefabNames {
+    get => this.tilePrefabNames;
+    set {
+      this.tilePrefabNames = value;
+      this.CreatePooledObjectList(value);
+    }
+  }
+  public List<string>[] ObjectPrefabNames {
+    get => this.objectPrefabNames;
+    set {
+      this.objectPrefabNames = value;
+      foreach (var prefabNames in value) {
+         this.CreatePooledObjectList(prefabNames); 
+      }
+    }
+  }
+
+  string[] tilePrefabNames;
+  List<string>[] objectPrefabNames;
+
   MapObjectPlacer.Config placingConfig;
   TileMapGenerator.Config mapConfig;
   const float smallObjectPercentage = 0.005f;
@@ -22,18 +40,7 @@ public class MapSpawner : MonoBehaviour
   Grid grid;
   Vector2Int halfMapSize;
   Coroutine SpawningRoutine;
-  Dictionary<string, List<GameObject>> pooledObjects;
-
-  public void SetTilePrefabs(MapTypes.TileType tileType, string prefabName) 
-  {
-    this.pooledObjects[prefabName] = new();
-  }
-
-
-  public void SetObjectPrefab(MapTypes.MapObjectSize size, string prefabName) 
-  {
-    this.pooledObjects[prefabName] = new();
-  }
+  Dictionary<string, List<GameObject>> pooledObjects = new();
 
   public void DestorySelf()
   {
@@ -60,7 +67,6 @@ public class MapSpawner : MonoBehaviour
 
   void Init()
   {
-    this.pooledObjects = new();
     // TODO: Load object count
     this.grid = this.GetComponent<Grid>();
     this.grid.transform.position = this.Center;
@@ -166,6 +172,15 @@ public class MapSpawner : MonoBehaviour
     obj.transform.position = pos;
     obj.transform.SetParent(this.transform);
     obj.SetActive(true);
+  }
+
+  void CreatePooledObjectList(IList<string> prefabNames)
+  {
+    foreach (string prefabName in prefabNames) {
+      if (prefabName != null) {
+        this.pooledObjects[prefabName] = new();
+      }
+    }
   }
 
   void ReleasePooledObjects(params string[] prefabNames)

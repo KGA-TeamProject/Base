@@ -8,8 +8,8 @@ public class MapManager
   public enum State
   {
     None,
-    SpawningRoot,
-    SpawningNext,
+    SpawningStartNode,
+    SpawningNextNode,
   }
   struct MapNode
   {
@@ -31,8 +31,8 @@ public class MapManager
       this.Center = center;
       this.Spawner.Center = center;
       this.Tilemap = tilemap;
-      this.Spawner.tilePrefabNames = tilePrefabNames;
-      this.Spawner.objectPrefabNames = objectPrefabNames;
+      this.Spawner.TilePrefabNames = tilePrefabNames;
+      this.Spawner.ObjectPrefabNames = objectPrefabNames;
       this.Spawner.SetTileMap(this.Tilemap);
     }
   }
@@ -50,7 +50,7 @@ public class MapManager
   public Camera minimapCamera { get; private set ;}
   const string CONTAINER_NAME = "MapContainer";
   const string MINIMAP_CAMERA_NAME = "Minimap Camera";
-  MapNode currentNode;
+  MapNode startNode;
   GameObject containerPrefab;
   string[] tilePrefabNames;
   public List<string>[] objectPrefabNames;
@@ -69,12 +69,19 @@ public class MapManager
     var numberOfSize = System.Enum.GetValues(typeof(MapTypes.MapObjectSize)).Length;
     this.objectPrefabNames = Enumerable.Repeat(
       new List<string>(), numberOfSize).ToArray();
-    this.CurrentState = State.SpawningRoot;
-    this.currentNode = this.CreateNode(new Vector3());
-    this.currentNode.Spawner.OnSpawned += () => {
-      this.CurrentState = State.SpawningNext;
-      GameManager.Shared.StartGame();
-    };
+  }
+
+  public void SpawnMap()
+  {
+    this.CurrentState = State.SpawningStartNode;
+    this.startNode = this.CreateNode(new Vector3());
+    this.startNode.Spawner.OnSpawned += this.OnSpawnedStartNode;
+  }
+
+  void OnSpawnedStartNode()
+  {
+    GameManager.Shared.StartGame();
+    this.CurrentState = State.SpawningNextNode;
   }
 
   MapNode CreateNode(Vector3 center)
@@ -93,7 +100,6 @@ public class MapManager
   {
     foreach (var (tileType, prefabName) in tiles) {
       this.tilePrefabNames[(int)tileType] = prefabName;
-      this.currentNode.Spawner.SetTilePrefabs(tileType, prefabName);
       PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/{prefabName}", this.InitTile, 100);
     }
   }
@@ -102,7 +108,6 @@ public class MapManager
   {
     foreach (var prefabName in prefabNames) {
       this.objectPrefabNames[(int)size].Add(prefabName);
-      this.currentNode.Spawner.SetObjectPrefab(size, prefabName);
       PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapObjects/{prefabName}", this.InitMapObject);
     }
   }
