@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
+    // 아이템 - 화살 속성 연결 방법2
+    //public ArrowSkillData currentArrow;
     public Projectile prefab;
     private Coroutine shootCoroutine;
 
@@ -40,11 +42,12 @@ public class PlayerAttack : MonoBehaviour
     {
         Debug.Log("발사");
         
+        // 획득한 스킬로 화살 속성 변경
+        prefab.Init(prefab.damage, prefab.shootCount, prefab.speed, prefab.delaySecond, prefab.angle);
+
         // 발사 화살 개수에 따른 발사 각도 조절
         for (int i = 0; i < prefab.shootCount; i++)
         {
-            prefab.Init(prefab.damage, prefab.shootCount, prefab.speed, prefab.delaySecond, prefab.angle);
-            
             float arrowAngle = -prefab.angle / 2 + prefab.angle / (prefab.shootCount + 1) * (i + 1);
             Quaternion arrowRotation = Quaternion.Euler(0, arrowAngle, 0);
 

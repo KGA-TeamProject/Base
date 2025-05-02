@@ -31,14 +31,12 @@ public class Projectile : MonoBehaviour
     {
         Destroy(gameObject);
 
-        // 충돌한 몬스터 체력 감소
         monsterController monsterController = collision.gameObject.GetComponent<monsterController>();
         if (monsterController != null)
         {
             Instantiate(explosionEffect, transform.position, transform.rotation);
-            // merge 후 적용
+            // 충돌한 몬스터 체력 감소 (merge 후 적용)
             //monsterController.TakeDamage(damage);
-            //Debug.Log($"몬스터 체력 : {collision.gameObject.GetComponent<monsterController>().Hp}");
         }
     }
 }

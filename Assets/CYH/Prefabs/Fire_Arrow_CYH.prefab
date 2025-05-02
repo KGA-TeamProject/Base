@@ -74,10 +74,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 2
-  shootCount: 2
+  shootCount: 3
   speed: 10
-  angle: 15
-  delaySecond: 0.7
+  angle: 0
+  delaySecond: 2
   rigid: {fileID: 6603906019493392352}
   explosionEffect: {fileID: 8914885502998522470, guid: 120b22545ec9dbe62a32a8c8efd77e2d, type: 3}
 --- !u!1 &8598022496436078112
