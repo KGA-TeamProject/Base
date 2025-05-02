@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class monsterController : MonoBehaviour
 {
+    [SerializeField] public Animator animator;
     [SerializeField] private int Hp;
     [SerializeField] private float moveSpeed;
-
+   
+    
     [SerializeField] private int bumpDamage;
 
     [SerializeField] LayerMask targetLayer;
 
+    
 
     // 몬스터 이동을 각각의 Attack컴포넌트에서 참조
     public void Move(Transform target)
@@ -25,19 +28,25 @@ public class monsterController : MonoBehaviour
         {
             if (hit.collider.gameObject.tag == "Player")
             {
+                animator.Play("Move");
                 transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    target.position,
-                    moveSpeed * Time.deltaTime);
+                        transform.position,
+                        target.position,
+                        moveSpeed * Time.deltaTime);
+            }
+            else 
+            {
+                animator.Play("Idle");
             }
         }
     }
 
 
 
-    private void TakeDamage(int damage)
+    public void TakeDamage(int damage)
     {
         Hp -= damage;
+        animator.Play("GetHit");
         if (Hp < 0)
         {
             Die();
@@ -46,6 +55,7 @@ public class monsterController : MonoBehaviour
 
     private void Die() 
     {
+        animator.Play("Die");
         Destroy(gameObject);
     }
 }

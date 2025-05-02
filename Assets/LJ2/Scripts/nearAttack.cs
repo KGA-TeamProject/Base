@@ -5,7 +5,9 @@ using static UnityEngine.GraphicsBuffer;
 
 public class nearAttack : MonoBehaviour
 {
-   
+    [SerializeField] monsterController monsterController;
+    [SerializeField] private Animator animator;
+
     [SerializeField] Transform targetPos;
     [SerializeField] LayerMask targetLayer;
 
@@ -15,7 +17,7 @@ public class nearAttack : MonoBehaviour
     
 
     [SerializeField] private float attackRadius;
-    [SerializeField] monsterController monsterController;
+    
 
     
     private void Update()
@@ -47,7 +49,8 @@ public class nearAttack : MonoBehaviour
         }
         else
         {
-            monsterController.Move(targetPos); 
+            monsterController.Move(targetPos);
+            
             
             if (attackCoroutine != null)
             {
@@ -69,10 +72,11 @@ public class nearAttack : MonoBehaviour
             {
                 if (hit.collider.gameObject.tag == "Player")
                 {
+                    animator.Play("Attack");
                     transform.position = Vector3.MoveTowards(
-                transform.position,
-                targetPos.position,
-                rushSpeed * Time.deltaTime);
+                        transform.position,
+                        targetPos.position,
+                        rushSpeed * Time.deltaTime);
                 }
             }
             yield return null;
