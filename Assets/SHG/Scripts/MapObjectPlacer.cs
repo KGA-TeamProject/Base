@@ -176,7 +176,7 @@ public class MapObjectPlacer
     if (!MapWalker.IsInRange(pos, this.mapSize - new Vector2Int(2, 2))) {
       return (false);
     }
-    foreach (var dir in MapTypes.AllTileDirections) {
+    foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
        var cur = pos + dir; 
        if (MapWalker.IsInRange(cur, this.mapSize) &&
            this.objectPlaced[cur.y, cur.x]) {
@@ -206,7 +206,7 @@ public class MapObjectPlacer
     if (size == MapTypes.MapObjectSize.Small) {
       return;
     }
-    foreach (var dir in MapTypes.AllTileDirections) {
+    foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
        var cur = pos + dir; 
        if (MapWalker.IsInRange(cur, this.mapSize)) {
          this.objectPlaced[cur.y, cur.x] = true;

@@ -34,28 +34,53 @@ static public class MapTypes
     BottomLeft,
     BottomRight
   }
+  static public TileDirection[] AllTileDirection = (TileDirection[])Enum.GetValues(typeof(TileDirection));
+
+  static public TileDirection GetOppositeDir(TileDirection dir)
+  {
+    switch (dir) {
+      case TileDirection.Top:
+        return (TileDirection.Bottom);
+      case TileDirection.Bottom:
+        return (TileDirection.Top);
+      case TileDirection.Left:
+        return (TileDirection.Right);
+      case TileDirection.Right:
+        return (TileDirection.Left);
+      case TileDirection.TopLeft:
+        return (TileDirection.BottomRight);
+      case TileDirection.TopRight:
+        return (TileDirection.BottomLeft);
+      case TileDirection.BottomLeft:
+        return (TileDirection.TopRight);
+      case TileDirection.BottomRight:
+        return (TileDirection.TopLeft);
+      default:
+        throw (new ApplicationException("GetOppositeDir"));
+    }
+  }
   
   ///<summary> 모든 인접한 타일들의 좌표 상대값 </summary>
-  static public Vector2Int[] AllTileDirections;
+  static public Vector2Int[] AllTileDirectionsOneStep;
   ///<summary> 모든 한칸 떨어진 타일들의 좌표 상대값 (16 방향)  </summary>
   static public Vector2Int[] AllTileDirectionsTwoStep;
 
   static MapTypes()
   {
     var allDirections = (TileDirection[])Enum.GetValues(typeof(TileDirection));
-    MapTypes.AllTileDirections = new Vector2Int[allDirections.Length];
-    MapTypes.AllTileDirections[(int)TileDirection.Top] = new (0, 1);
-    MapTypes.AllTileDirections[(int)TileDirection.Left] = new (-1, 0);
-    MapTypes.AllTileDirections[(int)TileDirection.Right] = new (1, 0);
-    MapTypes.AllTileDirections[(int)TileDirection.Bottom] = new (0, -1);
-    MapTypes.AllTileDirections[(int)TileDirection.TopLeft] = new (-1, 1);
-    MapTypes.AllTileDirections[(int)TileDirection.TopRight] = new (1, 1);
-    MapTypes.AllTileDirections[(int)TileDirection.BottomLeft] = new (-1, -1);
-    MapTypes.AllTileDirections[(int)TileDirection.BottomRight] = new (1, -1);
-    MapTypes.AllTileDirectionsTwoStep = new Vector2Int[MapTypes.AllTileDirections.Length * 2]; 
+    MapTypes.AllTileDirectionsOneStep = new Vector2Int[allDirections.Length];
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.Top] = new (0, 1);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.Left] = new (-1, 0);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.Right] = new (1, 0);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.Bottom] = new (0, -1);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.TopLeft] = new (-1, 1);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.TopRight] = new (1, 1);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.BottomLeft] = new (-1, -1);
+    MapTypes.AllTileDirectionsOneStep[(int)TileDirection.BottomRight] = new (1, -1);
+    MapTypes.AllTileDirectionsTwoStep = new Vector2Int[MapTypes.AllTileDirectionsOneStep.Length * 2]; 
     int index = 0;
-    for (; index < MapTypes.AllTileDirections.Length; ++index) {
-      MapTypes.AllTileDirectionsTwoStep[index] = MapTypes.AllTileDirections[index] * 2; 
+    for (; index < MapTypes.AllTileDirectionsOneStep.Length; ++index) {
+      MapTypes.AllTileDirectionsTwoStep[index] = MapTypes.AllTileDirectionsOneStep[index] * 2; 
     }
     /* C: center, X: target pos, o: filled by doubling one step direction
      * [o][X][ ][x][o]

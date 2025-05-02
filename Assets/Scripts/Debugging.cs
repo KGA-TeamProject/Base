@@ -7,5 +7,5 @@ public static class Debugging
     DeactivateAll,
   }
 
-  public static DebugMode Mode = DebugMode.DeactivateAll;
+  public static DebugMode Mode = DebugMode.None;
 }

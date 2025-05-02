@@ -109,7 +109,7 @@ public class TileMapGenerator
     visited[pos.y, pos.x] = true;
     bool isNearFloor = false;
     bool isWall = this.IsTileType(MapTypes.TileType.Wall, pos);
-    foreach (var dir in MapTypes.AllTileDirections) {
+    foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
       var cur = pos + dir;
       if (MapWalker.IsInRange(cur, this.config.MapSize)) {
         if (this.IsTileType(MapTypes.TileType.Floor, cur)) {
@@ -199,7 +199,7 @@ public class TileMapGenerator
     if (this.IsTileType(MapTypes.TileType.None, pos)) {
       this.SetTile(MapTypes.TileType.Floor, pos);
     }
-    foreach (var dir in MapTypes.AllTileDirections) {
+    foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
       var cur = pos + dir;
       if (MapWalker.IsInRange(cur, this.config.MapSize) &&
           !this.IsTileType(MapTypes.TileType.Wall, cur)) {

@@ -51,7 +51,8 @@ public class MapSpawner : MonoBehaviour
   public Vector3 ConvertTilePos(Vector2Int tilePos, int height = 0)
   {
     var cellPos = new Vector3Int(tilePos.x, tilePos.y, height);  
-    return (this.grid.GetCellCenterWorld(cellPos));
+    var pos = (this.grid.GetCellCenterWorld(cellPos));
+    return (pos + this.Center);
   }
 
   void Awake() 

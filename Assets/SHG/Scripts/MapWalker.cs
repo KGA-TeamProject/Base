@@ -71,7 +71,7 @@ struct MapWalker
   {
     var mapSize = new Vector2Int(map.GetLength(1), map.GetLength(0));
     var count = 0;
-    foreach (var dir in MapTypes.AllTileDirections) {
+    foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
       var cur = this.Pos + dir;
       if (this.IsInRange(mapSize) &&
           tileMask[(int)map[cur.y, cur.x]]) {

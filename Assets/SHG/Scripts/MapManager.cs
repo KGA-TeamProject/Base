@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,41 +12,7 @@ public class MapManager
     SpawningStartNode,
     SpawningNextNode,
   }
-  struct MapNode
-  {
-    public GameObject Container;
-    public MapSpawner Spawner;
-    public TileMapGenerator Tilemap;
-    public Vector3 Center;
 
-    public MapNode(
-        GameObject container,
-        TileMapGenerator tilemap,
-        Vector3 center,
-        string[] tilePrefabNames, 
-        List<string>[] objectPrefabNames
-        )
-    {
-      this.Container = container;
-      this.Spawner = this.Container.GetComponent<MapSpawner>();
-      this.Center = center;
-      this.Spawner.Center = center;
-      this.Tilemap = tilemap;
-      this.Spawner.TilePrefabNames = tilePrefabNames;
-      this.Spawner.ObjectPrefabNames = objectPrefabNames;
-      this.Spawner.SetTileMap(this.Tilemap);
-    }
-  }
-
-  //[SerializeField]
-  TileMapGenerator.Config mapConfig = new (
-      chanceToCreate: 0.4f,
-      chanceToRedirect: 0.7f,
-      chanceToRemove: 0.15f,
-      mapSize: new (100, 100),
-      startPos: new (50, 50),
-      floorPercentage: 0.35f
-      );
   public State CurrentState { get; private set; }
   public Camera minimapCamera { get; private set ;}
   const string CONTAINER_NAME = "MapContainer";
@@ -54,6 +21,8 @@ public class MapManager
   GameObject containerPrefab;
   string[] tilePrefabNames;
   public List<string>[] objectPrefabNames;
+  public Vector2Int StartRoomSize = new (50, 50);
+  public Vector2Int CombatRoomSize = new (70, 70);
 
   public MapManager()
   {
@@ -63,7 +32,7 @@ public class MapManager
   void Init()
   {
     var minimapCameraPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.MINIMAP_CAMERA_NAME);
-    this.minimapCamera = Object.Instantiate(minimapCameraPrefab).GetComponent<Camera>();
+    this.minimapCamera = UnityEngine.Object.Instantiate(minimapCameraPrefab).GetComponent<Camera>();
     this.containerPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.CONTAINER_NAME);
     this.tilePrefabNames = new string[System.Enum.GetValues(typeof(MapTypes.TileType)).Length];
     var numberOfSize = System.Enum.GetValues(typeof(MapTypes.MapObjectSize)).Length;
@@ -74,24 +43,86 @@ public class MapManager
   public void SpawnMap()
   {
     this.CurrentState = State.SpawningStartNode;
-    this.startNode = this.CreateNode(new Vector3());
-    this.startNode.Spawner.OnSpawned += this.OnSpawnedStartNode;
+    this.startNode = this.CreateNode(this.StartRoomSize, new Vector3());
+    this.startNode.Spawn(
+        this.containerPrefab,
+         this.tilePrefabNames,
+         this.objectPrefabNames
+        );
+    this.startNode.OnSpawned += this.OnSpawnedStartNode;
   }
 
   void OnSpawnedStartNode()
   {
     GameManager.Shared.StartGame();
+    var dir = MapTypes.TileDirection.Bottom;
     this.CurrentState = State.SpawningNextNode;
+    var newCenter = this.CalcNewRoomOffsetFrom(this.startNode,
+        dir, this.CombatRoomSize);
+    var newNode = this.CreateNode(
+        this.CombatRoomSize,
+        newCenter);
+    newNode.Spawn(
+        this.containerPrefab,
+        this.tilePrefabNames,
+        this.objectPrefabNames
+        );
+    newNode.OnSpawned += () => this.ConnectNode(this.startNode, newNode, dir);
   }
 
-  MapNode CreateNode(Vector3 center)
+  void ConnectNode(MapNode a, MapNode b, MapTypes.TileDirection dirFromA)
+  {
+    var dirFromB = MapTypes.GetOppositeDir(dirFromA);
+    var container = new GameObject();
+    var corridor = container.AddComponent<MapCorridor>();
+    corridor.IsHorizontal = dirFromA == MapTypes.TileDirection.Left || dirFromA == MapTypes.TileDirection.Right;
+    corridor.StartPos = a.EdgePositions[(int)dirFromA];
+    corridor.StartPos.y = a.Center.y;
+    corridor.EndPos = b.EdgePositions[(int)dirFromB];
+    corridor.EndPos.y = b.Center.y;
+    corridor.tilePrefabNames = this.tilePrefabNames;
+    a.SetConnection(dirFromA, b, corridor);
+    b.SetConnection(dirFromB, a, corridor);
+  }
+
+  Vector3 CalcNewRoomOffsetFrom(MapNode start, MapTypes.TileDirection dir, Vector2Int newSize)
+  {
+    var pos = start.EdgePositions[(int)dir];
+//    float length = dir switch {
+//      MapTypes.TileDirection.Top or 
+//        MapTypes.TileDirection.Bottom =>
+//        (start.MapSize.y / 2 + newSize.y / 2) * MapCorridor.LENGTH_RATIO,
+//      MapTypes.TileDirection.Left or
+//        MapTypes.TileDirection.Right =>
+//        (start.MapSize.y / 2 + newSize.y / 2) * MapCorridor.LENGTH_RATIO,
+//
+//      _ => throw (new NotImplementedException()),
+//    };
+    var length = MapCorridor.LENGTH;
+    switch (dir) {
+      case MapTypes.TileDirection.Top: 
+        pos.z += newSize.y + length;
+        break;
+      case MapTypes.TileDirection.Bottom:
+        pos.z -= newSize.y + length;
+        break;
+      case MapTypes.TileDirection.Left:
+        pos.x -= newSize.x + length;
+        break;
+      case MapTypes.TileDirection.Right:
+        pos.x += newSize.x + length;
+        break;
+      default: throw (new NotImplementedException());
+    }
+    return (pos);
+  }
+
+  MapNode CreateNode(Vector2Int size, Vector3 center)
   {
     var node = new MapNode(
-         Object.Instantiate(containerPrefab),
-         new TileMapGenerator(this.mapConfig),
-         center,
-         this.tilePrefabNames,
-         this.objectPrefabNames
+        size,
+        center,
+        MapNode.RoomType.None
         );
     return (node);
   }
