@@ -117,8 +117,8 @@ GameObject:
   - component: {fileID: 3685802346243628970}
   - component: {fileID: 3034167668820327417}
   - component: {fileID: 5687589297044388972}
-  - component: {fileID: 2914418350642934664}
-  - component: {fileID: 5269934504471708502}
+  - component: {fileID: 2601947939987467507}
+  - component: {fileID: 891212961177411884}
   m_Layer: 8
   m_Name: farAttackMonster
   m_TagString: Untagged
@@ -214,7 +214,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2914418350642934664
+--- !u!114 &2601947939987467507
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -223,16 +223,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 5662439239678761568}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65f197b92f04522449f994be67999f9c, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d033cecdc070c094a2288a1bc40b34b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Hp: 0
-  moveSpeed: 5
+  moveSpeed: 0
   bumpDamage: 0
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
---- !u!114 &5269934504471708502
+    m_Bits: 0
+--- !u!114 &891212961177411884
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -241,21 +241,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 5662439239678761568}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a30bf5569499eb4689fdcc7ec60762e, type: 3}
+  m_Script: {fileID: 11500000, guid: b44b059a2d23775388b456fbb8468072, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   targetPos: {fileID: 0}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
-  setDelay: 1
-  attackRadius: 15
-  monsterController: {fileID: 2914418350642934664}
-  attackPrefab: {fileID: 8658905745883790664, guid: b99aa9214bda69c428c8bad782b7f4ef, type: 3}
-  poolSize: 3
-  attackDamage: 1
-  shotPower: 10
-  attackPos: {fileID: 1054268881807790994}
+    m_Bits: 0
+  setDelay: 0
+  attackRadius: 0
+  monsterController: {fileID: 0}
+  attackPrefab: {fileID: 0}
+  poolSize: 0
+  attackDamage: 0
+  shotPower: 0
 --- !u!1 &7285391041805396622
 GameObject:
   m_ObjectHideFlags: 0
