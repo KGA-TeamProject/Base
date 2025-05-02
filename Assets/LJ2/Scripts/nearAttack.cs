@@ -5,7 +5,9 @@ using static UnityEngine.GraphicsBuffer;
 
 public class nearAttack : MonoBehaviour
 {
-   
+    [SerializeField] monsterController monsterController;
+    [SerializeField] private Animator animator;
+
     [SerializeField] Transform targetPos;
     [SerializeField] LayerMask targetLayer;
 
@@ -15,8 +17,7 @@ public class nearAttack : MonoBehaviour
     
 
     [SerializeField] private float attackRadius;
-    [SerializeField] monsterController monsterController;
-    [SerializeField] private Animator animator;
+    
 
     
     private void Update()

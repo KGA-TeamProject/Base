@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class monsterController : MonoBehaviour
 {
+    [SerializeField] public Animator animator;
     [SerializeField] private int Hp;
     [SerializeField] private float moveSpeed;
     [SerializeField] private bool canFly;
-    [SerializeField] public Animator animator;
+    
     [SerializeField] private int bumpDamage;
 
     [SerializeField] LayerMask targetLayer;
@@ -27,10 +28,15 @@ public class monsterController : MonoBehaviour
         {
             if (hit.collider.gameObject.tag == "Player")
             {
+                animator.Play("Move");
                 transform.position = Vector3.MoveTowards(
                         transform.position,
                         target.position,
                         moveSpeed * Time.deltaTime);
+            }
+            else 
+            {
+                animator.Play("Idle");
             }
         }
     }
