@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -96,8 +95,6 @@ public class MapObjectPlacer
     this.walkers = new MapWalker[MapObjectPlacer.NUMBER_OF_WALKERS];
     this.numberOfObjectsBySize = new int[numberOfSize];
     this.maxNumberOfObjectsBySize = new int[numberOfSize];
-    this.objectPrefabNames = Enumerable.Repeat(
-      new List<string>(), numberOfSize).ToArray();
     this.mapSize = new Vector2Int(this.map.GetLength(1), this.map.GetLength(0));
     this.objectPlaced = new bool[this.mapSize.x, this.mapSize.y];
     this.ObjectPlacement = new();

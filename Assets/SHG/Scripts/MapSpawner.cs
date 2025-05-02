@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MapSpawner : MonoBehaviour
 {
   public bool IsReady { get; private set; } = false;
   public event Action OnSpawned;
+  public string[] tilePrefabNames;
+  public Vector3 Center;
+  public List<string>[] objectPrefabNames;
   MapObjectPlacer.Config placingConfig;
   TileMapGenerator.Config mapConfig;
   const float smallObjectPercentage = 0.005f;
@@ -16,22 +20,31 @@ public class MapSpawner : MonoBehaviour
   int WallPosY = 1;
   float halfTileHeight = 0.5f;
   Grid grid;
-  string[] tilePrefabNames;
   Vector2Int halfMapSize;
   Coroutine SpawningRoutine;
+  Dictionary<string, List<GameObject>> pooledObjects;
 
   public void SetTilePrefabs(MapTypes.TileType tileType, string prefabName) 
   {
-    this.tilePrefabNames[(int)tileType] = prefabName;
+    this.pooledObjects[prefabName] = new();
   }
 
-  public void ReleaseTilePrefab(params (MapTypes.TileType tileType, string prefabName)[] tiles)
-  {
-  }
 
   public void SetObjectPrefab(MapTypes.MapObjectSize size, string prefabName) 
   {
-    this.objectPlacer.objectPrefabNames[(int)size].Add(prefabName);
+    this.pooledObjects[prefabName] = new();
+  }
+
+  public void DestorySelf()
+  {
+    this.ReleasePooledObjects();
+    Destroy(this.gameObject);
+  }
+
+  public Vector3 ConvertTilePos(Vector2Int tilePos, int height = 0)
+  {
+    var cellPos = new Vector3Int(tilePos.x, tilePos.y, height);  
+    return (this.grid.GetCellCenterWorld(cellPos));
   }
 
   void Awake() 
@@ -47,9 +60,10 @@ public class MapSpawner : MonoBehaviour
 
   void Init()
   {
-    this.tilePrefabNames = new string[Enum.GetValues(typeof(MapTypes.TileType)).Length];
+    this.pooledObjects = new();
     // TODO: Load object count
     this.grid = this.GetComponent<Grid>();
+    this.grid.transform.position = this.Center;
   }
 
   public void SetTileMap(TileMapGenerator map)
@@ -57,6 +71,7 @@ public class MapSpawner : MonoBehaviour
     this.mapGenerator = map;
     this.mapConfig = map.config;
     this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles);
+    this.objectPlacer.objectPrefabNames = this.objectPrefabNames;
   }
 
   void OnMapGenerated() 
@@ -113,16 +128,16 @@ public class MapSpawner : MonoBehaviour
       _ => null
     };
     var tile = PrefabObjectPool.Shared.GetPooledObject(groundPrefab);
-    var cellPos = new Vector3Int(pos.x, pos.y, 0);
-    var worldPos = this.grid.GetCellCenterWorld(cellPos);
+    this.pooledObjects[groundPrefab].Add(tile);
+    var worldPos = this.ConvertTilePos(pos);
     worldPos.y -= this.halfTileHeight;
     this.PutObject(tile, worldPos);
 
     if (tileType == MapTypes.TileType.Wall) {
-      var wall = PrefabObjectPool.Shared.GetPooledObject(this.tilePrefabNames[(int)MapTypes.TileType.Wall]); 
-      var wallPos = this.grid.GetCellCenterWorld(
-          new (cellPos.x, cellPos.y, this.WallPosY)
-          );
+      var wallPrefab = this.tilePrefabNames[(int)MapTypes.TileType.Wall];
+      var wall = PrefabObjectPool.Shared.GetPooledObject(wallPrefab); 
+      this.pooledObjects[wallPrefab].Add(wall);
+      var wallPos = this.ConvertTilePos( pos, this.WallPosY);
       wallPos.y -= this.halfTileHeight;
       this.PutObject(wall, wallPos);
     }
@@ -139,8 +154,7 @@ public class MapSpawner : MonoBehaviour
   void PutMapObject(string prefabName, Vector2Int pos)
   {
     var obj = PrefabObjectPool.Shared.GetPooledObject(prefabName);
-    var cellPos = new Vector3Int(pos.x, pos.y, 0);  
-    var worldPos = this.grid.GetCellCenterWorld(cellPos);
+    var worldPos = this.ConvertTilePos(pos);
     this.PutObject(obj, worldPos); 
   }
 
@@ -149,6 +163,15 @@ public class MapSpawner : MonoBehaviour
     obj.transform.position = pos;
     obj.transform.SetParent(this.transform);
     obj.SetActive(true);
+  }
+
+  void ReleasePooledObjects(params string[] prefabNames)
+  {
+    foreach (var (prefabName, objectList) in this.pooledObjects) {
+      foreach (var pooledObject in objectList) {
+        PrefabObjectPool.Shared.ReturnObject(pooledObject, prefabName);
+      }
+    }
   }
 }
 

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,11 +8,35 @@ public class MapManager
   public enum State
   {
     None,
-    GeneratingRoot,
     SpawningRoot,
-    GeneratingNext,
     SpawningNext,
   }
+  struct MapNode
+  {
+    public GameObject Container;
+    public MapSpawner Spawner;
+    public TileMapGenerator Tilemap;
+    public Vector3 Center;
+
+    public MapNode(
+        GameObject container,
+        TileMapGenerator tilemap,
+        Vector3 center,
+        string[] tilePrefabNames, 
+        List<string>[] objectPrefabNames
+        )
+    {
+      this.Container = container;
+      this.Spawner = this.Container.GetComponent<MapSpawner>();
+      this.Center = center;
+      this.Spawner.Center = center;
+      this.Tilemap = tilemap;
+      this.Spawner.tilePrefabNames = tilePrefabNames;
+      this.Spawner.objectPrefabNames = objectPrefabNames;
+      this.Spawner.SetTileMap(this.Tilemap);
+    }
+  }
+
   //[SerializeField]
   TileMapGenerator.Config mapConfig = new (
       chanceToCreate: 0.4f,
@@ -25,10 +50,10 @@ public class MapManager
   public Camera minimapCamera { get; private set ;}
   const string CONTAINER_NAME = "MapContainer";
   const string MINIMAP_CAMERA_NAME = "Minimap Camera";
+  MapNode currentNode;
   GameObject containerPrefab;
-  GameObject currentContainer;
-  MapSpawner currentSpawner;
-  TileMapGenerator currentMap;
+  string[] tilePrefabNames;
+  public List<string>[] objectPrefabNames;
 
   public MapManager()
   {
@@ -39,21 +64,36 @@ public class MapManager
   {
     var minimapCameraPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.MINIMAP_CAMERA_NAME);
     this.minimapCamera = Object.Instantiate(minimapCameraPrefab).GetComponent<Camera>();
-    this.currentMap = new TileMapGenerator(this.mapConfig);
     this.containerPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.CONTAINER_NAME);
-    this.CurrentState = State.GeneratingRoot;
-    this.currentContainer= Object.Instantiate(containerPrefab);
-    this.currentSpawner= this.currentContainer.GetComponent<MapSpawner>();
-    this.currentSpawner.SetTileMap(this.currentMap);
-    this.currentSpawner.OnSpawned += () => {
+    this.tilePrefabNames = new string[System.Enum.GetValues(typeof(MapTypes.TileType)).Length];
+    var numberOfSize = System.Enum.GetValues(typeof(MapTypes.MapObjectSize)).Length;
+    this.objectPrefabNames = Enumerable.Repeat(
+      new List<string>(), numberOfSize).ToArray();
+    this.CurrentState = State.SpawningRoot;
+    this.currentNode = this.CreateNode(new Vector3());
+    this.currentNode.Spawner.OnSpawned += () => {
+      this.CurrentState = State.SpawningNext;
       GameManager.Shared.StartGame();
     };
+  }
+
+  MapNode CreateNode(Vector3 center)
+  {
+    var node = new MapNode(
+         Object.Instantiate(containerPrefab),
+         new TileMapGenerator(this.mapConfig),
+         center,
+         this.tilePrefabNames,
+         this.objectPrefabNames
+        );
+    return (node);
   }
 
   public void SetMapTiles(params (MapTypes.TileType tileType, string prefabName)[] tiles)
   {
     foreach (var (tileType, prefabName) in tiles) {
-      this.currentSpawner.SetTilePrefabs(tileType, prefabName);
+      this.tilePrefabNames[(int)tileType] = prefabName;
+      this.currentNode.Spawner.SetTilePrefabs(tileType, prefabName);
       PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/{prefabName}", this.InitTile, 100);
     }
   }
@@ -61,7 +101,8 @@ public class MapManager
   public void SetMapObjects(MapTypes.MapObjectSize size, params string[] prefabNames) 
   {
     foreach (var prefabName in prefabNames) {
-      this.currentSpawner.SetObjectPrefab(size, prefabName);
+      this.objectPrefabNames[(int)size].Add(prefabName);
+      this.currentNode.Spawner.SetObjectPrefab(size, prefabName);
       PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapObjects/{prefabName}", this.InitMapObject);
     }
   }
