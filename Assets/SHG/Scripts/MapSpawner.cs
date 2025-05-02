@@ -1,21 +1,13 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 
 public class MapSpawner : MonoBehaviour
 {
   public bool IsReady { get; private set; } = false;
-  //[SerializeField]
-  TileMapGenerator.Config mapConfig = new (
-      chanceToCreate: 0.4f,
-      chanceToRedirect: 0.7f,
-      chanceToRemove: 0.15f,
-      mapSize: new (100, 100),
-      startPos: new (50, 50),
-      floorPercentage: 0.35f
-      );
-  //[SerializeField]
+  public event Action OnSpawned;
   MapObjectPlacer.Config placingConfig;
+  TileMapGenerator.Config mapConfig;
   const float smallObjectPercentage = 0.005f;
   const float mediumObjectPercentage = 0.002f;
   const float largeObjectPercentage = 0.0001f;
@@ -26,6 +18,7 @@ public class MapSpawner : MonoBehaviour
   Grid grid;
   string[] tilePrefabNames;
   Vector2Int halfMapSize;
+  Coroutine SpawningRoutine;
 
   public void SetTilePrefabs(MapTypes.TileType tileType, string prefabName) 
   {
@@ -52,27 +45,36 @@ public class MapSpawner : MonoBehaviour
     this.StartCoroutine(this.mapGenerator.Generate(this.OnMapGenerated));
   }
 
-  // Update is called once per frame
-  void Update()
-  {
-
-  }
-
   void Init()
   {
     this.tilePrefabNames = new string[Enum.GetValues(typeof(MapTypes.TileType)).Length];
     // TODO: Load object count
-    this.halfMapSize = new (this.mapConfig.MapSize.x / 2, this.mapConfig.MapSize.y / 2);
     this.grid = this.GetComponent<Grid>();
-    this.mapGenerator = new TileMapGenerator(this.mapConfig);
+  }
+
+  public void SetTileMap(TileMapGenerator map)
+  {
+    this.mapGenerator = map;
+    this.mapConfig = map.config;
     this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles);
-    this.ScalePrefabs();
   }
 
   void OnMapGenerated() 
   {
-    
-    this.SpawnTiles();
+    this.SpawningRoutine = this.StartCoroutine(
+      this.CreateSpawningRoutine(() => {
+          this.IsReady = true;
+          if (this.OnSpawned != null) {
+            this.OnSpawned.Invoke();
+          }
+          this.SpawningRoutine = null;
+        })
+      );        
+  }
+
+  IEnumerator CreateSpawningRoutine(Action OnEnded)
+  {
+    yield return (this.SpawnTiles());
     var tileCount = this.mapConfig.FloorPercentage * this.mapConfig.MapSize.x * this.mapConfig.MapSize.y;
     this.placingConfig = new (
         numberOfSmallObject: (int)(tileCount * MapSpawner.smallObjectPercentage),
@@ -84,19 +86,11 @@ public class MapSpawner : MonoBehaviour
         );
     this.objectPlacer.SetConfig(this.placingConfig);
     this.objectPlacer.SetStartPoints(this.mapGenerator.CenterPosition, this.mapGenerator.EdgePositions);
-    this.objectPlacer.PlaceObjects();
-    this.SpawnObjects();
-    this.IsReady = true;
-    // TODO: Move Start Game
-    GameManager.Shared.StartGame();
+    yield return (this.objectPlacer.PlaceObjects());
+    yield return (this.SpawnObjects());
   }
 
-  void ScalePrefabs()
-  {
-    
-  }
-
-  void SpawnTiles() 
+  IEnumerator SpawnTiles() 
   {
     for (int y = 0; y < this.mapGenerator.tiles.GetLength(0); y++) {
       for (int x = 0; x < this.mapGenerator.tiles.GetLength(1); x++) {
@@ -105,6 +99,7 @@ public class MapSpawner : MonoBehaviour
           this.SpawnTile(tile, new(x, y));
         }
       }
+      yield return (null);
     }
   }
 
@@ -133,10 +128,11 @@ public class MapSpawner : MonoBehaviour
     }
   }
 
-  void SpawnObjects()
+  IEnumerator SpawnObjects()
   {
     foreach(var (pos, size, prefabName) in this.objectPlacer.ObjectPlacement) {
       this.PutMapObject(prefabName, pos);
+      yield return (null);
     }
   }
 

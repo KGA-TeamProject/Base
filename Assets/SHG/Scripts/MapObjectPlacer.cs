@@ -49,7 +49,7 @@ public class MapObjectPlacer
     this.Init();
   }
 
-  public void PlaceObjects()
+  public IEnumerator PlaceObjects()
   {
     var nextSize = MapTypes.MapObjectSize.Small;
     var walkerIndex = 0;
@@ -68,6 +68,7 @@ public class MapObjectPlacer
         nextSize = this.GetNextSize(nextSize);
         this.stepsAfterPlacement = 0;
       }
+      yield return (null);
     }
   }
 
