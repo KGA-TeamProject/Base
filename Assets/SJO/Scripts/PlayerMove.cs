@@ -22,6 +22,7 @@ public class PlayerMove : MonoBehaviour
 
     private void PlayerInput()
     {
+
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
