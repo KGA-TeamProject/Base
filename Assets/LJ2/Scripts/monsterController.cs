@@ -35,7 +35,7 @@ public class monsterController : MonoBehaviour
 
 
 
-    private void TakeDamage(int damage)
+    public void TakeDamage(int damage)
     {
         Hp -= damage;
         if (Hp < 0)
