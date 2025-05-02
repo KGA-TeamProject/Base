@@ -7,7 +7,7 @@ public class monsterController : MonoBehaviour
     [SerializeField] public Animator animator;
     [SerializeField] private int Hp;
     [SerializeField] private float moveSpeed;
-    [SerializeField] private bool canFly;
+   
     
     [SerializeField] private int bumpDamage;
 
