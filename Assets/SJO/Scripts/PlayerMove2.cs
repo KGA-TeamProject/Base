@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class PlayerMove2 : MonoBehaviour
 {
+    public bool isMove;
+
     [SerializeField] float moveSpeed;
     [SerializeField] float rotate;
 
@@ -20,11 +19,16 @@ public class PlayerMove2 : MonoBehaviour
         Vector3 direction = Direction();
         if (direction == Vector3.zero)
         {
+            isMove = false;
             return;
         }
+        else
+        {
+            isMove = true;
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction), rotate * Time.deltaTime);
+            transform.position += moveSpeed * Time.deltaTime * direction;
+        }
 
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction), rotate * Time.deltaTime);
-        transform.position += moveSpeed * Time.deltaTime * direction;
     }
 
     // 실제 컨트롤을 위한 Vector3
