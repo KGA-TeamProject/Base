@@ -1,24 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class MonsterHealthBar : MonoBehaviour
 {
     [SerializeField] Slider hpBar;
 
-    public Transform monster;
-
     // 체력을 알 수 있는 변수 생성
-    public float currentHP = 1000;
     public float maxHP = 1000;
+    public float currentHP = 1000;
 
-    private void Update()
+    void Update()
     {
-        transform.position = monster.position;
         hpBar.value = currentHP / maxHP;
     }
 
+    #region Before
     // 현재 체력과 최대 체력을 연결
     //public void SetUpHP(float amount)
     //{
@@ -59,4 +57,5 @@ public class MonsterHealthBar : MonoBehaviour
     //{
     //    Destroy(gameObject);
     //}
+    #endregion
 }
