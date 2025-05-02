@@ -4,10 +4,6 @@ using UnityEngine;
 public class PlayerAttack : MonoBehaviour
 {
     public Projectile prefab;
-
-    public int shootCount;
-    public float angle;
-    public float delaysecond;
     private Coroutine shootCoroutine;
 
     [SerializeField] public float sightRange;       // 적 탐지 범위
@@ -31,7 +27,7 @@ public class PlayerAttack : MonoBehaviour
             timer += Time.deltaTime;
 
             // delaysecond 마다 발사 ex) delaysecond = 0.5f -> 2번/초
-            if (timer >= delaysecond)
+            if (timer >= prefab.delaySecond)
             {
                 Shoot();
                 timer = 0f;
@@ -45,9 +41,11 @@ public class PlayerAttack : MonoBehaviour
         Debug.Log("발사");
         
         // 발사 화살 개수에 따른 발사 각도 조절
-        for (int i = 0; i < shootCount; i++)
+        for (int i = 0; i < prefab.shootCount; i++)
         {
-            float arrowAngle = -angle / 2 + angle / (shootCount + 1) * (i + 1);
+            prefab.Init(prefab.damage, prefab.shootCount, prefab.speed, prefab.delaySecond, prefab.angle);
+            
+            float arrowAngle = -prefab.angle / 2 + prefab.angle / (prefab.shootCount + 1) * (i + 1);
             Quaternion arrowRotation = Quaternion.Euler(0, arrowAngle, 0);
 
             Projectile instance = Instantiate(prefab, transform.position, transform.rotation * arrowRotation);
