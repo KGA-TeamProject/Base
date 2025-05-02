@@ -103,6 +103,9 @@ public class MapSpawner : MonoBehaviour
     this.objectPlacer.SetStartPoints(this.mapGenerator.CenterPosition, this.mapGenerator.EdgePositions);
     yield return (this.objectPlacer.PlaceObjects());
     yield return (this.SpawnObjects());
+    if (OnEnded != null) {
+      OnEnded.Invoke();
+    }
   }
 
   IEnumerator SpawnTiles() 
