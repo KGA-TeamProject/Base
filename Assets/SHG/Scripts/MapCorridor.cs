@@ -82,7 +82,7 @@ public class MapCorridor: MonoBehaviour
 
   IEnumerator CreateSpawnRoutine()
   {
-    while (Vector3.Distance(this.current, this.EndPos) >= 1.0f)
+    while (Vector3.Distance(this.current, this.EndPos) > 0.9f)
     {
       this.WalkStep(this.isWalkingMainStep ? this.mainStep: this.subStep);
 

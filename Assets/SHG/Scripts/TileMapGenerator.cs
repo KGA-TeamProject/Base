@@ -37,6 +37,7 @@ public class TileMapGenerator
   public Config config { get; private set; }
   public MapTypes.TileType[,] tiles { get; private set; }
   public Vector2Int[] EdgePositions { get; private set; }
+  public Vector2Int[] EdgeWallPositions { get; private set; }
   public Vector2Int CenterPosition { get; private set; }
   MapWalker[] walkers;
   int numberOfActiveWalkers = 0;
@@ -55,6 +56,8 @@ public class TileMapGenerator
   void Init()
   {
     this.EdgePositions = new Vector2Int[Enum.GetValues(typeof(MapTypes.TileDirection)).Length];
+    this.EdgeWallPositions = new Vector2Int[Enum.GetValues(typeof(MapTypes.TileDirection)).Length];
+
     for (int i = 0; i < this.EdgePositions.Length; ++i) {
       this.EdgePositions[i] = this.config.StartPos;
     }
@@ -114,6 +117,10 @@ public class TileMapGenerator
       if (MapWalker.IsInRange(cur, this.config.MapSize)) {
         if (this.IsTileType(MapTypes.TileType.Floor, cur)) {
           isNearFloor = true;
+          var edge = dir.x * dir.y == 0 ? Array.FindIndex(this.EdgePositions, (edgePos) => edgePos == cur) : -1;
+          if (edge!= -1) {
+            this.EdgeWallPositions[edge] = pos;
+          }
         }
         else if (!isWall) {
           this.FillWallFrom(cur, visited);

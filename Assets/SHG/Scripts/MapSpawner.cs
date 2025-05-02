@@ -24,10 +24,10 @@ public class MapSpawner : MonoBehaviour
       }
     }
   }
+  public (GameObject wallObj, Vector3 wallPos)[] EdgeWalls { get; private set; }
 
   string[] tilePrefabNames;
   List<string>[] objectPrefabNames;
-
   MapObjectPlacer.Config placingConfig;
   TileMapGenerator.Config mapConfig;
   const float smallObjectPercentage = 0.005f;
@@ -71,6 +71,7 @@ public class MapSpawner : MonoBehaviour
     // TODO: Load object count
     this.grid = this.GetComponent<Grid>();
     this.grid.transform.position = this.Center;
+    this.EdgeWalls = new (GameObject, Vector3)[MapTypes.AllTileDirection.Length];
   }
 
   public void SetTileMap(TileMapGenerator map)
@@ -82,7 +83,7 @@ public class MapSpawner : MonoBehaviour
   }
 
   void OnMapGenerated() 
-  {
+  { 
     this.SpawningRoutine = this.StartCoroutine(
       this.CreateSpawningRoutine(() => {
           this.IsReady = true;
@@ -137,20 +138,27 @@ public class MapSpawner : MonoBehaviour
       MapTypes.TileType.None => null,
       _ => null
     };
-    var tile = PrefabObjectPool.Shared.GetPooledObject(groundPrefab);
-    this.pooledObjects[groundPrefab].Add(tile);
-    var worldPos = this.ConvertTilePos(pos);
-    worldPos.y -= this.halfTileHeight;
-    this.PutObject(tile, worldPos);
 
     if (tileType == MapTypes.TileType.Wall) {
       var wallPrefab = this.tilePrefabNames[(int)MapTypes.TileType.Wall];
       var wall = PrefabObjectPool.Shared.GetPooledObject(wallPrefab); 
       this.pooledObjects[wallPrefab].Add(wall);
-      var wallPos = this.ConvertTilePos( pos, this.WallPosY);
+      var wallPos = this.ConvertTilePos(pos, this.WallPosY);
       wallPos.y -= this.halfTileHeight;
+      var edgeWallIndex = Array.FindIndex(
+          this.mapGenerator.EdgeWallPositions, 
+            (edgeWallPos) => edgeWallPos == pos);
+      if (edgeWallIndex != -1) {
+        this.EdgeWalls[(int)edgeWallIndex] = (wall, wallPos);
+        groundPrefab = this.tilePrefabNames[(int)MapTypes.TileType.Floor];
+      }
       this.PutObject(wall, wallPos);
     }
+    var worldPos = this.ConvertTilePos(pos);
+    worldPos.y -= this.halfTileHeight;
+    var tile = PrefabObjectPool.Shared.GetPooledObject(groundPrefab);
+    this.pooledObjects[groundPrefab].Add(tile);
+    this.PutObject(tile, worldPos);
   }
 
   IEnumerator SpawnObjects()

@@ -62,6 +62,7 @@ public class MapManager
     var newNode = this.CreateNode(
         this.CombatRoomSize,
         newCenter);
+    Debug.Log(newCenter);
     newNode.Spawn(
         this.containerPrefab,
         this.tilePrefabNames,
@@ -80,41 +81,38 @@ public class MapManager
     corridor.StartPos.y = a.Center.y;
     corridor.EndPos = b.EdgePositions[(int)dirFromB];
     corridor.EndPos.y = b.Center.y;
+    //FIXME: manually move endpos
+    //corridor.EndPos.x += 0.5f;
     corridor.tilePrefabNames = this.tilePrefabNames;
     a.SetConnection(dirFromA, b, corridor);
     b.SetConnection(dirFromB, a, corridor);
+    // TODO: create door
+    UnityEngine.Object.Destroy(a.Spawner.EdgeWalls[(int)dirFromA].wallObj);
+    UnityEngine.Object.Destroy(b.Spawner.EdgeWalls[(int)dirFromB].wallObj);
   }
 
   Vector3 CalcNewRoomOffsetFrom(MapNode start, MapTypes.TileDirection dir, Vector2Int newSize)
   {
     var pos = start.EdgePositions[(int)dir];
-//    float length = dir switch {
-//      MapTypes.TileDirection.Top or 
-//        MapTypes.TileDirection.Bottom =>
-//        (start.MapSize.y / 2 + newSize.y / 2) * MapCorridor.LENGTH_RATIO,
-//      MapTypes.TileDirection.Left or
-//        MapTypes.TileDirection.Right =>
-//        (start.MapSize.y / 2 + newSize.y / 2) * MapCorridor.LENGTH_RATIO,
-//
-//      _ => throw (new NotImplementedException()),
-//    };
+
+    pos.y = start.Center.y;
     var length = MapCorridor.LENGTH;
     switch (dir) {
       case MapTypes.TileDirection.Top: 
-        pos.z += newSize.y + length;
+        pos.z += (float)newSize.y + length;
         break;
       case MapTypes.TileDirection.Bottom:
-        pos.z -= newSize.y + length;
+        pos.z -= (float)newSize.y + length;
         break;
       case MapTypes.TileDirection.Left:
-        pos.x -= newSize.x + length;
+        pos.x -= (float)newSize.x + length;
         break;
       case MapTypes.TileDirection.Right:
-        pos.x += newSize.x + length;
+        pos.x += (float)newSize.x + length;
         break;
       default: throw (new NotImplementedException());
     }
-    return (pos);
+    return new(Mathf.Floor(pos.x), Mathf.Floor(pos.y), Mathf.Floor(pos.z));
   }
 
   MapNode CreateNode(Vector2Int size, Vector3 center)

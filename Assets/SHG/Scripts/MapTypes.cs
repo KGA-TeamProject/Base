@@ -36,6 +36,20 @@ static public class MapTypes
   }
   static public TileDirection[] AllTileDirection = (TileDirection[])Enum.GetValues(typeof(TileDirection));
 
+  static public bool IsPerpendicular(TileDirection dir)
+  {
+    switch (dir) 
+    {
+      case TileDirection.Top:
+      case TileDirection.Bottom:
+      case TileDirection.Left:
+      case TileDirection.Right:
+        return (true);
+      default:
+        return (false);
+    }
+  }
+
   static public TileDirection GetOppositeDir(TileDirection dir)
   {
     switch (dir) {
