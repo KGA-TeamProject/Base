@@ -13,7 +13,8 @@ public class PlayerHealthBar : MonoBehaviour
 
     public void Update()
     {
-        hpBar.value = currentHP / maxHP;
+        // 뚝뚝 끊기는 모션으로 인해 선형 보간 사용
+        hpBar.value = Mathf.Lerp(hpBar.value, currentHP / maxHP, Time.deltaTime * 3f);
     }
 
     #region Before
