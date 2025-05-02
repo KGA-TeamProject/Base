@@ -8,10 +8,8 @@ public interface IPlayer
   public event Action OnDie; 
 }
 
-
 public class GameManager: Singleton<GameManager> 
 {
-
   public enum GameState 
   {
     InCombat,
@@ -21,6 +19,9 @@ public class GameManager: Singleton<GameManager>
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
   new public static void CreateInstance() 
   {
+    if (Debugging.Mode == Debugging.DebugMode.DeactivateAll) {
+      return ;
+    }
     Singleton<GameManager>.CreateInstance();
     PrefabObjectPool.CreateInstance();
     UIManager.CreateInstance();
