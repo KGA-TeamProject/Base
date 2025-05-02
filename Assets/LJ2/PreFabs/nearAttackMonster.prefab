@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 1514790655536070125}
   - component: {fileID: 5694268703052783952}
   - component: {fileID: 8996251311688851716}
-  - component: {fileID: -6174544690486414081}
-  - component: {fileID: 2330207616173526157}
+  - component: {fileID: 3220701684227945914}
+  - component: {fileID: 208722558524403420}
   m_Layer: 8
   m_Name: nearAttackMonster
   m_TagString: Untagged
@@ -108,7 +108,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-6174544690486414081
+--- !u!114 &3220701684227945914
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,16 +117,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1358736805030249269}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65f197b92f04522449f994be67999f9c, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d033cecdc070c094a2288a1bc40b34b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Hp: 0
-  moveSpeed: 5
+  moveSpeed: 0
   bumpDamage: 0
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
---- !u!114 &2330207616173526157
+    m_Bits: 0
+--- !u!114 &208722558524403420
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -135,16 +135,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1358736805030249269}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40bdb78997300ab46b005382c83afc32, type: 3}
+  m_Script: {fileID: 11500000, guid: a17d9a36ab58c70f3920cbba3365dc7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   targetPos: {fileID: 0}
   targetLayer:
     serializedVersion: 2
-    m_Bits: 64
-  rushSpeed: 10
-  attackRadius: 5
-  monsterController: {fileID: -6174544690486414081}
+    m_Bits: 0
+  rushSpeed: 0
+  attackRadius: 0
+  monsterController: {fileID: 0}
 --- !u!1 &9129950734192821250
 GameObject:
   m_ObjectHideFlags: 0
