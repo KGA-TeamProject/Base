@@ -36,9 +36,9 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
   {
     if (this.pools.ContainsKey(name))
       return ;
-    var loaded = Resources.Load<UnityEngine.GameObject>($"Prefabs/{prefabName}");
+    var loaded = Resources.Load<UnityEngine.GameObject>(path);
     this.pools.TryAdd(
-        prefabName,(prefab: loaded, size: poolSize)
+        prefabName, (prefab: loaded, size: poolSize)
         ); 
   }
   public void RegisterPrefab(string name, GameObject prefab, int poolSize = PrefabObjectPool.POOL_SIZE)

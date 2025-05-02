@@ -13,6 +13,7 @@ TagManager:
   - UI
   - Player
   - Arrow
+  - Monster
   - 
   - 
   - 
@@ -22,8 +23,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - UIRenderOnly
   - 
   - 
   - 

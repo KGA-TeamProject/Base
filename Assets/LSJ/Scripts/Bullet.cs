@@ -44,11 +44,11 @@ public class Bullet : MonoBehaviour
         //    Debug.Log($"{collision.gameObject.name} 에는 데미지를 받을 수 있는 컴포넌트가 없음");
         //}
 
-        Rigidbody rigidbody = collision.gameObject.GetComponent<Rigidbody>();   // 너 Rigidbody 있어?
-        if (rigidbody != null) // 만약 Rigidbody 가 있으면
-        {
-            rigidbody.AddForce(transform.forward * 10f, ForceMode.Impulse); // 앞쪽으로 10f만큼 밀께
-        }
+        //Rigidbody rigidbody = collision.gameObject.GetComponent<Rigidbody>();   // 너 Rigidbody 있어?
+        //if (rigidbody != null) // 만약 Rigidbody 가 있으면
+        //{
+        //    rigidbody.AddForce(transform.forward * 10f, ForceMode.Impulse); // 앞쪽으로 10f만큼 밀께
+        //}
     }
 
     //private void Attack(IDamagable damagable)   // 몬스터에 IDamagable 이 있기 때문에 damagable -> Monster 가 됨. 
