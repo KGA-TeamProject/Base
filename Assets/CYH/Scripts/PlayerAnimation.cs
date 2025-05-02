@@ -5,22 +5,31 @@ using UnityEngine;
 public class PlayerAnimation : MonoBehaviour
 {
     [SerializeField] Animator animator;
-    public PlayerMove2_Test playerMove;
+    public PlayerMove2 playerMove;
+    public PlayerAttack playerAttack;
     
     private void Update()
     {
-        Walk();
+        AnimationPlay();
     }
 
-    public void Walk()
+    public void AnimationPlay()
     {
         if (playerMove.isMove == false)
         {
-            animator.Play("Idle1");
+            if (playerAttack.isDetect == true)
+            {
+                animator.Play("Attack1");
+            }
+            else
+            {
+                animator.Play("Idle1");
+            }
         }
         else
         {
             animator.Play("Run");
         }
     }
+   
 }
