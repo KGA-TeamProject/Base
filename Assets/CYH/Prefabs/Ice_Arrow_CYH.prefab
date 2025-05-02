@@ -73,10 +73,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb82d50a6fa399b9da4d0888375caaba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  damage: 2
+  shootCount: 3
   speed: 10
+  angle: 15
+  delaySecond: 0.7
   rigid: {fileID: 6603906019493392352}
   explosionEffect: {fileID: 8303287279460505755, guid: b3c741288228cc000a0208dd3aeb1643, type: 3}
-  damage: 2
 --- !u!1 &8598022496436078112
 GameObject:
   m_ObjectHideFlags: 0

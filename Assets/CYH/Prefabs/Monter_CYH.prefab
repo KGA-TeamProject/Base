@@ -2028,7 +2028,7 @@ GameObject:
   - component: {fileID: 7970481872567973105}
   - component: {fileID: 4739077099961665942}
   - component: {fileID: 5153298869359017303}
-  - component: {fileID: 8811850962451070414}
+  - component: {fileID: 5104732480408324229}
   m_Layer: 0
   m_Name: Monter_CYH
   m_TagString: Untagged
@@ -2096,7 +2096,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.46, y: 2.94, z: 1.22}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8811850962451070414
+--- !u!114 &5104732480408324229
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2105,10 +2105,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 8598825946868645017}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d79b52bfed9798ccd949df5f4025acbf, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d033cecdc070c094a2288a1bc40b34b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 10
+  Hp: 100
+  moveSpeed: 2
+  bumpDamage: 1
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &8618547750570709603
 GameObject:
   m_ObjectHideFlags: 0

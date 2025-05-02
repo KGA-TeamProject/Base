@@ -5,7 +5,9 @@ using UnityEngine;
 
 public class farAttack : MonoBehaviour
 {
-    
+    [SerializeField] monsterController monsterController;
+    [SerializeField] private Animator animator;
+
     [SerializeField] Transform targetPos;
     [SerializeField] LayerMask targetLayer;
  
@@ -14,7 +16,6 @@ public class farAttack : MonoBehaviour
     private YieldInstruction attackDelay;
 
     [SerializeField] private float attackRadius;
-    [SerializeField] monsterController monsterController;
 
     [SerializeField] private GameObject attackPrefab;
     [SerializeField] private int poolSize;
@@ -96,6 +97,7 @@ public class farAttack : MonoBehaviour
         while (true)
         {
             Attack();
+            animator.Play("Attack");
             yield return attackDelay;
         }
 

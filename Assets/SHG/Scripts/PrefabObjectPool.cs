@@ -32,15 +32,20 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
     return (queue);
   }
 
-  public void RegisterByName(string prefabName, string path, int poolSize = PrefabObjectPool.POOL_SIZE) 
+  public void RegisterByName(string prefabName, string path, Func<GameObject, GameObject> modifier = null,  int poolSize = PrefabObjectPool.POOL_SIZE) 
   {
     if (this.pools.ContainsKey(name))
       return ;
-    var loaded = Resources.Load<UnityEngine.GameObject>(path);
+    var prefab = Resources.Load<UnityEngine.GameObject>(path);
+    if (modifier != null) {
+      prefab = modifier(Instantiate(prefab));
+      prefab.SetActive(false);
+    }
     this.pools.TryAdd(
-        prefabName, (prefab: loaded, size: poolSize)
+        prefabName, (prefab: prefab, size: poolSize)
         ); 
   }
+
   public void RegisterPrefab(string name, GameObject prefab, int poolSize = PrefabObjectPool.POOL_SIZE)
   {
     if (this.pools.ContainsKey(name))
@@ -59,7 +64,7 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
       pooledObject = Instantiate(this.pools[prefabName].prefab);
     return (pooledObject);
   }
-
+  
   public void ReturnObject(UnityEngine.GameObject pooledObject, string prefabName) {
     var gameObject = pooledObject as UnityEngine.GameObject;
     if (gameObject == null)

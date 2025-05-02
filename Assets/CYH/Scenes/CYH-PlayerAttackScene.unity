@@ -170,6 +170,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3547330979225918801, guid: 0b9e5b51ce4fc017d89535da22e7ef49, type: 3}
+      propertyPath: rotate
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3547330979225918801, guid: 0b9e5b51ce4fc017d89535da22e7ef49, type: 3}
+      propertyPath: moveSpeed
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 8040516342135964338, guid: 0b9e5b51ce4fc017d89535da22e7ef49, type: 3}
       propertyPath: m_Name
       value: Player_CYH
@@ -685,13 +693,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748967058}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalRotation: {x: 0.2164396, y: 0, z: 0, w: 0.97629607}
+  m_LocalPosition: {x: 0, y: 7, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 25, y: 0, z: 0}
 --- !u!1001 &963731640
 PrefabInstance:
   m_ObjectHideFlags: 0

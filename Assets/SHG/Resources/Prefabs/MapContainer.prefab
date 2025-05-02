@@ -130,7 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6596075785311817247}
   - component: {fileID: 67382987276666090}
-  - component: {fileID: 6351725463578300490}
+  - component: {fileID: 795591609834179641}
   m_Layer: 0
   m_Name: MapContainer
   m_TagString: Untagged
@@ -166,7 +166,7 @@ Grid:
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 1
---- !u!114 &6351725463578300490
+--- !u!114 &795591609834179641
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -175,17 +175,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 2909596027226999963}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e832fd4f47c6c34a9773929a273b83e, type: 3}
+  m_Script: {fileID: 11500000, guid: 92d08914922f55cae99102052413d0e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorTile: {fileID: 0}
-  wallTile: {fileID: 0}
-  config:
-    ChanceToCreateWalker: 0.554
-    ChanceToRemoveWalker: 0.076
-    ChanceToRedirect: 0.7
-    MapSize: {x: 100, y: 100}
-    StartPos: {x: 50, y: 50}
-    WalkerMaximum: 10
-    FloorPercentage: 0.462
-    maxIteration: 2000
