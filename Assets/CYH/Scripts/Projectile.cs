@@ -30,14 +30,15 @@ public class Projectile : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Destroy(gameObject);
-        
+
         // 충돌한 몬스터 체력 감소
-        MonsterRayTest monsterRayTest = collision.gameObject.GetComponent<MonsterRayTest>();
-        if (monsterRayTest != null)
+        monsterController monsterController = collision.gameObject.GetComponent<monsterController>();
+        if (monsterController != null)
         {
             Instantiate(explosionEffect, transform.position, transform.rotation);
-            collision.gameObject.GetComponent<MonsterRayTest>().hp -= damage;
-            Debug.Log($"몬스터 체력 : {collision.gameObject.GetComponent<MonsterRayTest>().hp}");
+            // merge 후 적용
+            //monsterController.TakeDamage(damage);
+            //Debug.Log($"몬스터 체력 : {collision.gameObject.GetComponent<monsterController>().Hp}");
         }
     }
 }

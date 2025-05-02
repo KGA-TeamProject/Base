@@ -58,9 +58,9 @@ public class PlayerAttack : MonoBehaviour
         if (Physics.Raycast(transform.position, transform.forward, out RaycastHit hitInfo, sightRange))
         {
             // 해당 스크립트를 가진 오브젝트 판별 후 공격
-            MonsterRayTest monsterRayTest = hitInfo.collider.gameObject.GetComponent<MonsterRayTest>();
+            monsterController monsterController = hitInfo.collider.gameObject.GetComponent<monsterController>();
 
-            if (monsterRayTest != null)
+            if (monsterController != null)
             {
                 Debug.DrawLine(transform.position, hitInfo.point, Color.red);
                 if (shootCoroutine == null)
