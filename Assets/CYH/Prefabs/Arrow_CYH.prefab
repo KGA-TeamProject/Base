@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 871730343672713522}
   - component: {fileID: 6603906019493392352}
-  - component: {fileID: 3719641966362836803}
+  - component: {fileID: 8130871393846185931}
   m_Layer: 7
   m_Name: Arrow_CYH
   m_TagString: Untagged
@@ -61,7 +61,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &3719641966362836803
+--- !u!114 &8130871393846185931
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -70,12 +70,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5149386198556360450}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f078f664c970b5b4fbf72f34b1486cd5, type: 3}
+  m_Script: {fileID: 11500000, guid: cb82d50a6fa399b9da4d0888375caaba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
   rigid: {fileID: 6603906019493392352}
-  explosionEffect: {fileID: 1802261868130759384, guid: ffaaa8261df00894d904738e2aaf356f, type: 3}
+  explosionEffect: {fileID: 1802261868130759384, guid: 319e66ba0f01333b7bfdc248174f099d, type: 3}
   damage: 2
 --- !u!1 &8598022496436078112
 GameObject:
