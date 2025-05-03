@@ -12,8 +12,10 @@ interface IMonster
 public class StageManager : Singleton<StageManager> 
 {
 
-  public int CurrentStage { get; private set; }
+  public int CurrentStage => this.currentStage;
   public event Action OnStageClear;
+  [SerializeField]
+  int currentStage = 1;
   HashSet<int> currentStageMonsterIds;
   MapManager map;
   StageConfig config;
@@ -24,19 +26,31 @@ public class StageManager : Singleton<StageManager>
   {
     this.LoadConfigs();
     this.map = new MapManager();
-    this.ApplyStageConfig(1);
-    this.map.SpawnMap();
   }
 
   void Start()
   {
     UIManager.Shared.MinimapCamera = this.map.minimapCamera;
+    if (Debugging.Mode == Debugging.DebugMode.None) {
+      this.StartStage();
+    }
   }
 
   void LoadConfigs()
   {
     var json = Resources.Load<TextAsset>("Configs/StageConfigs").text;
     this.config = JsonUtility.FromJson<StageConfig>(json);
+  }
+
+  void StartStage()
+  {
+    this.ApplyStageConfig(this.CurrentStage);
+    this.map.SpawnMap();
+  }
+
+  void FinishStage()
+  {
+    this.map.ReleaseCurrent();
   }
 
   void ApplyStageConfig(int stage)
@@ -55,11 +69,12 @@ public class StageManager : Singleton<StageManager>
     this.map.SetMapObjects(
         MapTypes.MapObjectSize.Large, maps.Objects.Large
         );
+    this.map.SetMapSections(maps.Sections);
   }
   
   void OnClear() 
   {
-    this.CurrentStage += 1;
+    this.currentStage += 1;
     this.currentStageMonsterIds.Clear();
     if (this.OnStageClear != null) {
       this.OnStageClear.Invoke();
@@ -79,5 +94,13 @@ public class StageManager : Singleton<StageManager>
   {
     this.currentStageMonsterIds.Remove(monster.Id);
   }
+
+  /*
+   * Editor
+   */
+  [InspectorButton("StartStage")]
+  public bool StartButton;
+  [InspectorButton("FinishStage")]
+  public bool EndButton;
 }
 

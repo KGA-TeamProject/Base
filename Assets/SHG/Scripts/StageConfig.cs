@@ -7,6 +7,7 @@ public class StageConfig
   {
     public TilePrefab Tiles;
     public ObjectPrefab Objects;
+    public string[] Sections;
 
     [System.Serializable]
     public struct TilePrefab

@@ -24,10 +24,18 @@ public class MapSpawner : MonoBehaviour
       }
     }
   }
+  public List<string> SectionNames {
+    get => this.sectionNames;
+    set {
+      this.sectionNames = value;
+      this.CreatePooledObjectList(value); 
+    }
+  }
   public (GameObject wallObj, Vector3 wallPos)[] EdgeWalls { get; private set; }
 
   string[] tilePrefabNames;
   List<string>[] objectPrefabNames;
+  List<string> sectionNames;
   MapObjectPlacer.Config placingConfig;
   TileMapGenerator.Config mapConfig;
   const float smallObjectPercentage = 0.005f;
@@ -42,9 +50,10 @@ public class MapSpawner : MonoBehaviour
   Coroutine SpawningRoutine;
   Dictionary<string, List<GameObject>> pooledObjects = new();
 
-  public void DestorySelf()
+  public void DestroySelf()
   {
     this.ReleasePooledObjects();
+    this.objectPlacer = null;
     Destroy(this.gameObject);
   }
 
@@ -78,12 +87,14 @@ public class MapSpawner : MonoBehaviour
   {
     this.mapGenerator = map;
     this.mapConfig = map.config;
-    this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles);
-    this.objectPlacer.objectPrefabNames = this.objectPrefabNames;
+    this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles, this.mapGenerator.SectionMask);
+    this.objectPlacer.ObjectPrefabNames = this.objectPrefabNames;
+    this.objectPlacer.SectionNames = this.SectionNames;
   }
 
   void OnMapGenerated() 
   { 
+    this.objectPlacer.SectionCenters = this.mapGenerator.SectionCenters;
     this.SpawningRoutine = this.StartCoroutine(
       this.CreateSpawningRoutine(() => {
           this.IsReady = true;
@@ -141,8 +152,7 @@ public class MapSpawner : MonoBehaviour
 
     if (tileType == MapTypes.TileType.Wall) {
       var wallPrefab = this.tilePrefabNames[(int)MapTypes.TileType.Wall];
-      var wall = PrefabObjectPool.Shared.GetPooledObject(wallPrefab); 
-      this.pooledObjects[wallPrefab].Add(wall);
+      var wall = this.GetPooledObject(wallPrefab); 
       var wallPos = this.ConvertTilePos(pos, this.WallPosY);
       wallPos.y -= this.halfTileHeight;
       var edgeWallIndex = Array.FindIndex(
@@ -156,8 +166,7 @@ public class MapSpawner : MonoBehaviour
     }
     var worldPos = this.ConvertTilePos(pos);
     worldPos.y -= this.halfTileHeight;
-    var tile = PrefabObjectPool.Shared.GetPooledObject(groundPrefab);
-    this.pooledObjects[groundPrefab].Add(tile);
+    var tile = this.GetPooledObject(groundPrefab);
     this.PutObject(tile, worldPos);
   }
 
@@ -169,10 +178,19 @@ public class MapSpawner : MonoBehaviour
     }
   }
 
+  GameObject GetPooledObject(string name)
+  {
+    var obj = PrefabObjectPool.Shared.GetPooledObject(name);
+    this.pooledObjects[name].Add(obj);
+    return (obj);
+  }
+
   void PutMapObject(string prefabName, Vector2Int pos)
   {
-    var obj = PrefabObjectPool.Shared.GetPooledObject(prefabName);
+    var obj = this.GetPooledObject(prefabName);
     var worldPos = this.ConvertTilePos(pos);
+    int rotation = UnityEngine.Random.Range(0, 4);
+    obj.transform.Rotate(new Vector3(0, rotation * 90, 0));
     this.PutObject(obj, worldPos); 
   }
 
@@ -194,9 +212,16 @@ public class MapSpawner : MonoBehaviour
 
   void ReleasePooledObjects(params string[] prefabNames)
   {
-    foreach (var (prefabName, objectList) in this.pooledObjects) {
+    var pooledObjects = this.pooledObjects;
+    this.pooledObjects = null;
+    foreach (var (prefabName, objectList) in pooledObjects) {
+      if (objectList == null) {
+        continue;
+      }
       foreach (var pooledObject in objectList) {
-        PrefabObjectPool.Shared.ReturnObject(pooledObject, prefabName);
+        if (pooledObject != null) {
+          PrefabObjectPool.Shared.ReturnObject(pooledObject, prefabName);
+        }
       }
     }
   }

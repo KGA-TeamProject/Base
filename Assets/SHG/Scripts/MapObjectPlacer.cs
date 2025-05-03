@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,8 +28,11 @@ public class MapObjectPlacer
       this.ChanceToRedirect = chanceToRedirect;
     }
   }
-  public List<string>[] objectPrefabNames;
+  public int NumberOfSections = 5;
+  public List<string>[] ObjectPrefabNames;
+  public List<string> SectionNames;
   public Vector2Int centerPos;
+  public List<Vector2Int> SectionCenters;
   public List<(Vector2Int pos, MapTypes.MapObjectSize size, string prefabName)> ObjectPlacement;
   Config config;
   int[] numberOfObjectsBySize;
@@ -36,15 +40,20 @@ public class MapObjectPlacer
   bool[,] objectPlaced;
   int stepsAfterPlacement = 0;
   MapTypes.TileType[,] map;
+  bool[,] sectionMask;
   bool[] tilemask;
   MapWalker[] walkers;
   Vector2Int mapSize;
   float[] minDistToCenter;
+  List<(Vector2Int center, GameObject gameObject)> sections;
+  float sectionMargin = 10.0f;
 
-  public MapObjectPlacer(MapTypes.TileType[,] map)
+  public MapObjectPlacer(MapTypes.TileType[,] map, bool[,] sectionMask)
   {
 
     this.map = map;
+    this.sectionMask = sectionMask;
+    this.sections = new();
     this.Init();
   }
 
@@ -69,6 +78,33 @@ public class MapObjectPlacer
       }
       yield return (null);
     }
+    this.PlaceSections();
+  }
+
+  void PlaceSections()
+  {
+
+    var shuffledCenters = this.SectionCenters.OrderBy(pos => Guid.NewGuid()).ToList();
+    var created = 0;
+    var currentIndex = 0;
+    while (created < this.NumberOfSections && 
+        currentIndex < shuffledCenters.Count) {
+      var candidate = shuffledCenters[currentIndex];
+      var foundClose = this.sections.FindIndex((section) => 
+        Vector2Int.Distance(section.center, candidate) < this.sectionMargin
+      );
+      if (foundClose == -1) {
+        this.PlaceSection(candidate);
+        created += 1;
+      }
+      currentIndex += 1;
+    }
+  }
+
+  void PlaceSection(Vector2Int pos)
+  {
+    var name = this.GetRandomSectionName();    
+    this.ObjectPlacement.Add((pos, MapTypes.MapObjectSize.Large, name));
   }
 
   public void SetConfig(Config config)
@@ -99,7 +135,7 @@ public class MapObjectPlacer
     this.objectPlaced = new bool[this.mapSize.x, this.mapSize.y];
     this.ObjectPlacement = new();
 
-    this.tilemask= new bool[Enum.GetValues(typeof(MapTypes.TileType)).Length];
+    this.tilemask = new bool[Enum.GetValues(typeof(MapTypes.TileType)).Length];
     this.tilemask[(int)MapTypes.TileType.Wall] = true;
     this.tilemask[(int)MapTypes.TileType.Obstacle] = true;
     this.minDistToCenter = new float[numberOfSize];
@@ -163,11 +199,16 @@ public class MapObjectPlacer
 
   bool IsAbleToPlace(Vector2Int pos, MapTypes.MapObjectSize size)
   {
-    if (this.objectPlaced[pos.y, pos.x]) {
+    if (this.objectPlaced[pos.y, pos.x] || 
+        this.sectionMask[pos.y, pos.x]) {
       return (false);
     }
     var distToCenter = Vector2Int.Distance(pos, this.centerPos);
     if (distToCenter < this.minDistToCenter[(int)size]) {
+      return (false);
+    }
+    var wallCount = MapWalker.CountNeigborTileFrom(pos, this.tilemask, this.map);
+    if (wallCount > 0) {
       return (false);
     }
     if (size == MapTypes.MapObjectSize.Small) {
@@ -177,11 +218,11 @@ public class MapObjectPlacer
       return (false);
     }
     foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
-       var cur = pos + dir; 
-       if (MapWalker.IsInRange(cur, this.mapSize) &&
-           this.objectPlaced[cur.y, cur.x]) {
-         return (false);
-       }
+      var cur = pos + dir; 
+      if (MapWalker.IsInRange(cur, this.mapSize) &&
+          this.objectPlaced[cur.y, cur.x]) {
+        return (false);
+      }
     }
     if (size == MapTypes.MapObjectSize.Medium) {
       return (true);
@@ -190,11 +231,11 @@ public class MapObjectPlacer
       return (false);
     }
     foreach (var twoStepDir in MapTypes.AllTileDirectionsTwoStep) {
-       var cur = pos + twoStepDir; 
-       if (MapWalker.IsInRange(cur, this.mapSize) &&
-           this.objectPlaced[cur.y, cur.x]) {
-         return (false);
-       }
+      var cur = pos + twoStepDir; 
+      if (MapWalker.IsInRange(cur, this.mapSize) &&
+          this.objectPlaced[cur.y, cur.x]) {
+        return (false);
+      }
     }    
     return (true);
   }
@@ -235,7 +276,14 @@ public class MapObjectPlacer
 
   string GetRandomObjectPrefab(MapTypes.MapObjectSize size)
   {
-    var index = UnityEngine.Random.Range(0, this.objectPrefabNames[(int)size].Count);
-    return (this.objectPrefabNames[(int)size][index]);
+    var index = UnityEngine.Random.Range(0, 
+        this.ObjectPrefabNames[(int)size].Count);
+    return (this.ObjectPrefabNames[(int)size][index]);
+  }
+
+  string GetRandomSectionName()
+  {
+    int index = UnityEngine.Random.Range(0, this.SectionNames.Count);
+    return (this.SectionNames[index]);
   }
 }

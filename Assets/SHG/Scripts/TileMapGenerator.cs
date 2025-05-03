@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TileMapGenerator 
@@ -20,8 +21,9 @@ public class TileMapGenerator
     [Range(0f, 1.0f)]
     public float FloorPercentage;
     [Range(1000, 10000)]
-    public int maxIteration;
-    public Config(float chanceToCreate, float chanceToRedirect, float chanceToRemove, Vector2Int mapSize, Vector2Int startPos, float floorPercentage, int walkerMaximum = 10, int maxIteration = 100000)
+    public int MaxIteration;
+    public int MinimumStepsForRedirect;
+    public Config(float chanceToCreate, float chanceToRedirect, float chanceToRemove, Vector2Int mapSize, Vector2Int startPos, float floorPercentage, int minimumStepsForRedirect, int walkerMaximum = 10, int maxIteration = 100000)
     {
       this.ChanceToCreate = chanceToCreate;
       this.ChanceToRemove = chanceToRemove;
@@ -29,17 +31,24 @@ public class TileMapGenerator
       this.MapSize = mapSize;
       this.StartPos = startPos;
       this.FloorPercentage = floorPercentage;
+      this.MinimumStepsForRedirect = minimumStepsForRedirect;
       this.WalkerMaximum  = walkerMaximum;
-      this.maxIteration = maxIteration;
+      this.MaxIteration = maxIteration;
     }
   }
 
+  static int SECTION_SIZE = 11;
+  static int SECTION_MARGIN = 4;
   public Config config { get; private set; }
   public MapTypes.TileType[,] tiles { get; private set; }
   public Vector2Int[] EdgePositions { get; private set; }
   public Vector2Int[] EdgeWallPositions { get; private set; }
   public Vector2Int CenterPosition { get; private set; }
+  public List<Vector2Int> SectionCenters { get; private set; }
+  public bool[,] SectionMask { get; private set; }
+
   MapWalker[] walkers;
+  int[] walkerStepsAfterRedirect;
   int numberOfActiveWalkers = 0;
   int floorCount = 0;
   int maxFloorCount;
@@ -64,15 +73,85 @@ public class TileMapGenerator
     this.width = this.config.MapSize.x;
     this.height = this.config.MapSize.y;
     this.walkers = new MapWalker[this.config.WalkerMaximum];
+    this.walkerStepsAfterRedirect = new int[this.config.WalkerMaximum];
     this.tiles = new MapTypes.TileType[this.config.MapSize.x, this.config.MapSize.y];
     this.maxFloorCount = (int)((float)(this.config.MapSize.x * this.config.MapSize.y) * this.config.FloorPercentage);
+    this.SectionCenters = new ();
+    this.SectionMask = new bool [this.config.MapSize.x, this.config.MapSize.y];
   }
 
   public IEnumerator Generate(Action callback = null) 
   {
-    var walker = this.AwakeWalker(this.config.StartPos); 
+    this.AwakeWalker(this.config.StartPos); 
+    this.GenerateFloors();
+    yield return (null);
+    this.FillWalls();
+    yield return (null);
+    this.FillHoles();
+    yield return (null);
+    this.GetSections();
+    yield return (null);
+    this.SetCenter();
+    callback?.Invoke();
+  }
+
+  void GetSections()
+  {
+    bool[,] visited = new bool [this.config.MapSize.x, this.config.MapSize.y];
+    this.GetSectionsFrom(this.config.StartPos, visited);
+  }
+
+  void GetSectionsFrom(Vector2Int pos, bool[,] visited)
+  {
+    if (visited[pos.y, pos.x]) {
+      return;
+    }
+    visited[pos.y, pos.x] = true;
+    bool hasSpace = this.HasSpaceForSection(pos);
+    if (hasSpace) {
+      this.MarkSection(pos);
+    }
+    foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
+      if (dir.x * dir.y != 0) {
+        continue;
+      }
+      var candidatePos = pos + ((TileMapGenerator.SECTION_SIZE + TileMapGenerator.SECTION_MARGIN ) * dir);
+      if (MapWalker.IsInRange(candidatePos, this.config.MapSize) &&
+          !this.SectionMask[candidatePos.y, candidatePos.x] &&
+          this.IsTileType(MapTypes.TileType.Floor, candidatePos)) {
+        this.GetSectionsFrom(candidatePos, visited);
+      }
+    }
+  }
+
+  bool HasSpaceForSection(Vector2Int pos) 
+  {
+    for (int x = -TileMapGenerator.SECTION_SIZE / 2; x <= TileMapGenerator.SECTION_SIZE / 2; ++x) {
+      for (int y = -TileMapGenerator.SECTION_SIZE / 2; y <= TileMapGenerator.SECTION_SIZE / 2; ++y) {
+        var cur = new Vector2Int(pos.x + x, pos.y + y);
+        if(this.SectionMask[cur.y, cur.x] ||
+          !this.IsTileType(MapTypes.TileType.Floor, cur)) {
+          return (false);
+        }
+      }
+    }
+    return (true);
+  }
+
+  void MarkSection(Vector2Int pos)
+  {
+    this.SectionCenters.Add(pos);
+    for (int x = -TileMapGenerator.SECTION_SIZE / 2; x <= TileMapGenerator.SECTION_SIZE / 2; ++x) {
+      for (int y = -TileMapGenerator.SECTION_SIZE / 2; y <= TileMapGenerator.SECTION_SIZE / 2; ++y) {
+        this.SectionMask[pos.y + y, pos.x + x] = true;
+      }
+    }
+  }
+
+  void GenerateFloors()
+  {
     while (this.floorCount < this.maxFloorCount && 
-        this.iteration < this.config.maxIteration) {
+        this.iteration < this.config.MaxIteration) {
       this.CreateFloors();
       if (this.floorCount >= this.maxFloorCount) {
         break;
@@ -83,12 +162,6 @@ public class TileMapGenerator
       this.ProgressWalkers();
       this.iteration += 1;
     }
-    this.FillWalls();
-    yield return (null);
-    this.FillHoles();
-    this.SetCenter();
-    yield return (null);
-    callback?.Invoke();
   }
 
   void FillWalls()
@@ -118,7 +191,7 @@ public class TileMapGenerator
         if (this.IsTileType(MapTypes.TileType.Floor, cur)) {
           isNearFloor = true;
           var edge = dir.x * dir.y == 0 ? Array.FindIndex(this.EdgePositions, (edgePos) => edgePos == cur) : -1;
-          if (edge!= -1) {
+          if (edge != -1 && this.IsEdgeWallPos(pos, cur, (MapTypes.TileDirection)edge)) {
             this.EdgeWallPositions[edge] = pos;
           }
         }
@@ -130,6 +203,15 @@ public class TileMapGenerator
     if (isNearFloor && !this.IsTileType(MapTypes.TileType.Floor, pos)) {
       this.SetTile(MapTypes.TileType.Wall, pos);
     }
+  }
+
+  bool IsEdgeWallPos(Vector2Int wallPos, Vector2Int floorPos, MapTypes.TileDirection edgeDir)
+  {
+    var offset = wallPos - floorPos;
+    if (offset == MapTypes.AllTileDirectionsOneStep[(int)edgeDir]) {
+      return (true);
+    }
+    return (false);
   }
 
   bool IsTileType(MapTypes.TileType tileType, Vector2Int pos) 
@@ -253,11 +335,15 @@ public class TileMapGenerator
   void RandomlyRedirect()
   {
     for (int i = 0; i < this.numberOfActiveWalkers; i++) {
+      if (this.walkerStepsAfterRedirect[i] < this.config.MinimumStepsForRedirect) {
+        continue;
+      }
       var chance = MapWalker.GetRandomPercentage();
       if (chance < this.config.ChanceToRedirect) {
         var walker = this.walkers[i];
         walker.Dir = walker.Redirect();
         this.walkers[i] = walker;
+        this.walkerStepsAfterRedirect[i] = 0;
       }
     }
   }
@@ -282,6 +368,7 @@ public class TileMapGenerator
     for (int i = 0; i < this.numberOfActiveWalkers; i++) {
       var walker = this.walkers[i]; 
       walker.Pos = walker.ProgressIn(this.config.MapSize);
+      this.walkerStepsAfterRedirect[i] += 1;
       walkers[i] = walker;
     }
   }

@@ -22,7 +22,7 @@ public class CombatUI : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    this.playerTransform = GameObject.FindWithTag("Player").transform;
+    this.playerTransform = GameObject.FindWithTag("Player")?.transform;
     this.Show();
   }
 

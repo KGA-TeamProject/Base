@@ -15,7 +15,8 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
   Dictionary<string, Queue<UnityEngine.GameObject>> pooledObjects = new();
 
   Queue<UnityEngine.GameObject> GetQueue(string prefabName) {
-    if (this.pooledObjects.TryGetValue(prefabName, out Queue<UnityEngine.GameObject> queue)) {
+    if (this.pooledObjects.TryGetValue(prefabName, 
+          out Queue<UnityEngine.GameObject> queue)) {
       return (queue);
     }
     return (null);
@@ -75,6 +76,18 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
       this.pooledObjects[prefabName].Enqueue(gameObject);
     else
       Destroy(gameObject);
+  }
+
+  public void ReleasePrefab(string prefabName)
+  {
+    var queue = this.GetQueue(prefabName);
+    if (queue == null) {
+      return;
+    }
+    foreach (var pooledObject in queue) {
+      Destroy(pooledObject.gameObject);
+    }
+    this.pooledObjects.Remove(prefabName);
   }
 
   void OnDestory() {

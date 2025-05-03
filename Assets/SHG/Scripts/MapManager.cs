@@ -20,7 +20,8 @@ public class MapManager
   MapNode startNode;
   GameObject containerPrefab;
   string[] tilePrefabNames;
-  public List<string>[] objectPrefabNames;
+  List<string>[] objectPrefabNames;
+  List<string> sectionNames;
   public Vector2Int StartRoomSize = new (50, 50);
   public Vector2Int CombatRoomSize = new (70, 70);
 
@@ -38,6 +39,7 @@ public class MapManager
     var numberOfSize = System.Enum.GetValues(typeof(MapTypes.MapObjectSize)).Length;
     this.objectPrefabNames = Enumerable.Repeat(
       new List<string>(), numberOfSize).ToArray();
+    this.sectionNames = new();
   }
 
   public void SpawnMap()
@@ -47,9 +49,65 @@ public class MapManager
     this.startNode.Spawn(
         this.containerPrefab,
          this.tilePrefabNames,
-         this.objectPrefabNames
+         this.objectPrefabNames,
+         this.sectionNames
         );
     this.startNode.OnSpawned += this.OnSpawnedStartNode;
+  }
+
+  public void ReleaseCurrent()
+  {
+    this.ReleaseMap();
+    this.ReleasePrefabs();
+  }
+
+  void ReleasePrefabs()
+  {
+    for (int i = 0; i < this.objectPrefabNames.Length; ++i) {
+      foreach (var prefabName in this.objectPrefabNames[i]) {
+        PrefabObjectPool.Shared.ReleasePrefab(prefabName);
+      }
+      this.objectPrefabNames[i] = new();
+    }
+    for (int i = 0; i < this.tilePrefabNames.Length; ++i) {
+      if (this.tilePrefabNames[i] != null) {
+        PrefabObjectPool.Shared.ReleasePrefab(this.tilePrefabNames[i]);
+      }
+      this.tilePrefabNames[i] = null;
+    }
+    foreach (var prefabName in this.sectionNames) {
+      PrefabObjectPool.Shared.ReleasePrefab(prefabName);
+    }
+    this.sectionNames = new();
+  }
+
+  void ReleaseMap()
+  {
+    var visitedNode = new HashSet<MapNode>(); 
+     
+    this.ReleaseFromNode(this.startNode, visitedNode);
+    this.startNode = null;
+  }
+
+  void ReleaseFromNode(MapNode node, HashSet<MapNode> visited)
+  {
+    if (visited.Contains(node)) {
+      return;
+    }
+    visited.Add(node);
+    if (!node.IsDestroyed) {
+      node.DestorySelf();
+    }
+    foreach (var connection in node.Connections) {
+      if (connection.corridor != null &&
+          connection.corridor.IsSpawned) {
+        connection.corridor.DestroySelf();
+      }
+      if (connection.node != null &&
+          !connection.node.IsDestroyed) {
+        this.ReleaseFromNode(connection.node, visited);
+      }
+    }
   }
 
   void OnSpawnedStartNode()
@@ -62,11 +120,11 @@ public class MapManager
     var newNode = this.CreateNode(
         this.CombatRoomSize,
         newCenter);
-    Debug.Log(newCenter);
     newNode.Spawn(
         this.containerPrefab,
         this.tilePrefabNames,
-        this.objectPrefabNames
+        this.objectPrefabNames,
+        this.sectionNames
         );
     newNode.OnSpawned += () => this.ConnectNode(this.startNode, newNode, dir);
   }
@@ -129,7 +187,7 @@ public class MapManager
   {
     foreach (var (tileType, prefabName) in tiles) {
       this.tilePrefabNames[(int)tileType] = prefabName;
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapTiles/{prefabName}", this.InitTile, 100);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapTiles/{prefabName}", this.InitTile, 200);
     }
   }
 
@@ -137,7 +195,15 @@ public class MapManager
   {
     foreach (var prefabName in prefabNames) {
       this.objectPrefabNames[(int)size].Add(prefabName);
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"MapObjects/{prefabName}", this.InitMapObject);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapObjects/{prefabName}", this.InitMapObject, 200);
+    }
+  }
+
+  public void SetMapSections(string[] names)
+  {
+    foreach (var prefabName in names) {
+      this.sectionNames.Add(prefabName); 
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapSections/{prefabName}", null, 10);
     }
   }
 

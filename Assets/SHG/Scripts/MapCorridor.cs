@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MapCorridor: MonoBehaviour
 {
-  static public float LENGTH = 20;
+  static public float LENGTH = 10;
   const float TURNING_POINT = 0.7f;
   public Vector3 StartPos;
   public Vector3 EndPos;
@@ -27,6 +27,7 @@ public class MapCorridor: MonoBehaviour
 
   public void DestroySelf()
   {
+    this.IsSpawned = false;
     for (int i = 0; i < this.pooledTiles.Length; ++i) {
       var tileList = this.pooledTiles[i]; 
       if (tileList == null) {
@@ -37,7 +38,8 @@ public class MapCorridor: MonoBehaviour
         PrefabObjectPool.Shared.ReturnObject(tile, prefabName); 
       } 
     }
-    this.IsSpawned = false;
+    this.pooledTiles = null;
+    Destroy(this.gameObject);
   }
 
   void Awake()
@@ -203,10 +205,12 @@ public class MapCorridor: MonoBehaviour
   void SetWall(Vector3 pos) 
   {
     var wallName = this.tilePrefabNames[(int)MapTypes.TileType.Wall];
-    var wall = PrefabObjectPool.Shared.GetPooledObject(wallName);
-    this.SetTile(wall, pos);
-    this.SetTile(wall, new (pos.x, pos.y + 1.0f, pos.z));
-    this.pooledTiles[(int)MapTypes.TileType.Wall].Add(wall);
+    var wall1 = PrefabObjectPool.Shared.GetPooledObject(wallName);
+    this.SetTile(wall1, pos);
+    var wall2 = PrefabObjectPool.Shared.GetPooledObject(wallName);
+    this.SetTile(wall2, new (pos.x, pos.y + 1.0f, pos.z)); 
+    this.pooledTiles[(int)MapTypes.TileType.Wall].Add(wall1);
+    this.pooledTiles[(int)MapTypes.TileType.Wall].Add(wall2);
   }
 
   void SetTile(GameObject tile, Vector3 pos)

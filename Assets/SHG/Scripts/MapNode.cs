@@ -10,15 +10,17 @@ class MapNode
     Combat
   }
   // Tilemap settings
-  const float CHANCE_TO_CREATE = 0.4f;
-  const float CHANCE_TO_REDIRECT = 0.7f;
-  const float CHANCE_TO_REMOVE = 0.15f;
+  const float CHANCE_TO_CREATE = 0.2f;
+  const float CHANCE_TO_REDIRECT = 0.4f;
+  const float CHANCE_TO_REMOVE = 0.1f;
   const float FLOOR_PERCENTAGE = 0.35f;
+  const int MINIMUM_STEPS_FOR_REDIRECT = 5;
 
   public MapSpawner Spawner;
   public TileMapGenerator Tilemap;
   public Vector3 Center;
   public bool IsSpawned { get; private set; }
+  public bool IsDestroyed { get; private set; }
   public Vector3[] EdgePositions;
   public Action OnSpawned;
   public (MapNode node, MapCorridor corridor)[] Connections;
@@ -38,6 +40,7 @@ class MapNode
     this.Container = null;
     this.Spawner = null;
     this.OnSpawned = null;
+    this.IsDestroyed = false;
     this.EdgePositions = new Vector3[MapTypes.AllTileDirectionsOneStep.Length];
     this.Connections = new (MapNode, MapCorridor)[MapTypes.AllTileDirectionsOneStep.Length];
     this.Center = center;
@@ -47,7 +50,8 @@ class MapNode
   public void Spawn(
       GameObject containerPrefab, 
       string[] tilePrefabNames, 
-      List<string>[] objectPrefabNames
+      List<string>[] objectPrefabNames,
+      List<string> sectionNames
       )
   {
     this.Container = UnityEngine.Object.Instantiate(containerPrefab);
@@ -55,14 +59,24 @@ class MapNode
     this.Spawner.Center = this.Center;
     this.Spawner.TilePrefabNames = tilePrefabNames;
     this.Spawner.ObjectPrefabNames = objectPrefabNames;
+    this.Spawner.SectionNames = sectionNames;
     this.Spawner.SetTileMap(this.Tilemap);
     this.Spawner.OnSpawned += this.OnMapSpawned;
   }
 
-  public void Hide()
+  public void DestorySelf()
+  {
+    this.IsDestroyed = true;
+    if (this.IsSpawned) {
+      this.UnSpawn();
+    }
+    this.Tilemap = null;
+  }
+
+  public void UnSpawn()
   {
     this.IsSpawned = false;
-    this.Spawner.DestorySelf();
+    this.Spawner.DestroySelf();;
     this.Spawner = null;
   }
 
@@ -80,7 +94,8 @@ class MapNode
           chanceToRemove: CHANCE_TO_REMOVE,
           mapSize: mapSize,
           startPos: center,
-          floorPercentage: FLOOR_PERCENTAGE
+          floorPercentage: FLOOR_PERCENTAGE,
+          minimumStepsForRedirect: MINIMUM_STEPS_FOR_REDIRECT
           )
         );
   }
