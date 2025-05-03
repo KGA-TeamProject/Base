@@ -112,7 +112,6 @@ public class MapManager
 
   void OnSpawnedStartNode()
   {
-    GameManager.Shared.StartGame();
     var dir = MapTypes.TileDirection.Bottom;
     this.CurrentState = State.SpawningNextNode;
     var newCenter = this.CalcNewRoomOffsetFrom(this.startNode,
@@ -139,8 +138,6 @@ public class MapManager
     corridor.StartPos.y = a.Center.y;
     corridor.EndPos = b.EdgePositions[(int)dirFromB];
     corridor.EndPos.y = b.Center.y;
-    //FIXME: manually move endpos
-    //corridor.EndPos.x += 0.5f;
     corridor.tilePrefabNames = this.tilePrefabNames;
     a.SetConnection(dirFromA, b, corridor);
     b.SetConnection(dirFromB, a, corridor);
