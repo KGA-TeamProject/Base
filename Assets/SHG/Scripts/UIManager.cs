@@ -22,6 +22,7 @@ public class UIManager : Singleton<UIManager>
     LevelUp,
     StageEnd
   }
+  GameObject combatUIPrefab;
 
   void Awake()
   {
@@ -30,7 +31,11 @@ public class UIManager : Singleton<UIManager>
 
   void Init()
   {
-    var prefab = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
-    this.combatUI = Instantiate(prefab).GetComponent<CombatUI>();
+    this.combatUIPrefab  = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
+  }
+
+  public void ShowCombatUI()
+  {
+    this.combatUI = Instantiate(this.combatUIPrefab).GetComponent<CombatUI>();
   }
 }

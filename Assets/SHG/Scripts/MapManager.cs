@@ -14,11 +14,24 @@ public class MapManager
   }
 
   public State CurrentState { get; private set; }
-  public Camera minimapCamera { get; private set ;}
+  public Camera MinimapCamera { 
+    get {
+      if (this.minimapCamera == null) {
+        this.minimapCamera = ((GameObject)UnityEngine.Object.Instantiate(this.minimapCameraPrefab)).GetComponent<Camera>();
+      }
+      return (this.minimapCamera);
+    } 
+    private set {
+      this.minimapCamera = value;
+    }
+  }
+  public Action OnFinishSpawnMap;
   const string CONTAINER_NAME = "MapContainer";
   const string MINIMAP_CAMERA_NAME = "Minimap Camera";
   MapNode startNode;
   GameObject containerPrefab;
+  GameObject minimapCameraPrefab;
+  Camera minimapCamera;
   string[] tilePrefabNames;
   List<string>[] objectPrefabNames;
   List<string> sectionNames;
@@ -30,10 +43,15 @@ public class MapManager
     this.Init();
   }
 
+  public Vector3 GetStaringPos()
+  {
+    var tileCenter = this.startNode.Tilemap.CenterPosition;
+    return (this.startNode.Spawner.ConvertTilePos(tileCenter, 1));
+  }
+
   void Init()
   {
-    var minimapCameraPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.MINIMAP_CAMERA_NAME);
-    this.minimapCamera = UnityEngine.Object.Instantiate(minimapCameraPrefab).GetComponent<Camera>();
+    this.minimapCameraPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.MINIMAP_CAMERA_NAME);
     this.containerPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.CONTAINER_NAME);
     this.tilePrefabNames = new string[System.Enum.GetValues(typeof(MapTypes.TileType)).Length];
     var numberOfSize = System.Enum.GetValues(typeof(MapTypes.MapObjectSize)).Length;
@@ -111,6 +129,14 @@ public class MapManager
   }
 
   void OnSpawnedStartNode()
+  {
+    if (this.OnFinishSpawnMap != null) {
+      this.OnFinishSpawnMap.Invoke();
+    }
+    this.StartSpawnNextNode();
+  }
+
+  void StartSpawnNextNode()
   {
     var dir = MapTypes.TileDirection.Bottom;
     this.CurrentState = State.SpawningNextNode;

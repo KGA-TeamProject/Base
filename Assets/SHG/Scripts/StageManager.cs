@@ -13,6 +13,7 @@ public class StageManager : Singleton<StageManager>
 {
 
   public int CurrentStage => this.currentStage;
+  public event Action OnStartStage;
   public event Action OnStageClear;
   [SerializeField]
   int currentStage = 1;
@@ -28,24 +29,46 @@ public class StageManager : Singleton<StageManager>
     this.map = new MapManager();
   }
 
-  void Start()
-  {
-    UIManager.Shared.MinimapCamera = this.map.minimapCamera;
-    if (Debugging.Mode == Debugging.DebugMode.None) {
-      this.StartStage();
-    }
-  }
-
   void LoadConfigs()
   {
     var json = Resources.Load<TextAsset>("Configs/StageConfigs").text;
     this.config = JsonUtility.FromJson<StageConfig>(json);
   }
 
-  void StartStage()
+  public void StartStage()
   {
     this.ApplyStageConfig(this.CurrentStage);
     this.map.SpawnMap();
+    this.map.OnFinishSpawnMap += () => {
+      var player = this.SpawnPlayer();
+      if (this.OnStartStage != null) {
+        this.OnStartStage.Invoke();
+      }
+      UIManager.Shared.MinimapCamera = this.map.MinimapCamera;
+      UIManager.Shared.combatUI.Player = player.transform;
+      Camera.main.GetComponent<MainCamera>().Player = player;
+    };
+  }
+
+  Transform SpawnPlayer()
+  {
+    var playerPrefab = Resources.Load<GameObject>("TestPlayer");
+    var player = Instantiate(playerPrefab, this.map.GetStaringPos(), Quaternion.identity);
+    if (player.GetComponent<Collider>() == null) {
+      var collider = player.AddComponent<CapsuleCollider>();
+      collider.center = new(0, 0.7f, 0);
+      collider.radius = 0.5f;
+      collider.height = 1.8f;
+    }
+    if (player.GetComponent<Rigidbody>() == null) {
+      var rigidbody = player.AddComponent<Rigidbody>();
+      rigidbody.constraints = RigidbodyConstraints.FreezeRotationX |
+        RigidbodyConstraints.FreezeRotationZ;
+    }
+    if (player.tag != "Player") {
+      player.tag = "Player";
+    }
+    return (player.transform);
   }
 
   void FinishStage()

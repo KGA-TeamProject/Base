@@ -9,7 +9,6 @@ public class MapCorridor: MonoBehaviour
   const float TURNING_POINT = 0.7f;
   public Vector3 StartPos;
   public Vector3 EndPos;
-  public GameObject Container;
   public string[] tilePrefabNames;
   public bool IsSpawned { get; private set; } = false;
   public Action OnSpawned;
@@ -44,6 +43,7 @@ public class MapCorridor: MonoBehaviour
 
   void Awake()
   {
+    this.gameObject.name = "MapCorridor";
     this.pooledTiles = new List<GameObject>[MapTypes.AllTileTypes.Length];
     this.hasTurned = false;
   }

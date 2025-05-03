@@ -7,12 +7,12 @@ public class CombatUI : MonoBehaviour
 {
   public const string PREFAB_NAME = "CombatUI";
   public bool IsShowing { get; private set; }
+  public Transform Player;
   public Minimap minimap { get; private set; }
   IUIComponent CharacterHpUI;
   IUIComponent SkillListUI;
   const string CONTAINER_NAME = "combatUI_container";
   VisualElement root;
-  Transform playerTransform;
   Coroutine zoomMinimapRoutine;
 
   void Awake()
@@ -22,7 +22,7 @@ public class CombatUI : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    this.playerTransform = GameObject.FindWithTag("Player")?.transform;
+    this.Player = GameObject.FindWithTag("Player").transform;
     this.Show();
   }
 
@@ -61,16 +61,16 @@ public class CombatUI : MonoBehaviour
       this.StopCoroutine(this.zoomMinimapRoutine);
     }
     this.zoomMinimapRoutine = this.StartCoroutine(
-        this.minimap.Zoom(10f, () => this.zoomMinimapRoutine = null)
+        this.minimap.Zoom(Minimap.DEFAULT_ZOOM, () => this.zoomMinimapRoutine = null)
         );
   }
 
   void UpdateMinimap()
   {
     var newPos = new Vector3(
-        this.playerTransform.position.x,
+        this.Player.position.x,
         this.minimap.Camera.transform.position.y,
-        this.playerTransform.position.z
+        this.Player.position.z
         );
     this.minimap.MoveCameraCenterTo(newPos);
   }

@@ -5,10 +5,11 @@ using UnityEngine.UIElements;
 
 public class Minimap : VisualElement, IUIComponent
 {
-  public Camera Camera;
   public const string CONTAINER_NAME = "minimap_container";
-  RenderTexture renderTexture;
+  public const float DEFAULT_ZOOM = 20f;
+  public Camera Camera;
   public float ZoomLerp = 0.8f;
+  RenderTexture renderTexture;
 
   public Minimap()
   {

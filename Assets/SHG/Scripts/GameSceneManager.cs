@@ -6,7 +6,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
 {
   public enum SceneName
   {
-    FirstScene
+    CombatScene
   }
 
   public event Action<SceneName> OnSceneLoaded;
@@ -25,8 +25,21 @@ public class GameSceneManager : Singleton<GameSceneManager>
     while (!load.isDone) {
       yield return (null);
     }
+    this.CurrentScene = scene;
+    this.OnGameSceneLoaded();
+  }
+
+  void OnGameSceneLoaded()
+  {
+    this.SetCamera();
     if (this.OnSceneLoaded != null) {
-      this.OnSceneLoaded.Invoke(scene);
+      this.OnSceneLoaded.Invoke(this.CurrentScene);
+    }
+  }
+
+  void SetCamera() {
+    if (Camera.main != null) {
+      Camera.main.gameObject.AddComponent<MainCamera>();
     }
   }
 } 

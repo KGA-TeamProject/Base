@@ -55,12 +55,24 @@ public class GameManager: Singleton<GameManager>
 
   void Init() 
   {
-    //GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.FirstScene);
+    if (Debugging.Mode == Debugging.DebugMode.None) {
+      GameSceneManager.Shared.OnSceneLoaded += this.OnGameSceneLoaded;
+      GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.CombatScene);
+    }
   }
 
-  public void StartGame()
+  public void OnGameSceneLoaded(GameSceneManager.SceneName sceneName)
   {
     this.isPlaying = true;
+    switch (sceneName)
+    {
+      case GameSceneManager.SceneName.CombatScene:
+        StageManager.Shared.OnStartStage += UIManager.Shared.ShowCombatUI;
+        StageManager.Shared.StartStage();  
+        break;
+      default:
+        break;
+    }
   }
 
   /*

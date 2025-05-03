@@ -90,12 +90,15 @@ public class MapObjectPlacer
     while (created < this.NumberOfSections && 
         currentIndex < shuffledCenters.Count) {
       var candidate = shuffledCenters[currentIndex];
-      var foundClose = this.sections.FindIndex((section) => 
-        Vector2Int.Distance(section.center, candidate) < this.sectionMargin
-      );
-      if (foundClose == -1) {
-        this.PlaceSection(candidate);
-        created += 1;
+      if (Vector2Int.Distance(candidate, this.centerPos) >=
+          TileMapGenerator.SECTION_SIZE) {
+        var foundClose = this.sections.FindIndex((section) => 
+            Vector2Int.Distance(section.center, candidate) < this.sectionMargin
+            );
+        if (foundClose == -1) {
+          this.PlaceSection(candidate);
+          created += 1;
+        }
       }
       currentIndex += 1;
     }
