@@ -46,6 +46,7 @@ public class TileMapGenerator
   public Vector2Int CenterPosition { get; private set; }
   public List<Vector2Int> SectionCenters { get; private set; }
   public bool[,] SectionMask { get; private set; }
+  public bool IsGenerated { get; private set; }
 
   MapWalker[] walkers;
   int[] walkerStepsAfterRedirect;
@@ -91,7 +92,8 @@ public class TileMapGenerator
     yield return (null);
     this.GetSections();
     yield return (null);
-    this.SetCenter();
+    this.SetGeometry();
+    this.IsGenerated = true;
     callback?.Invoke();
   }
 
@@ -297,7 +299,7 @@ public class TileMapGenerator
     }
   }
 
-  void SetCenter()
+  void SetGeometry()
   {
     var center = new Vector2Int();
     foreach (var edge in this.EdgePositions) {

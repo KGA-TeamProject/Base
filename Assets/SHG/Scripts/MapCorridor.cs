@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MapCorridor: MonoBehaviour
 {
-  static public float LENGTH = 0;
+  static public float LENGTH = 20;
   const float TURNING_POINT = 0.7f;
   public Vector3 StartPos;
   public Vector3 EndPos;
@@ -84,7 +84,7 @@ public class MapCorridor: MonoBehaviour
 
   IEnumerator CreateSpawnRoutine()
   {
-    while (Vector3.Distance(this.current, this.EndPos) > 0.9f)
+    while (Vector3.Distance(this.current, this.EndPos) > 1.5f)
     {
       this.WalkStep(this.isWalkingMainStep ? this.mainStep: this.subStep);
 

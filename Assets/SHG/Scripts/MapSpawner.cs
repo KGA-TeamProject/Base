@@ -6,10 +6,12 @@ using UnityEngine;
 public class MapSpawner : MonoBehaviour
 {
   public bool IsGenerated { get; private set; }
+  public bool IsSpawned { get; private set; }
   public event Action OnGenerated;
   public event Action OnSpawned;
-  public event Func<MapTypes.TileDirection, bool> OnActivateDoor;
-  public Vector3 Center;
+  public event Action<MapTypes.TileDirection, Action> OnActivateDoor;
+  public Vector3 Center { get; private set; }
+  public bool IsStarting;
   public string[] TilePrefabNames {
     get => this.tilePrefabNames;
     set {
@@ -17,6 +19,7 @@ public class MapSpawner : MonoBehaviour
       this.CreatePooledObjectList(value);
     }
   }
+  public string DoorPrefabName = "FenceDoor";
   public List<string>[] ObjectPrefabNames {
     get => this.objectPrefabNames;
     set {
@@ -49,16 +52,32 @@ public class MapSpawner : MonoBehaviour
   int WallPosY = 1;
   float halfTileHeight = 0.5f;
   Grid grid;
-  Vector2Int halfMapSize;
   Coroutine SpawningRoutine;
   Dictionary<string, List<GameObject>> pooledObjects = new();
+  bool isCenterSet;
+  GameObject doorPrefab;
 
   public void DestroySelf()
   {
-    this.ReleasePooledObjects();
-    this.DestroyDoors();
+    if (this.IsSpawned) {
+      this.UnSpawn();
+    }
     this.objectPlacer = null;
+    this.DestroyDoors();
     Destroy(this.gameObject);
+  }
+
+  public void UnSpawn()
+  {
+    this.IsSpawned = false;
+    this.ReleasePooledObjects();
+  }
+
+  public void SetCenter(Vector3 pos) {
+    if (!this.isCenterSet) {
+      this.Center = pos;
+      this.isCenterSet = true;
+    }
   }
 
   public Vector3 ConvertTilePos(Vector2Int tilePos, int height = 0)
@@ -71,11 +90,20 @@ public class MapSpawner : MonoBehaviour
   public void CreateDoor(MapTypes.TileDirection dir)
   {
     this.EdgeWalls[(int)dir].wallObj?.SetActive(false);
-    var container = new GameObject();
-    var door = container.AddComponent<MapCorridorDoor>();
+    if (this.Doors[(int)dir].door != null) {
+      this.Doors[(int)dir].door.SetAsUnActivated();
+      return ;
+    }
+    var container = (GameObject)UnityEngine.GameObject.Instantiate(this.doorPrefab);
+    var door = container.GetComponent<MapCorridorDoor>();
+    door.Dir = dir;
     this.Doors[(int)dir] = (door, this.EdgeWalls[(int)dir].wallPos);
-    door.transform.position = this.Doors[(int)dir].doorPos;
-    door.OnActivated += () => this.OnActivateDoor(dir);
+    door.transform.position = new (
+      this.Doors[(int)dir].doorPos.x,
+      0,
+      this.Doors[(int)dir].doorPos.z
+      );
+    door.OnActivated += (callback) => this.OnActivateDoor(dir, callback);
   }
 
   public void Spawn(bool background = false) 
@@ -93,12 +121,23 @@ public class MapSpawner : MonoBehaviour
     }
   }
 
-  void OnFisnishSpawn()
+  public void SetTileMap(TileMapGenerator map)
   {
-    this.SpawningRoutine = null;
-    if (this.OnSpawned != null) {
-      this.OnSpawned.Invoke();
-    }
+    this.mapGenerator = map;
+    this.mapConfig = map.config;
+    this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles, this.mapGenerator.SectionMask);
+    this.objectPlacer.IsStarting = this.IsStarting;
+    this.objectPlacer.ObjectPrefabNames = this.objectPrefabNames;
+    this.objectPlacer.SectionNames = this.SectionNames;
+  }
+
+  public Vector2 GetActualSize()
+  {
+    var top = this.ConvertTilePos(this.mapGenerator.EdgePositions[(int)MapTypes.TileDirection.Top]);
+    var bottom = this.ConvertTilePos(this.mapGenerator.EdgePositions[(int)MapTypes.TileDirection.Bottom]);
+    var left = this.ConvertTilePos(this.mapGenerator.EdgePositions[(int)MapTypes.TileDirection.Left]);
+    var right = this.ConvertTilePos(this.mapGenerator.EdgePositions[(int)MapTypes.TileDirection.Right]);
+    return (new (right.x - left.x, top.z - bottom.z));
   }
 
   void Awake() 
@@ -109,11 +148,13 @@ public class MapSpawner : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    this.StartCoroutine(
-      this.mapGenerator.Generate(() => {
-        this.IsGenerated = true;
-        this.OnGenerated?.Invoke();
-    }));
+    if (!this.mapGenerator.IsGenerated) {
+      this.StartCoroutine(
+        this.mapGenerator.Generate(() => {
+          this.IsGenerated = true;
+          this.OnGenerated?.Invoke();
+      }));
+    }
   }
 
   void Init()
@@ -122,15 +163,7 @@ public class MapSpawner : MonoBehaviour
     this.grid.transform.position = this.Center;
     this.EdgeWalls = new (GameObject, Vector3)[MapTypes.AllTileDirection.Length];
     this.Doors = new (MapCorridorDoor, Vector3)[MapTypes.AllTileDirection.Length];
-  }
-
-  public void SetTileMap(TileMapGenerator map)
-  {
-    this.mapGenerator = map;
-    this.mapConfig = map.config;
-    this.objectPlacer = new MapObjectPlacer(this.mapGenerator.tiles, this.mapGenerator.SectionMask);
-    this.objectPlacer.ObjectPrefabNames = this.objectPrefabNames;
-    this.objectPlacer.SectionNames = this.SectionNames;
+    this.doorPrefab = (GameObject)Resources.Load($"Prefabs/MapObjects/{this.DoorPrefabName}");
   }
 
   IEnumerator CreateSpawningRoutine(Action OnEnded)
@@ -275,17 +308,28 @@ public class MapSpawner : MonoBehaviour
     }
   }
 
+  void OnFisnishSpawn()
+  {
+    this.IsSpawned = true;
+    this.SpawningRoutine = null;
+    if (this.OnSpawned != null) {
+      this.OnSpawned.Invoke();
+    }
+  }
+
   void ReleasePooledObjects(params string[] prefabNames)
   {
-    var pooledObjects = this.pooledObjects;
-    this.pooledObjects = null;
-    foreach (var (prefabName, objectList) in pooledObjects) {
+    foreach (var (prefabName, objectList) in this.pooledObjects) {
       if (objectList == null) {
         continue;
       }
       foreach (var pooledObject in objectList) {
         PrefabObjectPool.Shared.ReturnObject(pooledObject, prefabName);
       }
+    }
+    var names = new List<string>(this.pooledObjects.Keys);
+    foreach (var prefabName in names) {
+      this.pooledObjects[prefabName] = new();
     }
   }
   

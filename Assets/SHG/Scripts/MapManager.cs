@@ -25,7 +25,10 @@ public class MapManager
       this.minimapCamera = value;
     }
   }
+  int MAXIMUM_NODES = 5;
+  int currentNodes = 0;
   public Action OnFinishSpawnMap;
+  bool onFinishSpawnMapIsInvoked;
   const string CONTAINER_NAME = "MapContainer";
   const string MINIMAP_CAMERA_NAME = "Minimap Camera";
   MapNode startNode;
@@ -35,8 +38,9 @@ public class MapManager
   string[] tilePrefabNames;
   List<string>[] objectPrefabNames;
   List<string> sectionNames;
-  public Vector2Int StartRoomSize = new (50, 50);
-  public Vector2Int CombatRoomSize = new (70, 70);
+  public Vector2Int StartRoomSize = new (40, 40);
+  public Vector2Int CombatRoomSize = new (50, 50);
+  List<MapNode> SpawnedNodes;
 
   public MapManager()
   {
@@ -58,43 +62,88 @@ public class MapManager
     this.objectPrefabNames = Enumerable.Repeat(
       new List<string>(), numberOfSize).ToArray();
     this.sectionNames = new();
+    this.SpawnedNodes = new();
   }
 
   public void SpawnMap()
   {
     this.CurrentState = State.SpawningStartNode;
     this.CreateNodes();
-    this.startNode.OnGeneratedTilemap += () => {
-      this.startNode.OnSpawned += this.OnSpawnedStartNode;
-      this.startNode.Spawn(false);
-    };
   }
 
   void CreateNodes()
   {
-    this.startNode = this.CreateNode(this.StartRoomSize, new Vector3());
+    this.startNode = this.CreateNode(this.StartRoomSize);
+    this.startNode.IsStarting = true;
+    this.startNode.OnSpawned += () => {
+      this.CurrentState = State.None;
+      if (!this.onFinishSpawnMapIsInvoked) {
+        this.OnFinishSpawnStartNode();
+      }
+    };
+    this.startNode.OnGeneratedTilemap += () => {
+      this.SpawnedNodes.Add(this.startNode);
+      this.startNode.Spawner.SetCenter(new());
+      this.startNode.Spawn(false);
+    };
   }
 
-  void CreateNeighborNodeFrom(MapNode node, MapTypes.TileDirection dir)
+  void CreateNeighborNodes(MapNode startNode, HashSet<MapNode> visited)
   {
-    var newCenter = this.CalcNewRoomOffsetFrom(this.startNode,
-        dir, this.CombatRoomSize);
+    if (visited.Contains(startNode)) {
+      return ;
+    }
+    visited.Add(startNode);
+    var childNodes = this.CreateNeighborNodesNear(startNode);
+    foreach (var node in childNodes) {
+      this.CreateNeighborNodes(node, visited);
+    }
+  }
+
+  void OnFinishSpawnStartNode()
+  {
+    this.OnFinishSpawnMap?.Invoke();
+    this.onFinishSpawnMapIsInvoked = true; 
+    HashSet<MapNode> visited = new ();
+    this.CreateNeighborNodes(this.startNode, visited);
+    for (int i = 0; i < this.startNode.Connections.Length; ++i) {
+      var connection = this.startNode.Connections[i];
+      if (connection.node != null) {
+        this.startNode.Spawner.CreateDoor((MapTypes.TileDirection)i);
+      } 
+    }
+  }
+
+  List<MapNode> CreateNeighborNodesNear(MapNode node) 
+  {
+    List<MapNode> nodes = new();
+    var directions = node.GetRandomDirections();
+    for (int i = 0; this.currentNodes < this.MAXIMUM_NODES &&
+        i < directions.Length; ++i) {
+      if (directions[i]) {
+        var dir = (MapTypes.TileDirection)i;
+        var newNode = this.CreateNeighborNodeFrom(node, dir);
+        nodes.Add(newNode);
+      }
+    }
+    return (nodes);
+  }
+
+  MapNode CreateNeighborNodeFrom(MapNode node, MapTypes.TileDirection dir)
+  {
     var newNode = this.CreateNode(
-        this.CombatRoomSize,
-        newCenter);
+        this.CombatRoomSize);
     var oppositeDir = MapTypes.GetOppositeDir(dir);
     node.SetConnection(dir, newNode, null);
     newNode.SetConnection(oppositeDir, node, null);
-    newNode.OnGeneratedTilemap += () => {
-      node.Spawner.CreateDoor(dir);
-      newNode.Spawner.CreateDoor(oppositeDir);
-    };
+    return (newNode);
   }
 
   public void ReleaseCurrent()
   {
     this.ReleaseMap();
     this.ReleasePrefabs();
+    this.onFinishSpawnMapIsInvoked = false;
   }
 
   void ReleasePrefabs()
@@ -146,22 +195,51 @@ public class MapManager
     }
   }
 
-  void OnSpawnedStartNode()
-  {
-    if (this.OnFinishSpawnMap != null) {
-      this.OnFinishSpawnMap.Invoke();
-    }
-    this.CreateNeighborNodeFrom(this.startNode, MapTypes.TileDirection.Top);
-  }
-
   void SpawnConnectedNode(MapNode a, MapNode b, MapTypes.TileDirection dirFromA)
   {
-    var corridor = this.CreateCorridor(a, b, dirFromA);
+    this.LayoffNode(a, b, dirFromA);
     var dirFromB = MapTypes.GetOppositeDir(dirFromA);
-    a.Connections[(int)dirFromA].corridor = corridor;
-    b.Connections[(int)dirFromB].corridor = corridor;
-    b.Spawner.OnSpawned += () => b.Spawner.CreateDoor(dirFromB);
+    var corridor = this.CreateCorridor(a, b, dirFromA);
+    a.SetConnection(dirFromA, b, corridor);
+    b.SetConnection(dirFromB, a, corridor);
+    b.Spawner.OnSpawned += () => {
+      b.Spawner.CreateDoor(dirFromB);
+    };
     this.StartSpawnNextNode(b, dirFromA);
+  }
+
+  void LayoffNode(MapNode datum, MapNode target, MapTypes.TileDirection dir)
+  {
+    var size = target.Spawner.GetActualSize();
+    var targetCenter = target.Spawner.ConvertTilePos(target.Tilemap.CenterPosition);
+    var center = datum.GetEdgePosition(dir);
+    center = new (
+        MathF.Floor(center.x),
+        MathF.Floor(center.y),
+        MathF.Floor(center.z)
+        );
+    targetCenter = new (
+        MathF.Floor(targetCenter.x),
+        MathF.Floor(targetCenter.y),
+        MathF.Floor(targetCenter.z)
+        );
+    center -= targetCenter;
+    switch (dir) {
+      case MapTypes.TileDirection.Top:
+        center.z += MathF.Round(size.y * 0.5f) + MapCorridor.LENGTH;
+        break;
+      case MapTypes.TileDirection.Bottom:
+        center.z -= (MathF.Round(size.y * 0.5f) + MapCorridor.LENGTH);
+        break;
+      case MapTypes.TileDirection.Left:
+        center.x -= (MathF.Round(size.x * 0.5f) + MapCorridor.LENGTH);
+        break;
+      case MapTypes.TileDirection.Right:
+          center.x += MathF.Round(size.x * 0.5f) + MapCorridor.LENGTH;
+        break;
+      default: throw (new NotImplementedException());
+    }
+    target.Spawner.SetCenter(center);
   }
 
   MapCorridor CreateCorridor(MapNode a, MapNode b, MapTypes.TileDirection dirFromA)
@@ -170,10 +248,8 @@ public class MapManager
     var container = new GameObject();
     var corridor = container.AddComponent<MapCorridor>();
     corridor.IsHorizontal = dirFromA == MapTypes.TileDirection.Left || dirFromA == MapTypes.TileDirection.Right;
-    corridor.StartPos = a.EdgePositions[(int)dirFromA];
-    corridor.StartPos.y = a.Center.y;
-    corridor.EndPos = b.EdgePositions[(int)dirFromB];
-    corridor.EndPos.y = b.Center.y;
+    corridor.StartPos = a.GetEdgePosition(dirFromA);
+    corridor.EndPos = b.GetEdgePosition(dirFromB);
     corridor.tilePrefabNames = this.tilePrefabNames;
     return (corridor);
   }
@@ -182,47 +258,56 @@ public class MapManager
   {
     this.CurrentState = State.SpawningNextNode;
     nextNode.Spawn(true);
+    nextNode.OnSpawned += () => {
+      for (int i = 0; i < nextNode.Connections.Length; ++i) {
+        var connection = nextNode.Connections[i];
+        if (connection.node != null) {
+          nextNode.Spawner.CreateDoor((MapTypes.TileDirection)i);
+        }
+      }
+      this.CurrentState = State.None;
+    };
   }
 
-  Vector3 CalcNewRoomOffsetFrom(MapNode start, MapTypes.TileDirection dir, Vector2Int newSize)
+  MapNode CreateNode(Vector2Int size)
   {
-    var pos = start.EdgePositions[(int)dir];
-
-    pos.y = start.Center.y;
-    var length = MapCorridor.LENGTH;
-    switch (dir) {
-      case MapTypes.TileDirection.Top: 
-        pos.z += (float)newSize.y * 0.4f + length;
-        break;
-      case MapTypes.TileDirection.Bottom:
-        pos.z -= (float)newSize.y * 0.4f + length;
-        break;
-      case MapTypes.TileDirection.Left:
-        pos.x -= (float)newSize.x * 0.4f + length;
-        break;
-      case MapTypes.TileDirection.Right:
-        pos.x += (float)newSize.x * 0.4f + length;
-        break;
-      default: throw (new NotImplementedException());
-    }
-    return new(Mathf.Floor(pos.x), Mathf.Floor(pos.y), Mathf.Floor(pos.z));
-  }
-
-  MapNode CreateNode(Vector2Int size, Vector3 center)
-  {
+    this.currentNodes += 1;
     var node = new MapNode(
         size,
-        center,
         MapNode.RoomType.None,
         this.containerPrefab,
         this.tilePrefabNames,
         this.objectPrefabNames,
         this.sectionNames
         );
+    node.OnSpawned += () => {
+      this.SpawnedNodes.Add(node);
+    };
     node.OnMoveToNextNode += (dest, dir) => { 
+      if (this.CurrentState != State.None) {
+        return (false);
+      }
+      for (int i = this.SpawnedNodes.Count - 1 ; i > 0; --i) {
+        var spawnedNode = this.SpawnedNodes[i];
+        if (spawnedNode != node && spawnedNode != dest) {
+          for (int j = 0; j < spawnedNode.Connections.Length; ++j) {
+            var connection = spawnedNode.Connections[j];
+            if (connection.corridor != null) {
+              connection.corridor.DestroySelf();
+            }  
+            if (connection.node == node || connection.node == dest) {
+              connection.node.Spawner.CreateDoor(
+                  MapTypes.GetOppositeDir((MapTypes.TileDirection)j));
+            }
+          }
+          spawnedNode.UnSpawn();
+          this.SpawnedNodes.RemoveAt(i);
+        }
+      }
       if (!dest.IsSpawned) {
         this.SpawnConnectedNode(node, dest, dir);
       }
+      return (true);
     };
     return (node);
   }

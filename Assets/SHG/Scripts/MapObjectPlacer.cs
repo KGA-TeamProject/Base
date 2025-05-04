@@ -33,6 +33,7 @@ public class MapObjectPlacer
   public List<string> SectionNames;
   public Vector2Int centerPos;
   public List<Vector2Int> SectionCenters;
+  public bool IsStarting;
   public List<(Vector2Int pos, MapTypes.MapObjectSize size, string prefabName)> ObjectPlacement;
   Config config;
   int[] numberOfObjectsBySize;
@@ -90,7 +91,8 @@ public class MapObjectPlacer
     while (created < this.NumberOfSections && 
         currentIndex < shuffledCenters.Count) {
       var candidate = shuffledCenters[currentIndex];
-      if (Vector2Int.Distance(candidate, this.centerPos) >=
+      if (!this.IsStarting ||
+          Vector2Int.Distance(candidate, this.centerPos) >=
           TileMapGenerator.SECTION_SIZE) {
         var foundClose = this.sections.FindIndex((section) => 
             Vector2Int.Distance(section.center, candidate) < this.sectionMargin

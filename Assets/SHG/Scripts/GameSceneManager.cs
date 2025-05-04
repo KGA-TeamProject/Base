@@ -40,6 +40,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
   void SetCamera() {
     if (Camera.main != null) {
       Camera.main.gameObject.AddComponent<MainCamera>();
+      Camera.main.fieldOfView = 50f;
     }
   }
 } 
