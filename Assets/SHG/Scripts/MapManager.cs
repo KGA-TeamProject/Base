@@ -63,14 +63,32 @@ public class MapManager
   public void SpawnMap()
   {
     this.CurrentState = State.SpawningStartNode;
+    this.CreateNodes();
+    this.startNode.OnGeneratedTilemap += () => {
+      this.startNode.OnSpawned += this.OnSpawnedStartNode;
+      this.startNode.Spawn(false);
+    };
+  }
+
+  void CreateNodes()
+  {
     this.startNode = this.CreateNode(this.StartRoomSize, new Vector3());
-    this.startNode.Spawn(
-        this.containerPrefab,
-         this.tilePrefabNames,
-         this.objectPrefabNames,
-         this.sectionNames
-        );
-    this.startNode.OnSpawned += this.OnSpawnedStartNode;
+  }
+
+  void CreateNeighborNodeFrom(MapNode node, MapTypes.TileDirection dir)
+  {
+    var newCenter = this.CalcNewRoomOffsetFrom(this.startNode,
+        dir, this.CombatRoomSize);
+    var newNode = this.CreateNode(
+        this.CombatRoomSize,
+        newCenter);
+    var oppositeDir = MapTypes.GetOppositeDir(dir);
+    node.SetConnection(dir, newNode, null);
+    newNode.SetConnection(oppositeDir, node, null);
+    newNode.OnGeneratedTilemap += () => {
+      node.Spawner.CreateDoor(dir);
+      newNode.Spawner.CreateDoor(oppositeDir);
+    };
   }
 
   public void ReleaseCurrent()
@@ -133,28 +151,20 @@ public class MapManager
     if (this.OnFinishSpawnMap != null) {
       this.OnFinishSpawnMap.Invoke();
     }
-    this.StartSpawnNextNode();
+    this.CreateNeighborNodeFrom(this.startNode, MapTypes.TileDirection.Top);
   }
 
-  void StartSpawnNextNode()
+  void SpawnConnectedNode(MapNode a, MapNode b, MapTypes.TileDirection dirFromA)
   {
-    var dir = MapTypes.TileDirection.Bottom;
-    this.CurrentState = State.SpawningNextNode;
-    var newCenter = this.CalcNewRoomOffsetFrom(this.startNode,
-        dir, this.CombatRoomSize);
-    var newNode = this.CreateNode(
-        this.CombatRoomSize,
-        newCenter);
-    newNode.Spawn(
-        this.containerPrefab,
-        this.tilePrefabNames,
-        this.objectPrefabNames,
-        this.sectionNames
-        );
-    newNode.OnSpawned += () => this.ConnectNode(this.startNode, newNode, dir);
+    var corridor = this.CreateCorridor(a, b, dirFromA);
+    var dirFromB = MapTypes.GetOppositeDir(dirFromA);
+    a.Connections[(int)dirFromA].corridor = corridor;
+    b.Connections[(int)dirFromB].corridor = corridor;
+    b.Spawner.OnSpawned += () => b.Spawner.CreateDoor(dirFromB);
+    this.StartSpawnNextNode(b, dirFromA);
   }
 
-  void ConnectNode(MapNode a, MapNode b, MapTypes.TileDirection dirFromA)
+  MapCorridor CreateCorridor(MapNode a, MapNode b, MapTypes.TileDirection dirFromA)
   {
     var dirFromB = MapTypes.GetOppositeDir(dirFromA);
     var container = new GameObject();
@@ -165,11 +175,13 @@ public class MapManager
     corridor.EndPos = b.EdgePositions[(int)dirFromB];
     corridor.EndPos.y = b.Center.y;
     corridor.tilePrefabNames = this.tilePrefabNames;
-    a.SetConnection(dirFromA, b, corridor);
-    b.SetConnection(dirFromB, a, corridor);
-    // TODO: create door
-    UnityEngine.Object.Destroy(a.Spawner.EdgeWalls[(int)dirFromA].wallObj);
-    UnityEngine.Object.Destroy(b.Spawner.EdgeWalls[(int)dirFromB].wallObj);
+    return (corridor);
+  }
+
+  void StartSpawnNextNode(MapNode nextNode, MapTypes.TileDirection dir)
+  {
+    this.CurrentState = State.SpawningNextNode;
+    nextNode.Spawn(true);
   }
 
   Vector3 CalcNewRoomOffsetFrom(MapNode start, MapTypes.TileDirection dir, Vector2Int newSize)
@@ -180,16 +192,16 @@ public class MapManager
     var length = MapCorridor.LENGTH;
     switch (dir) {
       case MapTypes.TileDirection.Top: 
-        pos.z += (float)newSize.y + length;
+        pos.z += (float)newSize.y * 0.4f + length;
         break;
       case MapTypes.TileDirection.Bottom:
-        pos.z -= (float)newSize.y + length;
+        pos.z -= (float)newSize.y * 0.4f + length;
         break;
       case MapTypes.TileDirection.Left:
-        pos.x -= (float)newSize.x + length;
+        pos.x -= (float)newSize.x * 0.4f + length;
         break;
       case MapTypes.TileDirection.Right:
-        pos.x += (float)newSize.x + length;
+        pos.x += (float)newSize.x * 0.4f + length;
         break;
       default: throw (new NotImplementedException());
     }
@@ -201,8 +213,17 @@ public class MapManager
     var node = new MapNode(
         size,
         center,
-        MapNode.RoomType.None
+        MapNode.RoomType.None,
+        this.containerPrefab,
+        this.tilePrefabNames,
+        this.objectPrefabNames,
+        this.sectionNames
         );
+    node.OnMoveToNextNode += (dest, dir) => { 
+      if (!dest.IsSpawned) {
+        this.SpawnConnectedNode(node, dest, dir);
+      }
+    };
     return (node);
   }
 

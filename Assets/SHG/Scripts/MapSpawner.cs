@@ -5,8 +5,10 @@ using UnityEngine;
 
 public class MapSpawner : MonoBehaviour
 {
-  public bool IsReady { get; private set; } = false;
+  public bool IsGenerated { get; private set; }
+  public event Action OnGenerated;
   public event Action OnSpawned;
+  public event Func<MapTypes.TileDirection, bool> OnActivateDoor;
   public Vector3 Center;
   public string[] TilePrefabNames {
     get => this.tilePrefabNames;
@@ -32,15 +34,16 @@ public class MapSpawner : MonoBehaviour
     }
   }
   public (GameObject wallObj, Vector3 wallPos)[] EdgeWalls { get; private set; }
+  public (MapCorridorDoor door, Vector3 doorPos)[] Doors { get; private set; }
 
   string[] tilePrefabNames;
   List<string>[] objectPrefabNames;
   List<string> sectionNames;
   MapObjectPlacer.Config placingConfig;
   TileMapGenerator.Config mapConfig;
-  const float smallObjectPercentage = 0.005f;
-  const float mediumObjectPercentage = 0.002f;
-  const float largeObjectPercentage = 0.0001f;
+  const float SMALL_OBJECT_PERCENTAGE = 0.007f;
+  const float MEDIUM_OBJECT_PERCENTAGE = 0.004f;
+  const float LARGE_OBJECT_PERCENTAGE = 0.0001f;
   TileMapGenerator mapGenerator;
   MapObjectPlacer objectPlacer;
   int WallPosY = 1;
@@ -53,6 +56,7 @@ public class MapSpawner : MonoBehaviour
   public void DestroySelf()
   {
     this.ReleasePooledObjects();
+    this.DestroyDoors();
     this.objectPlacer = null;
     Destroy(this.gameObject);
   }
@@ -64,6 +68,39 @@ public class MapSpawner : MonoBehaviour
     return (pos + this.Center);
   }
 
+  public void CreateDoor(MapTypes.TileDirection dir)
+  {
+    this.EdgeWalls[(int)dir].wallObj?.SetActive(false);
+    var container = new GameObject();
+    var door = container.AddComponent<MapCorridorDoor>();
+    this.Doors[(int)dir] = (door, this.EdgeWalls[(int)dir].wallPos);
+    door.transform.position = this.Doors[(int)dir].doorPos;
+    door.OnActivated += () => this.OnActivateDoor(dir);
+  }
+
+  public void Spawn(bool background = false) 
+  { 
+    this.objectPlacer.SectionCenters = this.mapGenerator.SectionCenters;
+    if (!background) {
+      this.SpawningRoutine = this.StartCoroutine(
+        this.CreateSpawningRoutine(this.OnFisnishSpawn)
+      );        
+    }
+    else {
+      this.SpawningRoutine = this.StartCoroutine(
+        this.CreateBackgroundSpawningRoutine(this.OnFisnishSpawn)
+      );        
+    }
+  }
+
+  void OnFisnishSpawn()
+  {
+    this.SpawningRoutine = null;
+    if (this.OnSpawned != null) {
+      this.OnSpawned.Invoke();
+    }
+  }
+
   void Awake() 
   {
     this.Init();
@@ -72,15 +109,19 @@ public class MapSpawner : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    this.StartCoroutine(this.mapGenerator.Generate(this.OnMapGenerated));
+    this.StartCoroutine(
+      this.mapGenerator.Generate(() => {
+        this.IsGenerated = true;
+        this.OnGenerated?.Invoke();
+    }));
   }
 
   void Init()
   {
-    // TODO: Load object count
     this.grid = this.GetComponent<Grid>();
     this.grid.transform.position = this.Center;
     this.EdgeWalls = new (GameObject, Vector3)[MapTypes.AllTileDirection.Length];
+    this.Doors = new (MapCorridorDoor, Vector3)[MapTypes.AllTileDirection.Length];
   }
 
   public void SetTileMap(TileMapGenerator map)
@@ -92,28 +133,35 @@ public class MapSpawner : MonoBehaviour
     this.objectPlacer.SectionNames = this.SectionNames;
   }
 
-  void OnMapGenerated() 
-  { 
-    this.objectPlacer.SectionCenters = this.mapGenerator.SectionCenters;
-    this.SpawningRoutine = this.StartCoroutine(
-      this.CreateSpawningRoutine(() => {
-          this.IsReady = true;
-          if (this.OnSpawned != null) {
-            this.OnSpawned.Invoke();
-          }
-          this.SpawningRoutine = null;
-        })
-      );        
-  }
-
   IEnumerator CreateSpawningRoutine(Action OnEnded)
   {
     yield return (this.SpawnTiles());
     var tileCount = this.mapConfig.FloorPercentage * this.mapConfig.MapSize.x * this.mapConfig.MapSize.y;
     this.placingConfig = new (
-        numberOfSmallObject: (int)(tileCount * MapSpawner.smallObjectPercentage),
-        numberOfMediumObject: (int)(tileCount * MapSpawner.mediumObjectPercentage),
-        numberOfLargeObject: (int)(tileCount * MapSpawner.largeObjectPercentage),
+        numberOfSmallObject: (int)(tileCount * MapSpawner.SMALL_OBJECT_PERCENTAGE),
+        numberOfMediumObject: (int)(tileCount * MapSpawner.MEDIUM_OBJECT_PERCENTAGE),
+        numberOfLargeObject: (int)(tileCount * MapSpawner.LARGE_OBJECT_PERCENTAGE),
+        stepsBetweenPlacement: (int)(tileCount / 10),
+        chanceToCreate: 0.2f,
+        chanceToRedirect: 0.2f
+        );
+    this.objectPlacer.SetConfig(this.placingConfig);
+    this.objectPlacer.SetStartPoints(this.mapGenerator.CenterPosition, this.mapGenerator.EdgePositions);
+    yield return (this.objectPlacer.PlaceObjects());
+    yield return (this.SpawnObjects());
+    if (OnEnded != null) {
+      OnEnded.Invoke();
+    }
+  }
+
+  IEnumerator CreateBackgroundSpawningRoutine(Action OnEnded)
+  {
+    yield return (this.BackgroundSpawnTiles());
+    var tileCount = this.mapConfig.FloorPercentage * this.mapConfig.MapSize.x * this.mapConfig.MapSize.y;
+    this.placingConfig = new (
+        numberOfSmallObject: (int)(tileCount * MapSpawner.SMALL_OBJECT_PERCENTAGE),
+        numberOfMediumObject: (int)(tileCount * MapSpawner.MEDIUM_OBJECT_PERCENTAGE),
+        numberOfLargeObject: (int)(tileCount * MapSpawner.LARGE_OBJECT_PERCENTAGE),
         stepsBetweenPlacement: (int)(tileCount / 10),
         chanceToCreate: 0.2f,
         chanceToRedirect: 0.2f
@@ -139,6 +187,20 @@ public class MapSpawner : MonoBehaviour
       yield return (null);
     }
   }
+  IEnumerator BackgroundSpawnTiles() 
+  {
+    for (int y = 0; y < this.mapGenerator.tiles.GetLength(0); y++) {
+      for (int x = 0; x < this.mapGenerator.tiles.GetLength(1); x++) {
+        var tile = this.mapGenerator.tiles[y, x];
+        if (tile != MapTypes.TileType.None) {
+          this.SpawnTile(tile, new(x, y));
+        }
+        if (x % 10 == 0) {
+          yield return (null);
+        }
+      }
+    }
+  }
 
   void SpawnTile(MapTypes.TileType tileType, Vector2Int pos)
   {
@@ -161,6 +223,9 @@ public class MapSpawner : MonoBehaviour
       if (edgeWallIndex != -1) {
         this.EdgeWalls[(int)edgeWallIndex] = (wall, wallPos);
         groundPrefab = this.tilePrefabNames[(int)MapTypes.TileType.Floor];
+        if (this.Doors[(int)edgeWallIndex].door != null) {
+          wall.SetActive(false);
+        }
       }
       this.PutObject(wall, wallPos);
     }
@@ -219,10 +284,17 @@ public class MapSpawner : MonoBehaviour
         continue;
       }
       foreach (var pooledObject in objectList) {
-        if (pooledObject != null) {
-          PrefabObjectPool.Shared.ReturnObject(pooledObject, prefabName);
-        }
+        PrefabObjectPool.Shared.ReturnObject(pooledObject, prefabName);
       }
+    }
+  }
+  
+  void DestroyDoors()
+  {
+    for (int i = 0; i < this.Doors.Length; ++i) {
+       if (this.Doors[i].door != null) {
+         this.Doors[i].door.DestorySelf();
+       }
     }
   }
 }
