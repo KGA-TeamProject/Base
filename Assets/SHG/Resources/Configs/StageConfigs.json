@@ -7,7 +7,7 @@
       },
       "Objects": {
         "Small": ["small_grass", "small_grass_swamp", "small_carrot", "small_corn", "small_salad", "small_potato", "small_log"],
-        "Medium": ["medium_philodendron_green", "medium_fern_tree", "medium_oval_leave_plant_flower"],
+        "Medium": ["medium_philodendron_green", "medium_oval_leave_plant_flower"],
         "Large": ["large_banana_tree", "large_hollow_log"]
       },
       "Sections": [

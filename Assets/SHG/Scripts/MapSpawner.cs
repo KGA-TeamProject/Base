@@ -71,6 +71,11 @@ public class MapSpawner : MonoBehaviour
   {
     this.IsSpawned = false;
     this.ReleasePooledObjects();
+    foreach (var (door, _) in this.Doors) {
+      if (door != null) {
+        door.Hide(); 
+      }
+    }
   }
 
   public void SetCenter(Vector3 pos) {
@@ -78,6 +83,17 @@ public class MapSpawner : MonoBehaviour
       this.Center = pos;
       this.isCenterSet = true;
     }
+  }
+
+  public List<Vector3> GetFreePositions()
+  {
+    var positions = this.objectPlacer.GetUnUsedSections().ConvertAll(
+        section => this.ConvertTilePos(section)
+        );
+    if (positions.Count == 0) {
+      positions.Add(this.ConvertTilePos(this.mapGenerator.CenterPosition));
+    }
+    return (positions);
   }
 
   public Vector3 ConvertTilePos(Vector2Int tilePos, int height = 0)
@@ -108,7 +124,7 @@ public class MapSpawner : MonoBehaviour
 
   public void Spawn(bool background = false) 
   { 
-    this.objectPlacer.SectionCenters = this.mapGenerator.SectionCenters;
+    this.objectPlacer.UsableSectionCenters = this.mapGenerator.SectionCenters;
     if (!background) {
       this.SpawningRoutine = this.StartCoroutine(
         this.CreateSpawningRoutine(this.OnFisnishSpawn)

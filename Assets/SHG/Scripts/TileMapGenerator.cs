@@ -97,6 +97,28 @@ public class TileMapGenerator
     callback?.Invoke();
   }
 
+  public Vector2Int FindSafeStarting()
+  {
+    var pos = this.CenterPosition;
+    var offset = 1;
+    while (!this.IsTileType(MapTypes.TileType.Floor, pos)) {
+      for (int x = -offset; x < offset + 1; ++x) {
+         for (int y = -offset; y < offset + 1; ++y) {
+           var cur = new Vector2Int(pos.x + x, pos.y + y);
+           if (cur == pos) {
+             continue;
+           }
+           if (this.IsTileType(MapTypes.TileType.Floor, cur)) {
+             pos = cur;
+             break;
+           }
+         } 
+      } 
+      offset += 1;
+    }
+    return (pos);
+  }
+
   void GetSections()
   {
     bool[,] visited = new bool [this.config.MapSize.x, this.config.MapSize.y];

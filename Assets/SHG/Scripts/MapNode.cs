@@ -23,11 +23,12 @@ class MapNode
   public TileMapGenerator Tilemap;
   public bool IsSpawned => this.Spawner.IsSpawned;
   public bool IsDestroyed { get; private set; }
+  public Vector2Int MapSize { get; private set; }
   public Action OnGeneratedTilemap;
   public Action OnSpawned;
   public (MapNode node, MapCorridor corridor)[] Connections;
   public RoomType Type;
-  public Vector2Int MapSize { get; private set; }
+  public int DepthFromStart;
   public Func<MapNode, MapTypes.TileDirection, bool> OnMoveToNextNode;
   public bool IsStarting;
   GameObject containerPrefab;
@@ -82,10 +83,14 @@ class MapNode
 
   public void DestorySelf()
   {
+    if (this.IsDestroyed) {
+      return ;
+    }
     this.IsDestroyed = true;
     if (this.IsSpawned) {
       this.UnSpawn();
     }
+    this.Spawner.DestroySelf();
     this.Tilemap = null;
     this.Spawner = null;
   }
@@ -106,7 +111,8 @@ class MapNode
     var dirCounts = Array.FindAll(this.Connections, (connection => connection.node != null)).Length;
     for (int i = 0; dirCounts < this.maxConnections &&
         i < directions.Length; ++i) {
-      if (this.Connections[i].node == null) {
+      if ((MapTypes.TileDirection)i != MapTypes.TileDirection.Bottom &&
+          this.Connections[i].node == null) {
         directions[i] = true;
         dirCounts += 1;
       }

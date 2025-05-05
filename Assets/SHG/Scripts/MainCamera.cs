@@ -7,7 +7,7 @@ public class MainCamera : MonoBehaviour
   const float CAMERA_HEIGHT = 15f;
   const float CAMERA_DEPTH = 5f;
   public Transform Player { 
-    get => this.player; 
+    get => this.player;
     set {
       this.player = value;
     }

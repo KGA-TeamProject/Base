@@ -75,6 +75,11 @@ public class GameManager: Singleton<GameManager>
     }
   }
 
+  public void EndGame()
+  {
+    Debug.Log("EndGame");
+  }
+
   /*
    * event
    */

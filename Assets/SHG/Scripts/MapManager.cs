@@ -25,9 +25,11 @@ public class MapManager
       this.minimapCamera = value;
     }
   }
-  int MAXIMUM_NODES = 5;
+  int MAXIMUM_NODES = 3;
   int currentNodes = 0;
-  public Action OnFinishSpawnMap;
+  public Action OnStartingSpawned;
+  public Action OnDestinationSpawned;
+  public Action OnDestinationUnSpawned;
   bool onFinishSpawnMapIsInvoked;
   const string CONTAINER_NAME = "MapContainer";
   const string MINIMAP_CAMERA_NAME = "Minimap Camera";
@@ -41,6 +43,7 @@ public class MapManager
   public Vector2Int StartRoomSize = new (40, 40);
   public Vector2Int CombatRoomSize = new (50, 50);
   List<MapNode> SpawnedNodes;
+  (int depth, MapNode node) furthest;
 
   public MapManager()
   {
@@ -49,8 +52,14 @@ public class MapManager
 
   public Vector3 GetStaringPos()
   {
-    var tileCenter = this.startNode.Tilemap.CenterPosition;
-    return (this.startNode.Spawner.ConvertTilePos(tileCenter, 1));
+    var tileStarting = this.startNode.Tilemap.FindSafeStarting();
+    return (this.startNode.Spawner.ConvertTilePos(tileStarting, 1));
+  }
+
+  public Vector3 GetFinishPos()
+  {
+    var positions = (this.furthest.node.Spawner.GetFreePositions());
+    return (positions[0]);
   }
 
   void Init()
@@ -74,7 +83,9 @@ public class MapManager
   void CreateNodes()
   {
     this.startNode = this.CreateNode(this.StartRoomSize);
+    this.startNode.DepthFromStart = 0;
     this.startNode.IsStarting = true;
+    this.furthest = (0, this.startNode);
     this.startNode.OnSpawned += () => {
       this.CurrentState = State.None;
       if (!this.onFinishSpawnMapIsInvoked) {
@@ -88,7 +99,21 @@ public class MapManager
     };
   }
 
-  void CreateNeighborNodes(MapNode startNode, HashSet<MapNode> visited)
+  void OnFinishSpawnStartNode()
+  {
+    this.OnStartingSpawned?.Invoke();
+    this.onFinishSpawnMapIsInvoked = true; 
+    HashSet<MapNode> visited = new ();
+    this.CreateNeighborNodes(this.startNode, visited, 1);
+    for (int i = 0; i < this.startNode.Connections.Length; ++i) {
+      var connection = this.startNode.Connections[i];
+      if (connection.node != null) {
+        this.startNode.Spawner.CreateDoor((MapTypes.TileDirection)i);
+      } 
+    }
+  }
+
+  void CreateNeighborNodes(MapNode startNode, HashSet<MapNode> visited, int depth)
   {
     if (visited.Contains(startNode)) {
       return ;
@@ -96,21 +121,11 @@ public class MapManager
     visited.Add(startNode);
     var childNodes = this.CreateNeighborNodesNear(startNode);
     foreach (var node in childNodes) {
-      this.CreateNeighborNodes(node, visited);
-    }
-  }
-
-  void OnFinishSpawnStartNode()
-  {
-    this.OnFinishSpawnMap?.Invoke();
-    this.onFinishSpawnMapIsInvoked = true; 
-    HashSet<MapNode> visited = new ();
-    this.CreateNeighborNodes(this.startNode, visited);
-    for (int i = 0; i < this.startNode.Connections.Length; ++i) {
-      var connection = this.startNode.Connections[i];
-      if (connection.node != null) {
-        this.startNode.Spawner.CreateDoor((MapTypes.TileDirection)i);
-      } 
+      node.DepthFromStart = depth;
+      if (node.DepthFromStart > this.furthest.depth) {
+        this.furthest = (depth, node);
+      }
+      this.CreateNeighborNodes(node, visited, depth + 1);
     }
   }
 
@@ -141,6 +156,8 @@ public class MapManager
 
   public void ReleaseCurrent()
   {
+    this.currentNodes = 0;
+    this.SpawnedNodes.Clear();
     this.ReleaseMap();
     this.ReleasePrefabs();
     this.onFinishSpawnMapIsInvoked = false;
@@ -204,6 +221,10 @@ public class MapManager
     b.SetConnection(dirFromB, a, corridor);
     b.Spawner.OnSpawned += () => {
       b.Spawner.CreateDoor(dirFromB);
+      if (b == this.furthest.node && 
+          this.OnDestinationSpawned != null) {
+        this.OnDestinationSpawned();
+      }
     };
     this.StartSpawnNextNode(b, dirFromA);
   }

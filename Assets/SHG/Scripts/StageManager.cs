@@ -15,22 +15,26 @@ public class StageManager : Singleton<StageManager>
   public int CurrentStage => this.currentStage;
   public event Action OnStartStage;
   public event Action OnStageClear;
+  public const int MAX_STAGE = 3;
   [SerializeField]
   int currentStage = 1;
   HashSet<int> currentStageMonsterIds;
   MapManager map;
   StageConfig config;
+  GameObject flagPrefab;
+  StageFinisher finisher;
 
   private int nextMonsterId = 0;
 
   void Awake()
   {
     this.LoadConfigs();
+    this.currentStageMonsterIds = new ();
     this.map = new MapManager();
+    this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/Flag");
   }
 
-  void LoadConfigs()
-  {
+  void LoadConfigs() {
     var json = Resources.Load<TextAsset>("Configs/StageConfigs").text;
     this.config = JsonUtility.FromJson<StageConfig>(json);
   }
@@ -39,18 +43,48 @@ public class StageManager : Singleton<StageManager>
   {
     this.ApplyStageConfig(this.CurrentStage);
     this.map.SpawnMap();
-    this.map.OnFinishSpawnMap += () => {
-      var player = this.SpawnPlayer();
-      if (this.OnStartStage != null) {
-        this.OnStartStage.Invoke();
-      }
-      UIManager.Shared.MinimapCamera = this.map.MinimapCamera;
-      UIManager.Shared.combatUI.Player = player.transform;
-      Camera.main.GetComponent<MainCamera>().Player = player;
-    };
+    this.map.OnStartingSpawned += this.OnStartingMapSpawned;
+    this.map.OnDestinationSpawned += this.OnSpawnDestination;
+    this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
   }
 
-  Transform SpawnPlayer()
+  void OnStartingMapSpawned()
+  {
+    var player = GameObject.FindWithTag("Player");
+    if (player != null) {
+      this.ShowPlayer(player);
+    }
+    else {
+      player = this.SpawnPlayer();
+    }
+    if (this.OnStartStage != null) {
+      this.OnStartStage.Invoke();
+    }
+    player.transform.position = this.map.GetStaringPos();
+    UIManager.Shared.MinimapCamera = this.map.MinimapCamera;
+    UIManager.Shared.combatUI.Player = player.transform;
+    Camera.main.GetComponent<MainCamera>().Player = player.transform;
+  }
+
+  void OnSpawnDestination()
+  {
+    if (this.finisher == null) {
+      var pos = this.map.GetFinishPos();
+      var flag = Instantiate(this.flagPrefab, pos, Quaternion.identity);
+      this.finisher = flag.AddComponent<StageFinisher>();
+      this.finisher.OnActivate += () => this.OnClear();
+    }
+    this.finisher.Show();
+  }
+
+  void OnUnSpawnDestination()
+  {
+    if (this.finisher != null) {
+      this.finisher.Show();
+    }
+  }
+
+  GameObject SpawnPlayer()
   {
     var playerPrefab = Resources.Load<GameObject>("TestPlayer");
     var player = Instantiate(playerPrefab, this.map.GetStaringPos(), Quaternion.identity);
@@ -68,12 +102,29 @@ public class StageManager : Singleton<StageManager>
     if (player.tag != "Player") {
       player.tag = "Player";
     }
-    return (player.transform);
+    return (player);
+  }
+
+  void HidePlayer(GameObject player)
+  {
+    player.SetActive(false);
+  }
+  
+  void ShowPlayer(GameObject player)
+  {
+    player.SetActive(true);
   }
 
   void FinishStage()
   {
+    this.finisher.DestroySelf();
+    this.finisher = null;
+    this.HidePlayer(GameObject.FindWithTag("Player"));
     this.map.ReleaseCurrent();
+    this.currentStageMonsterIds.Clear();
+    if (this.OnStageClear != null) {
+      this.OnStageClear.Invoke();
+    }
   }
 
   void ApplyStageConfig(int stage)
@@ -97,10 +148,13 @@ public class StageManager : Singleton<StageManager>
   
   void OnClear() 
   {
-    this.currentStage += 1;
-    this.currentStageMonsterIds.Clear();
-    if (this.OnStageClear != null) {
-      this.OnStageClear.Invoke();
+    this.FinishStage();
+    if (this.currentStage < StageManager.MAX_STAGE) {
+      this.currentStage += 1;
+      this.StartStage();
+    }
+    else {
+      GameManager.Shared.EndGame();
     }
   }
 
@@ -125,5 +179,7 @@ public class StageManager : Singleton<StageManager>
   public bool StartButton;
   [InspectorButton("FinishStage")]
   public bool EndButton;
+  [InspectorButton("OnClear")]
+  public bool NextStageButton;
 }
 

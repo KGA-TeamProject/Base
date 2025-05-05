@@ -32,7 +32,7 @@ public class MapObjectPlacer
   public List<string>[] ObjectPrefabNames;
   public List<string> SectionNames;
   public Vector2Int centerPos;
-  public List<Vector2Int> SectionCenters;
+  public List<Vector2Int> UsableSectionCenters;
   public bool IsStarting;
   public List<(Vector2Int pos, MapTypes.MapObjectSize size, string prefabName)> ObjectPlacement;
   Config config;
@@ -47,6 +47,7 @@ public class MapObjectPlacer
   Vector2Int mapSize;
   float[] minDistToCenter;
   List<(Vector2Int center, GameObject gameObject)> sections;
+  List<Vector2Int> usedSectionCenters;
   float sectionMargin = 10.0f;
 
   public MapObjectPlacer(MapTypes.TileType[,] map, bool[,] sectionMask)
@@ -79,20 +80,32 @@ public class MapObjectPlacer
       }
       yield return (null);
     }
-    this.PlaceSections();
+    if (!this.IsStarting) {
+      this.PlaceSections();
+    }
+  }
+
+  public List<Vector2Int> GetUnUsedSections()
+  {
+    List<Vector2Int> positions = new();
+    foreach (var section in this.UsableSectionCenters) {
+      if (!this.usedSectionCenters.Contains(section)) {
+        positions.Add(section);
+      } 
+    }
+    return (positions);
   }
 
   void PlaceSections()
   {
 
-    var shuffledCenters = this.SectionCenters.OrderBy(pos => Guid.NewGuid()).ToList();
+    var shuffledCenters = this.UsableSectionCenters.OrderBy(pos => Guid.NewGuid()).ToList();
     var created = 0;
     var currentIndex = 0;
     while (created < this.NumberOfSections && 
         currentIndex < shuffledCenters.Count) {
       var candidate = shuffledCenters[currentIndex];
-      if (!this.IsStarting ||
-          Vector2Int.Distance(candidate, this.centerPos) >=
+      if (Vector2Int.Distance(candidate, this.centerPos) >=
           TileMapGenerator.SECTION_SIZE) {
         var foundClose = this.sections.FindIndex((section) => 
             Vector2Int.Distance(section.center, candidate) < this.sectionMargin
@@ -110,6 +123,7 @@ public class MapObjectPlacer
   {
     var name = this.GetRandomSectionName();    
     this.ObjectPlacement.Add((pos, MapTypes.MapObjectSize.Large, name));
+    this.usedSectionCenters.Add(pos);
   }
 
   public void SetConfig(Config config)
@@ -147,6 +161,7 @@ public class MapObjectPlacer
     foreach (var size in MapTypes.AllObjectSizes) {
       this.minDistToCenter[(int)size] = (float)((int)size + 1);   
     }
+    this.usedSectionCenters = new();
   }
 
   bool HasChanceToPlace(MapTypes.MapObjectSize size, in MapWalker walker)
@@ -212,9 +227,9 @@ public class MapObjectPlacer
     if (distToCenter < this.minDistToCenter[(int)size]) {
       return (false);
     }
-    var wallCount = MapWalker.CountNeigborTileFrom(pos, this.tilemask, this.map);
-    if (wallCount > 0) {
+    if (MapWalker.CountNeigborTileFrom(pos, this.tilemask, this.map) > 0) {
       return (false);
+
     }
     if (size == MapTypes.MapObjectSize.Small) {
       return (true);
@@ -228,6 +243,9 @@ public class MapObjectPlacer
           this.objectPlaced[cur.y, cur.x]) {
         return (false);
       }
+      if (MapWalker.CountNeigborTileFrom(cur, this.tilemask, this.map) > 0) {
+        return (false);
+      }
     }
     if (size == MapTypes.MapObjectSize.Medium) {
       return (true);
@@ -239,6 +257,9 @@ public class MapObjectPlacer
       var cur = pos + twoStepDir; 
       if (MapWalker.IsInRange(cur, this.mapSize) &&
           this.objectPlaced[cur.y, cur.x]) {
+        return (false);
+      }
+      if (MapWalker.CountNeigborTileFrom(cur, this.tilemask, this.map) > 0) {
         return (false);
       }
     }    

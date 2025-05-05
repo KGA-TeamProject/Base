@@ -15,12 +15,18 @@ public class MapCorridorDoor : MonoBehaviour
   public void SetAsUnActivated()
   {
     this.isActivated = false;
+    this.gameObject.SetActive(true);
     this.Close();
   }
 
   public void DestorySelf()
   {
     Destroy(this.gameObject);
+  }
+
+  public void Hide()
+  {
+    this.gameObject.SetActive(false);
   }
 
   void Awake()
