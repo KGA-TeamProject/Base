@@ -12,7 +12,6 @@ public class MapManager
     SpawningStartNode,
     SpawningNextNode,
   }
-
   public State CurrentState { get; private set; }
   public Camera MinimapCamera { 
     get {
@@ -30,6 +29,8 @@ public class MapManager
   public Action OnStartingSpawned;
   public Action OnDestinationSpawned;
   public Action OnDestinationUnSpawned;
+  public Action<MapTypes.RoomType, int> OnRoomUnSpawned;
+  public Action<MapTypes.RoomType, int> OnRoomSpawned;
   bool onFinishSpawnMapIsInvoked;
   const string CONTAINER_NAME = "MapContainer";
   const string MINIMAP_CAMERA_NAME = "Minimap Camera";
@@ -62,6 +63,12 @@ public class MapManager
     return (positions[0]);
   }
 
+  public List<Vector3> GetFreePositions(int roomId)
+  {
+    var node = this.SpawnedNodes.Find(node => node.Id == roomId);
+    return (node.Spawner.GetFreePositions());
+  }
+
   void Init()
   {
     this.minimapCameraPrefab = (GameObject)Resources.Load("Prefabs/" + MapManager.MINIMAP_CAMERA_NAME);
@@ -82,7 +89,7 @@ public class MapManager
 
   void CreateNodes()
   {
-    this.startNode = this.CreateNode(this.StartRoomSize);
+    this.startNode = this.CreateNode(this.StartRoomSize, MapTypes.RoomType.None);
     this.startNode.DepthFromStart = 0;
     this.startNode.IsStarting = true;
     this.furthest = (0, this.startNode);
@@ -93,7 +100,6 @@ public class MapManager
       }
     };
     this.startNode.OnGeneratedTilemap += () => {
-      this.SpawnedNodes.Add(this.startNode);
       this.startNode.Spawner.SetCenter(new());
       this.startNode.Spawn(false);
     };
@@ -147,7 +153,9 @@ public class MapManager
   MapNode CreateNeighborNodeFrom(MapNode node, MapTypes.TileDirection dir)
   {
     var newNode = this.CreateNode(
-        this.CombatRoomSize);
+        this.CombatRoomSize,
+        MapTypes.RoomType.Combat
+        );
     var oppositeDir = MapTypes.GetOppositeDir(dir);
     node.SetConnection(dir, newNode, null);
     newNode.SetConnection(oppositeDir, node, null);
@@ -290,19 +298,20 @@ public class MapManager
     };
   }
 
-  MapNode CreateNode(Vector2Int size)
+  MapNode CreateNode(Vector2Int size, MapTypes.RoomType type)
   {
     this.currentNodes += 1;
     var node = new MapNode(
         size,
-        MapNode.RoomType.None,
+        type,
         this.containerPrefab,
         this.tilePrefabNames,
         this.objectPrefabNames,
         this.sectionNames
         );
+
     node.OnSpawned += () => {
-      this.SpawnedNodes.Add(node);
+      this.OnNodeSpawned(node); 
     };
     node.OnMoveToNextNode += (dest, dir) => { 
       if (this.CurrentState != State.None) {
@@ -320,6 +329,9 @@ public class MapManager
               connection.node.Spawner.CreateDoor(
                   MapTypes.GetOppositeDir((MapTypes.TileDirection)j));
             }
+          }
+          if (this.OnRoomUnSpawned != null) {
+            this.OnRoomUnSpawned.Invoke(spawnedNode.Type, spawnedNode.Id);
           }
           spawnedNode.UnSpawn();
           this.SpawnedNodes.RemoveAt(i);
@@ -354,6 +366,14 @@ public class MapManager
     foreach (var prefabName in names) {
       this.sectionNames.Add(prefabName); 
       PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapSections/{prefabName}", null, 10);
+    }
+  }
+   
+  void OnNodeSpawned(MapNode node)
+  {
+    this.SpawnedNodes.Add(node);
+    if (this.OnRoomSpawned != null) {
+      this.OnRoomSpawned(node.Type, node.Id);
     }
   }
 

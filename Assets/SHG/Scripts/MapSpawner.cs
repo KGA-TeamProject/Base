@@ -87,11 +87,16 @@ public class MapSpawner : MonoBehaviour
 
   public List<Vector3> GetFreePositions()
   {
-    var positions = this.objectPlacer.GetUnUsedSections().ConvertAll(
-        section => this.ConvertTilePos(section)
-        );
-    if (positions.Count == 0) {
-      positions.Add(this.ConvertTilePos(this.mapGenerator.CenterPosition));
+    var positions = this.objectPlacer.FreePositions.ConvertAll(pos => 
+        this.ConvertTilePos(pos));
+    foreach (var sectionCenter in this.objectPlacer.GetUnUsedSections()) {
+      for (int x = -TileMapGenerator.SECTION_SIZE / 2; 
+          x < -TileMapGenerator.SECTION_SIZE / 2 + 1; ++x) {
+        for (int y = -TileMapGenerator.SECTION_SIZE / 2; 
+            y < -TileMapGenerator.SECTION_SIZE / 2 + 1; ++y) {
+          positions.Add(new (sectionCenter.x + x, sectionCenter.y + y));
+        }
+      }
     }
     return (positions);
   }

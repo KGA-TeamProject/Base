@@ -11,6 +11,12 @@ static public class MapTypes
   }
   public static MapObjectSize[] AllObjectSizes = (MapObjectSize[])Enum.GetValues(typeof(MapTypes.MapObjectSize));
 
+  public enum RoomType
+  {
+    None,
+    Combat
+  }
+
   public enum TileType
   {
     None,

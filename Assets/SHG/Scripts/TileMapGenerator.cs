@@ -38,7 +38,7 @@ public class TileMapGenerator
   }
 
   public const int SECTION_SIZE = 11;
-  public const int SECTION_MARGIN = 4;
+  public const int SECTION_MARGIN = 1;
   public Config config { get; private set; }
   public MapTypes.TileType[,] tiles { get; private set; }
   public Vector2Int[] EdgePositions { get; private set; }

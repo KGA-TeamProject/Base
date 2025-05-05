@@ -4,11 +4,6 @@ using UnityEngine;
 
 class MapNode
 {
-  public enum RoomType
-  {
-    None,
-    Combat
-  }
   // Tilemap settings
   const float CHANCE_TO_CREATE = 0.2f;
   const float CHANCE_TO_REDIRECT = 0.4f;
@@ -16,6 +11,7 @@ class MapNode
   const float FLOOR_PERCENTAGE = 0.35f;
   const int MINIMUM_STEPS_FOR_REDIRECT = 5;
   static System.Random rand = new ();
+  static int nextId = 0;
 
   const int MAXIMUM_CONNECTIONS = 3;
 
@@ -27,10 +23,11 @@ class MapNode
   public Action OnGeneratedTilemap;
   public Action OnSpawned;
   public (MapNode node, MapCorridor corridor)[] Connections;
-  public RoomType Type;
+  public MapTypes.RoomType Type;
   public int DepthFromStart;
   public Func<MapNode, MapTypes.TileDirection, bool> OnMoveToNextNode;
   public bool IsStarting;
+  public int Id { get; private set; }
   GameObject containerPrefab;
   GameObject Container;
   string[] tilePrefabNames;
@@ -40,13 +37,14 @@ class MapNode
 
   public MapNode(
       Vector2Int size,
-      RoomType type,
+      MapTypes.RoomType type,
       GameObject containerPrefab,
       string[] tilePrefabNames,
       List<string>[] objectPrefabNames,
       List<string> sectionNames
       )
   {
+    this.Id = MapNode.nextId++;
     this.Type = type;
     this.MapSize = size;
     this.Container = null;
@@ -67,6 +65,7 @@ class MapNode
     this.Tilemap = new TileMapGenerator(this.CreateConfig(this.MapSize)); 
     this.Container = UnityEngine.Object.Instantiate(this.containerPrefab);
     this.Spawner = this.Container.GetComponent<MapSpawner>();
+    this.Spawner.IsStarting = this.IsStarting;
     this.Spawner.OnActivateDoor += this.OnActiaveDoor;
     this.Spawner.OnGenerated += () => this.OnGeneratedTilemap?.Invoke();
     this.Spawner.TilePrefabNames = this.tilePrefabNames;

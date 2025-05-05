@@ -28,12 +28,13 @@ public class MapObjectPlacer
       this.ChanceToRedirect = chanceToRedirect;
     }
   }
-  public int NumberOfSections = 5;
+  public int MAXIMUM_OF_SECTIONS = 2;
   public List<string>[] ObjectPrefabNames;
   public List<string> SectionNames;
   public Vector2Int centerPos;
   public List<Vector2Int> UsableSectionCenters;
   public bool IsStarting;
+  public List<Vector2Int> FreePositions;
   public List<(Vector2Int pos, MapTypes.MapObjectSize size, string prefabName)> ObjectPlacement;
   Config config;
   int[] numberOfObjectsBySize;
@@ -102,7 +103,7 @@ public class MapObjectPlacer
     var shuffledCenters = this.UsableSectionCenters.OrderBy(pos => Guid.NewGuid()).ToList();
     var created = 0;
     var currentIndex = 0;
-    while (created < this.NumberOfSections && 
+    while (created < this.MAXIMUM_OF_SECTIONS && 
         currentIndex < shuffledCenters.Count) {
       var candidate = shuffledCenters[currentIndex];
       if (Vector2Int.Distance(candidate, this.centerPos) >=
@@ -153,7 +154,7 @@ public class MapObjectPlacer
     this.mapSize = new Vector2Int(this.map.GetLength(1), this.map.GetLength(0));
     this.objectPlaced = new bool[this.mapSize.x, this.mapSize.y];
     this.ObjectPlacement = new();
-
+    this.FreePositions = new ();
     this.tilemask = new bool[Enum.GetValues(typeof(MapTypes.TileType)).Length];
     this.tilemask[(int)MapTypes.TileType.Wall] = true;
     this.tilemask[(int)MapTypes.TileType.Obstacle] = true;
@@ -168,6 +169,9 @@ public class MapObjectPlacer
   {
     var chance = MapWalker.GetRandomPercentage();
     if (chance > this.config.ChanceToCreate) {
+      if (this.IsAbleToPlace(walker.Pos, MapTypes.MapObjectSize.Small)) {
+        this.FreePositions.Add(walker.Pos);
+      }
       return (false);
     }
     return (this.IsAbleToPlace(walker.Pos, size));

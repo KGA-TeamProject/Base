@@ -16,22 +16,35 @@ public class StageManager : Singleton<StageManager>
   public event Action OnStartStage;
   public event Action OnStageClear;
   public const int MAX_STAGE = 3;
+  GameObject playerPrefab;
+  GameObject monsterPrefab;
   [SerializeField]
   int currentStage = 1;
-  HashSet<int> currentStageMonsterIds;
   MapManager map;
   StageConfig config;
   GameObject flagPrefab;
   StageFinisher finisher;
+  int MAX_MOSNTERS = 40;
+  int MAX_NUMBER_OF_MONSTERS_IN_ROOM = 10;
+  int remain_monsters;
+  Dictionary<int, List<GameObject>> monstersInRooms;
+  Dictionary<int, List<Vector3>> storedMonsterPos;
+  System.Random monsterRand = new ();
 
   private int nextMonsterId = 0;
 
   void Awake()
   {
     this.LoadConfigs();
-    this.currentStageMonsterIds = new ();
     this.map = new MapManager();
+    this.playerPrefab = Resources.Load<GameObject>("TestPlayer");
+    this.monsterPrefab = Resources.Load<GameObject>("TestMonster");
     this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/Flag");
+    this.map.OnStartingSpawned += this.OnStartingMapSpawned;
+    this.map.OnDestinationSpawned += this.OnSpawnDestination;
+    this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
+    this.map.OnRoomSpawned += this.OnRoomSpawned;
+    this.map.OnRoomUnSpawned += this.OnRoomUnSpawned;
   }
 
   void LoadConfigs() {
@@ -43,9 +56,9 @@ public class StageManager : Singleton<StageManager>
   {
     this.ApplyStageConfig(this.CurrentStage);
     this.map.SpawnMap();
-    this.map.OnStartingSpawned += this.OnStartingMapSpawned;
-    this.map.OnDestinationSpawned += this.OnSpawnDestination;
-    this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
+    this.remain_monsters = this.MAX_MOSNTERS;
+    this.monstersInRooms = new ();
+    this.storedMonsterPos = new ();
   }
 
   void OnStartingMapSpawned()
@@ -86,8 +99,8 @@ public class StageManager : Singleton<StageManager>
 
   GameObject SpawnPlayer()
   {
-    var playerPrefab = Resources.Load<GameObject>("TestPlayer");
-    var player = Instantiate(playerPrefab, this.map.GetStaringPos(), Quaternion.identity);
+    var player = Instantiate(this.playerPrefab, 
+        this.map.GetStaringPos(), Quaternion.identity);
     if (player.GetComponent<Collider>() == null) {
       var collider = player.AddComponent<CapsuleCollider>();
       collider.center = new(0, 0.7f, 0);
@@ -117,11 +130,12 @@ public class StageManager : Singleton<StageManager>
 
   void FinishStage()
   {
-    this.finisher.DestroySelf();
+    this.finisher?.DestroySelf();
     this.finisher = null;
     this.HidePlayer(GameObject.FindWithTag("Player"));
+    this.monstersInRooms.Clear();
+    this.storedMonsterPos.Clear();
     this.map.ReleaseCurrent();
-    this.currentStageMonsterIds.Clear();
     if (this.OnStageClear != null) {
       this.OnStageClear.Invoke();
     }
@@ -158,18 +172,84 @@ public class StageManager : Singleton<StageManager>
     }
   }
 
-  int RegisterMonster(IMonster monster) 
+  void OnRoomSpawned(MapTypes.RoomType type, int roomId)
   {
-    var id = this.nextMonsterId;
-    this.currentStageMonsterIds.Add(id);
-    this.nextMonsterId += 1;
-    monster.OnDie += this.RemoveMonster;
-    return (id);
+    if (type == MapTypes.RoomType.Combat) {
+      var positions = this.map.GetFreePositions(roomId);
+      if (!this.monstersInRooms.ContainsKey(roomId)) {
+        this.monstersInRooms.Add(roomId, new());
+        this.SpawnMonsters(roomId, positions);
+      }
+      else if (this.storedMonsterPos.ContainsKey(roomId)) {
+        this.RestoreMonstersInRoom(roomId);
+        this.storedMonsterPos.Remove(roomId);
+      }
+    }
+  }
+  void OnRoomUnSpawned(MapTypes.RoomType type, int roomId) 
+  {
+    if (type == MapTypes.RoomType.Combat) {
+      this.StoreMonsterPositions(roomId);
+      this.UnSpawnMonsterAt(roomId);
+    }
   }
 
-  void RemoveMonster(IMonster monster)
+  void SpawnMonsters(int roomId, List<Vector3> positions)
   {
-    this.currentStageMonsterIds.Remove(monster.Id);
+    var monsterCount = Math.Min(this.MAX_NUMBER_OF_MONSTERS_IN_ROOM, this.remain_monsters);
+    HashSet<Vector3> picked = new(monsterCount);
+    for (int i = 0; 
+        picked.Count < monsterCount && i < positions.Count; ++i) {
+      var pos = positions[this.monsterRand.Next(positions.Count)]; 
+      if (!picked.Contains(pos)) {
+        picked.Add(pos);
+        var monster = this.SpawnMonsterAt(pos);
+        this.monstersInRooms[roomId].Add(monster);
+      }
+    }
+  }
+
+  GameObject SpawnMonsterAt(Vector3 pos) 
+  {
+    var monster = Instantiate(this.monsterPrefab, pos, Quaternion.identity);  
+    this.remain_monsters -= 1;
+    return (monster);
+  }
+
+  void StoreMonsterPositions(int roomId) 
+  {
+    var monsters = this.monstersInRooms[roomId];
+    this.storedMonsterPos[roomId] = new (monsters.Count);
+    foreach (var monster in monsters) {
+       this.storedMonsterPos[roomId].Add(monster.transform.position); 
+    }
+  }
+
+  void RestoreMonstersInRoom(int roomId)
+  {
+    foreach (var pos in this.storedMonsterPos[roomId]) {
+      var monster = this.SpawnMonsterAt(pos);
+      this.monstersInRooms[roomId].Add(monster);
+    }
+  }
+
+  GameObject ReSpawnMonsterAt(Vector3 pos)
+  {
+    var monster = Instantiate(this.monsterPrefab, pos, Quaternion.identity);  
+    return (monster);
+  }
+
+  void UnSpawnMonsterAt(int roomId)
+  {
+    foreach (var monster in this.monstersInRooms[roomId]) {
+      this.UnSpawnMonster(monster);            
+    }
+    this.monstersInRooms[roomId].Clear();
+  }
+
+  void UnSpawnMonster(GameObject monster)
+  {
+    Destroy(monster.gameObject);
   }
 
   /*
