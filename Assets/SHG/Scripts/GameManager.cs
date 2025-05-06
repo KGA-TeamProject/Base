@@ -58,12 +58,20 @@ public class GameManager: Singleton<GameManager>
     {
       case GameSceneManager.SceneName.CombatScene:
         StageManager.Shared.OnStartStage += () => {
+          this.isPlaying = true; 
+          this.State = GameState.InCombat;
           UIManager.Shared.loadingUI.Hide();
           UIManager.Shared.combatUI.Show();
         };
         StageManager.Shared.OnStageClear += () => {
+          this.isPlaying = false;
           UIManager.Shared.combatUI.Hide();
-          UIManager.Shared.loadingUI.Show();
+          if (StageManager.Shared.CurrentStage < StageManager.MAX_STAGE) {
+            UIManager.Shared.loadingUI.Show();
+          }
+          else {
+            GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.EndingScene);
+          }
         };
         StageManager.Shared.StartStage();  
         break;
@@ -79,7 +87,19 @@ public class GameManager: Singleton<GameManager>
 
   public void EndGame()
   {
-    Debug.Log("EndGame");
+    this.isPlaying = false;
+    #if UNITY_EDITOR
+    UnityEditor.EditorApplication.isPlaying = false;
+    #else
+    Application.Quit();
+    #endif
+  }
+
+  public void OnPlayerDied()
+  {
+    if (this.isPlaying) {
+      GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.EndingScene);
+    }
   }
 
   /*

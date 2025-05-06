@@ -10,10 +10,10 @@ public class UIManager : Singleton<UIManager>
   public CombatUI combatUI;
   public LoadingUI loadingUI;
   public Camera MinimapCamera { set {
-    if (this.combatUI.minimap == null) {
+    if (this.combatUI.Minimap == null) {
       return ;
     }
-    this.combatUI.minimap.Camera = value;
+    this.combatUI.Minimap.Camera = value;
     this.combatUI.ZoomMinimap();
   }}
 

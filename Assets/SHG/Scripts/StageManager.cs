@@ -89,7 +89,7 @@ public class StageManager : Singleton<StageManager>
     if (this.finisher == null) {
       var pos = this.map.GetFinishPos();
       var flag = Instantiate(this.flagPrefab, pos, Quaternion.identity);
-      var minimapIcon = UIManager.Shared.combatUI.minimap.AddMinimapIconTo(flag, UIManager.Shared.combatUI.minimap.FlagIcon, 5);
+      var minimapIcon = UIManager.Shared.combatUI.Minimap.AddMinimapIconTo(flag, UIManager.Shared.combatUI.Minimap.FlagIcon, 5);
       minimapIcon.name = "FlagMinimapIcon";
       this.finisher = flag.AddComponent<StageFinisher>();
       this.finisher.OnActivate += () => this.OnClear();
@@ -120,11 +120,11 @@ public class StageManager : Singleton<StageManager>
         RigidbodyConstraints.FreezeRotationZ;
     }
     var lifeTimePublisher = player.AddComponent<LifeTimePublisher>();
-    lifeTimePublisher.AfterDestroyed = GameManager.Shared.EndGame;
+    lifeTimePublisher.AfterDestroyed = GameManager.Shared.OnPlayerDied;
     if (player.tag != "Player") {
       player.tag = "Player";
     }
-    UIManager.Shared.combatUI.minimap.AddMinimapIconTo(player, UIManager.Shared.combatUI.minimap.PlayerIcon, 2);
+    UIManager.Shared.combatUI.Minimap.AddMinimapIconTo(player, UIManager.Shared.combatUI.Minimap.PlayerIcon, 2);
     return (player);
   }
 
@@ -176,14 +176,13 @@ public class StageManager : Singleton<StageManager>
   
   void OnClear() 
   {
-    AudioManager.Shared.PlayEffect(AudioManager.Shared.ClearEffect);
+    if (this.currentStage < StageManager.MAX_STAGE) {
+      AudioManager.Shared.PlayEffect(AudioManager.Shared.ClearEffect);
+    }
     this.FinishStage();
     if (this.currentStage < StageManager.MAX_STAGE) {
       this.currentStage += 1;
       this.StartStage();
-    }
-    else {
-      GameManager.Shared.EndGame();
     }
   }
 

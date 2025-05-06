@@ -123,7 +123,7 @@ public class MapManager
   {
     var createdDoor = node.Spawner.CreateDoor((MapTypes.TileDirection)dir);
     if (createdDoor != null) {
-      UIManager.Shared.combatUI.minimap.AddMinimapIconTo(createdDoor, UIManager.Shared.combatUI.minimap.DoorIcon, 2);
+      UIManager.Shared.combatUI.Minimap.AddMinimapIconTo(createdDoor, UIManager.Shared.combatUI.Minimap.DoorIcon, 2);
     }
   }
 

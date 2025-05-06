@@ -40,7 +40,8 @@ public class Minimap : VisualElement
 
   public IEnumerator Zoom(float size, Action callback = null)
   {
-    while (Mathf.Abs(this.Camera.orthographicSize - size) > float.Epsilon) {
+    while (this.Camera != null &&
+        Mathf.Abs(this.Camera.orthographicSize - size) > float.Epsilon) {
       this.Camera.orthographicSize = Mathf.Lerp(
           this.Camera.orthographicSize,
           size,

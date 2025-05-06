@@ -5,9 +5,10 @@ using UnityEngine;
 
 public class AudioManager : Singleton<AudioManager>
 {
-  const string TITLE_MUSIC = "CGM4_Fairy_Harp_Melody_Loop";
-  const string COIN_SOUND = "CGM4_Button_Select_02";
-  const string CLEAR_SOUND = "CGM4_Mission_Success";
+  public const string TITLE_MUSIC = "CGM4_Fairy_Harp_Melody_Loop";
+  public const string ENDING_MUSIC = "CGM4_Lose_Jingle_Loop";
+  public const string COIN_SOUND = "CGM4_Button_Select_02";
+  public const string CLEAR_SOUND = "CGM4_Mission_Success_Fast";
   const float BGM_VOLUME = 0.4f;
   const float EFFECT_VOLUME = 0.7f;
   const float BGM_FADE_STEP = 0.005f;
@@ -21,17 +22,28 @@ public class AudioManager : Singleton<AudioManager>
   public void ChangeBgmTo(string name, string path = null)
   {
     AudioClip clip = Resources.Load<AudioClip>(path ?? $"Audio/{name}");
-    this.bgmFadeRoutine = this.StartCoroutine(
-      this.FadeOutBgm(() => {
-        this.backgroundSource.Stop();
-        this.backgroundSource.clip = clip;
-        this.backgroundSource.Play();
-        this.bgmFadeRoutine = this.StartCoroutine(
+    if (backgroundSource.isPlaying) {
+      this.bgmFadeRoutine = this.StartCoroutine(
+        this.FadeOutBgm(() => {
+          this.backgroundSource.Stop();
+          this.backgroundSource.clip = clip;
+          this.backgroundSource.Play();
+          this.bgmFadeRoutine = this.StartCoroutine(
+            this.FadeInBgm(AudioManager.BGM_VOLUME, 
+              () => this.bgmFadeRoutine = null)
+            );
+          })
+        );
+    }
+    else {
+      this.backgroundSource.clip = clip;
+      this.backgroundSource.volume = 0;
+      this.backgroundSource.Play();
+      this.bgmFadeRoutine = this.StartCoroutine(
           this.FadeInBgm(AudioManager.BGM_VOLUME, 
             () => this.bgmFadeRoutine = null)
           );
-        })
-      );
+    }
   }
 
   public void PlayEffect(AudioClip clip)
@@ -45,7 +57,6 @@ public class AudioManager : Singleton<AudioManager>
     this.backgroundSource = this.gameObject.AddComponent<AudioSource>();
     this.backgroundSource.loop = true;
     this.backgroundSource.volume = AudioManager.BGM_VOLUME;
-    this.backgroundClip = Resources.Load<AudioClip>($"Audio/{AudioManager.TITLE_MUSIC}");
     this.foregroundSource = this.gameObject.AddComponent<AudioSource>();
     this.foregroundSource.loop = false;
     this.foregroundSource.volume = AudioManager.EFFECT_VOLUME;

@@ -8,7 +8,8 @@ public class CombatUI : MonoBehaviour
   public const string PREFAB_NAME = "CombatUI";
   public bool IsShowing { get; private set; }
   public Transform Player;
-  public Minimap minimap { get; private set; }
+  public Minimap Minimap { get; private set; }
+  public StatusView Status { get; private set; }
   const string CONTAINER_NAME = "combatUI_container";
   VisualElement root;
   Coroutine zoomMinimapRoutine;
@@ -40,6 +41,7 @@ public class CombatUI : MonoBehaviour
     if (GameManager.Shared.State == GameManager.GameState.InCombat &&
         GameManager.Shared.IsPlaying) {
       this.UpdateMinimap();
+      this.Status.CoinCount = GameManager.Shared.CollectedCoins;
     }
   }
 
@@ -47,8 +49,10 @@ public class CombatUI : MonoBehaviour
   {
     this.root = this.GetComponent<UIDocument>().rootVisualElement;
     this.root.AddToClassList(CombatUI.CONTAINER_NAME);
-    this.minimap = new ();
-    this.root.Add(this.minimap);
+    this.Minimap = new ();
+    this.Status = new ();
+    this.root.Add(this.Minimap);
+    this.root.Add(this.Status);
   }
 
   public void ZoomMinimap()
@@ -57,7 +61,7 @@ public class CombatUI : MonoBehaviour
       this.StopCoroutine(this.zoomMinimapRoutine);
     }
     this.zoomMinimapRoutine = this.StartCoroutine(
-        this.minimap.Zoom(Minimap.DEFAULT_ZOOM, () => this.zoomMinimapRoutine = null)
+        this.Minimap.Zoom(Minimap.DEFAULT_ZOOM, () => this.zoomMinimapRoutine = null)
         );
   }
 
@@ -65,10 +69,10 @@ public class CombatUI : MonoBehaviour
   {
     var newPos = new Vector3(
         this.Player.position.x,
-        this.minimap.Camera.transform.position.y,
+        this.Minimap.Camera.transform.position.y,
         this.Player.position.z
         );
-    this.minimap.MoveCameraCenterTo(newPos);
+    this.Minimap.MoveCameraCenterTo(newPos);
   }
 }
 
