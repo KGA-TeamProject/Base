@@ -9,8 +9,6 @@ public class CombatUI : MonoBehaviour
   public bool IsShowing { get; private set; }
   public Transform Player;
   public Minimap minimap { get; private set; }
-  IUIComponent CharacterHpUI;
-  IUIComponent SkillListUI;
   const string CONTAINER_NAME = "combatUI_container";
   VisualElement root;
   Coroutine zoomMinimapRoutine;
@@ -74,6 +72,3 @@ public class CombatUI : MonoBehaviour
   }
 }
 
-public interface IUIComponent 
-{
-}

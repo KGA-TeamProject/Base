@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class Minimap : VisualElement, IUIComponent
+public class Minimap : VisualElement
 {
   public const string FLAG_ICON = "flag";
   public const string PLAYER_ICON = "blue_circle";

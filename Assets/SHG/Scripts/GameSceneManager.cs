@@ -49,6 +49,9 @@ public class GameSceneManager : Singleton<GameSceneManager>
     if (this.CurrentScene == SceneName.TitleScene) {
       this.OnTitleSceneStart();
     }
+    else if (this.CurrentScene == SceneName.CombatScene) {
+      UIManager.Shared.loadingUI.Show();
+    }
     this.SetCamera();
     if (this.OnSceneLoaded != null) {
       this.OnSceneLoaded.Invoke(this.CurrentScene);

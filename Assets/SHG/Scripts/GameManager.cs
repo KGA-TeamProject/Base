@@ -48,7 +48,6 @@ public class GameManager: Singleton<GameManager>
     this.CollectedCoins = 0;
     if (Debugging.Mode == Debugging.DebugMode.None) {
       GameSceneManager.Shared.OnSceneLoaded += this.OnGameSceneLoaded;
-      GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.CombatScene);
     }
   }
 
@@ -58,7 +57,14 @@ public class GameManager: Singleton<GameManager>
     switch (sceneName)
     {
       case GameSceneManager.SceneName.CombatScene:
-        StageManager.Shared.OnStartStage += UIManager.Shared.ShowCombatUI;
+        StageManager.Shared.OnStartStage += () => {
+          UIManager.Shared.loadingUI.Hide();
+          UIManager.Shared.combatUI.Show();
+        };
+        StageManager.Shared.OnStageClear += () => {
+          UIManager.Shared.combatUI.Hide();
+          UIManager.Shared.loadingUI.Show();
+        };
         StageManager.Shared.StartStage();  
         break;
       default:

@@ -1,0 +1,48 @@
+#title-container {
+  flex: 1;
+  border-width: 2px;
+  justify-content: flex-end;
+  align-items: center;
+  /*background-color: #5CA4EA;*/
+  background-image: url("../Resources/Sprites/title_background.Png");
+}
+
+#titleLabel {
+  margin-bottom: 5%;
+  -unity-font-style: bold;
+  font-size: 40px;
+}
+
+Button {
+  width: 180px;
+  height: 60px;
+  background-color: transparent;
+  border-width: 1px;
+  transition: 1s ease-in-out;
+  margin-bottom: 30px;
+}
+
+#startButton {
+  border-color: #91C9FF;
+}
+
+#endButton {
+  border-color: #FF6363;
+}
+
+Button:hover {
+  transition: 1s ease-in-out;
+}
+
+#startButton:hover {
+  background-color: #4F95DA;
+}
+
+#endButton:hover {
+  background-color: #CF0F47;
+}
+
+Button Label {
+  color: white;
+  font-size: 18px;
+}
