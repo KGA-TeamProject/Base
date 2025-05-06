@@ -15,20 +15,30 @@ public class CombatUI : MonoBehaviour
   VisualElement root;
   Coroutine zoomMinimapRoutine;
 
+  public void Show() 
+  { 
+    this.root.visible = true;
+    this.IsShowing = true;
+    this.Player = GameObject.FindWithTag("Player").transform;
+  }
+
+  public void Hide() 
+  { 
+    this.root.visible = false;
+    this.IsShowing = false;
+  }
+
   void Awake()
   {
     this.Init();
-  }
-  // Start is called before the first frame update
-  void Start()
-  {
-    this.Player = GameObject.FindWithTag("Player").transform;
-    this.Show();
   }
 
   // Update is called once per frame
   void Update()
   {
+    if (!this.IsShowing) {
+      return ;
+    }
     if (GameManager.Shared.State == GameManager.GameState.InCombat &&
         GameManager.Shared.IsPlaying) {
       this.UpdateMinimap();
@@ -41,18 +51,6 @@ public class CombatUI : MonoBehaviour
     this.root.AddToClassList(CombatUI.CONTAINER_NAME);
     this.minimap = new ();
     this.root.Add(this.minimap);
-  }
-
-  void Show() 
-  { 
-    this.root.visible = true;
-    this.IsShowing = true;
-  }
-
-  void Hide() 
-  { 
-    this.root.visible = false;
-    this.IsShowing = false;
   }
 
   public void ZoomMinimap()

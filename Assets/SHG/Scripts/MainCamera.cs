@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
-  const float CAMERA_HEIGHT = 15f;
-  const float CAMERA_DEPTH = 5f;
+  public const float CAMERA_HEIGHT = 15f;
+  public const float CAMERA_DEPTH = 5f;
   public Transform Player { 
     get => this.player;
     set {

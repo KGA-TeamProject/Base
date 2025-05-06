@@ -114,8 +114,16 @@ public class MapManager
     for (int i = 0; i < this.startNode.Connections.Length; ++i) {
       var connection = this.startNode.Connections[i];
       if (connection.node != null) {
-        this.startNode.Spawner.CreateDoor((MapTypes.TileDirection)i);
+        this.CreateDoor(this.startNode, (MapTypes.TileDirection)i);
       } 
+    }
+  }
+
+  void CreateDoor(MapNode node, MapTypes.TileDirection dir)
+  {
+    var createdDoor = node.Spawner.CreateDoor((MapTypes.TileDirection)dir);
+    if (createdDoor != null) {
+      UIManager.Shared.combatUI.minimap.AddMinimapIconTo(createdDoor, UIManager.Shared.combatUI.minimap.DoorIcon, 2);
     }
   }
 
@@ -228,7 +236,7 @@ public class MapManager
     a.SetConnection(dirFromA, b, corridor);
     b.SetConnection(dirFromB, a, corridor);
     b.Spawner.OnSpawned += () => {
-      b.Spawner.CreateDoor(dirFromB);
+      this.CreateDoor(b, dirFromB);
       if (b == this.furthest.node && 
           this.OnDestinationSpawned != null) {
         this.OnDestinationSpawned();
@@ -291,10 +299,9 @@ public class MapManager
       for (int i = 0; i < nextNode.Connections.Length; ++i) {
         var connection = nextNode.Connections[i];
         if (connection.node != null) {
-          nextNode.Spawner.CreateDoor((MapTypes.TileDirection)i);
+          this.CreateDoor(nextNode,(MapTypes.TileDirection)i);
         }
       }
-      this.CurrentState = State.None;
     };
   }
 
@@ -326,8 +333,7 @@ public class MapManager
               connection.corridor.DestroySelf();
             }  
             if (connection.node == node || connection.node == dest) {
-              connection.node.Spawner.CreateDoor(
-                  MapTypes.GetOppositeDir((MapTypes.TileDirection)j));
+              this.CreateDoor(connection.node,(MapTypes.TileDirection)j);
             }
           }
           if (this.OnRoomUnSpawned != null) {
@@ -349,7 +355,7 @@ public class MapManager
   {
     foreach (var (tileType, prefabName) in tiles) {
       this.tilePrefabNames[(int)tileType] = prefabName;
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapTiles/{prefabName}", this.InitTile, 200);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapTiles/{prefabName}", this.InitTile, 400);
     }
   }
 
@@ -357,7 +363,7 @@ public class MapManager
   {
     foreach (var prefabName in prefabNames) {
       this.objectPrefabNames[(int)size].Add(prefabName);
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapObjects/{prefabName}", this.InitMapObject, 200);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapObjects/{prefabName}", this.InitMapObject, 400);
     }
   }
 
@@ -365,7 +371,7 @@ public class MapManager
   {
     foreach (var prefabName in names) {
       this.sectionNames.Add(prefabName); 
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapSections/{prefabName}", null, 10);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapSections/{prefabName}", this.InitMapObject, 10);
     }
   }
    
@@ -375,17 +381,25 @@ public class MapManager
     if (this.OnRoomSpawned != null) {
       this.OnRoomSpawned(node.Type, node.Id);
     }
+    this.CurrentState = State.None;
   }
 
   GameObject InitTile(GameObject tile)
   {
     tile.AddComponent<BoxCollider>();
+    foreach (var component in tile.transform.GetComponentsInChildren<Transform>()) {
+      component.gameObject.layer = LayerMask.NameToLayer("Map Tile");
+    }
     return (tile);
   }
   
   GameObject InitMapObject(GameObject obj)
   {
     obj.AddComponent<BoxCollider>();
+    
+    foreach (var component in obj.transform.GetComponentsInChildren<Transform>()) {
+      component.gameObject.layer = LayerMask.NameToLayer("Map Object");
+    }
     return (obj);
   }
 }

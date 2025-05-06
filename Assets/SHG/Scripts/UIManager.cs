@@ -31,11 +31,14 @@ public class UIManager : Singleton<UIManager>
 
   void Init()
   {
-    this.combatUIPrefab  = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
+    this.combatUIPrefab = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
+    this.combatUI = Instantiate(this.combatUIPrefab).GetComponent<CombatUI>();
+    this.combatUI.transform.parent = this.gameObject.transform;
+    this.combatUI.Hide();
   }
 
   public void ShowCombatUI()
   {
-    this.combatUI = Instantiate(this.combatUIPrefab).GetComponent<CombatUI>();
+    this.combatUI.Show();
   }
 }

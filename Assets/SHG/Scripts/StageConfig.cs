@@ -2,6 +2,7 @@
 public class StageConfig
 {
   public MapConfig[] Maps;
+  public string[] Musics;
   [System.Serializable]
   public struct MapConfig
   {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // 임시 몬스터 interface
 interface IMonster
@@ -27,7 +28,7 @@ public class StageManager : Singleton<StageManager>
   int MAX_MOSNTERS = 40;
   int MAX_NUMBER_OF_MONSTERS_IN_ROOM = 10;
   int remain_monsters;
-  Dictionary<int, List<GameObject>> monstersInRooms;
+  Dictionary<int, HashSet<GameObject>> monstersInRooms;
   Dictionary<int, List<Vector3>> storedMonsterPos;
   System.Random monsterRand = new ();
 
@@ -55,10 +56,17 @@ public class StageManager : Singleton<StageManager>
   public void StartStage()
   {
     this.ApplyStageConfig(this.CurrentStage);
+    this.ChangeBgm();
     this.map.SpawnMap();
     this.remain_monsters = this.MAX_MOSNTERS;
     this.monstersInRooms = new ();
     this.storedMonsterPos = new ();
+  }
+
+  void ChangeBgm()
+  {
+    var bgmName = this.config.Musics[this.CurrentStage - 1];
+    AudioManager.Shared.ChangeBgmTo(bgmName);
   }
 
   void OnStartingMapSpawned()
@@ -84,6 +92,8 @@ public class StageManager : Singleton<StageManager>
     if (this.finisher == null) {
       var pos = this.map.GetFinishPos();
       var flag = Instantiate(this.flagPrefab, pos, Quaternion.identity);
+      var minimapIcon = UIManager.Shared.combatUI.minimap.AddMinimapIconTo(flag, UIManager.Shared.combatUI.minimap.FlagIcon, 5);
+      minimapIcon.name = "FlagMinimapIcon";
       this.finisher = flag.AddComponent<StageFinisher>();
       this.finisher.OnActivate += () => this.OnClear();
     }
@@ -112,9 +122,12 @@ public class StageManager : Singleton<StageManager>
       rigidbody.constraints = RigidbodyConstraints.FreezeRotationX |
         RigidbodyConstraints.FreezeRotationZ;
     }
+    var lifeTimePublisher = player.AddComponent<LifeTimePublisher>();
+    lifeTimePublisher.AfterDestroyed = GameManager.Shared.EndGame;
     if (player.tag != "Player") {
       player.tag = "Player";
     }
+    UIManager.Shared.combatUI.minimap.AddMinimapIconTo(player, UIManager.Shared.combatUI.minimap.PlayerIcon, 2);
     return (player);
   }
 
@@ -133,6 +146,9 @@ public class StageManager : Singleton<StageManager>
     this.finisher?.DestroySelf();
     this.finisher = null;
     this.HidePlayer(GameObject.FindWithTag("Player"));
+    foreach (var room in this.monstersInRooms.Keys) {
+      this.UnSpawnMonsterAt(room);
+    }
     this.monstersInRooms.Clear();
     this.storedMonsterPos.Clear();
     this.map.ReleaseCurrent();
@@ -204,6 +220,10 @@ public class StageManager : Singleton<StageManager>
       if (!picked.Contains(pos)) {
         picked.Add(pos);
         var monster = this.SpawnMonsterAt(pos);
+        monster.GetComponent<LifeTimePublisher>().AfterDisabled =
+          () => {
+            this.RemoveMonsterFrom(monster, roomId);
+          };
         this.monstersInRooms[roomId].Add(monster);
       }
     }
@@ -213,6 +233,8 @@ public class StageManager : Singleton<StageManager>
   {
     var monster = Instantiate(this.monsterPrefab, pos, Quaternion.identity);  
     this.remain_monsters -= 1;
+    monster.layer = LayerMask.NameToLayer("Monster");
+    var lifeTimePublisher = monster.AddComponent<LifeTimePublisher>();
     return (monster);
   }
 
@@ -225,10 +247,14 @@ public class StageManager : Singleton<StageManager>
     }
   }
 
+  void RemoveMonsterFrom(GameObject monster, int roomId) {
+    this.monstersInRooms[roomId].Remove(monster);
+  }
+
   void RestoreMonstersInRoom(int roomId)
   {
     foreach (var pos in this.storedMonsterPos[roomId]) {
-      var monster = this.SpawnMonsterAt(pos);
+      var monster = this.ReSpawnMonsterAt(pos);
       this.monstersInRooms[roomId].Add(monster);
     }
   }
@@ -236,12 +262,16 @@ public class StageManager : Singleton<StageManager>
   GameObject ReSpawnMonsterAt(Vector3 pos)
   {
     var monster = Instantiate(this.monsterPrefab, pos, Quaternion.identity);  
+    monster.layer = LayerMask.NameToLayer("Monster");
+    var lifeTimePublisher = monster.AddComponent<LifeTimePublisher>();
     return (monster);
   }
 
   void UnSpawnMonsterAt(int roomId)
   {
-    foreach (var monster in this.monstersInRooms[roomId]) {
+    List<GameObject> monsters = new (this.monstersInRooms[roomId]);
+    foreach (var monster in monsters) {
+      this.RemoveMonsterFrom(monster, roomId);
       this.UnSpawnMonster(monster);            
     }
     this.monstersInRooms[roomId].Clear();
@@ -249,6 +279,7 @@ public class StageManager : Singleton<StageManager>
 
   void UnSpawnMonster(GameObject monster)
   {
+    // TODO: Return to pool
     Destroy(monster.gameObject);
   }
 

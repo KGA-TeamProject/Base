@@ -23,6 +23,7 @@ public class GameManager: Singleton<GameManager>
       return ;
     }
     Singleton<GameManager>.CreateInstance();
+    AudioManager.CreateInstance();
     PrefabObjectPool.CreateInstance();
     UIManager.CreateInstance();
     StageManager.CreateInstance();

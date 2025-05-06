@@ -97,6 +97,18 @@ class MapNode
   public void UnSpawn()
   {
     this.Spawner.UnSpawn();
+    for (int i = 0; i < this.Connections.Length; ++i) {
+      var connection = this.Connections[i];
+      if (connection.node != null) {
+        connection.node.ResetDoor(MapTypes.GetOppositeDir(
+              (MapTypes.TileDirection)i));
+      } 
+    }
+  }
+
+  public void ResetDoor(MapTypes.TileDirection dir)
+  {
+    this.Spawner.CreateDoor(dir);
   }
 
   public void SetConnection(MapTypes.TileDirection dir, MapNode node, MapCorridor corridor)
@@ -153,14 +165,12 @@ class MapNode
   void OnActiaveDoor(MapTypes.TileDirection dir, Action callback)
   {
     var connection = this.Connections[(int)dir];
-    
-    if (connection.node != null &&
-        this.OnMoveToNextNode != null) {
-      if (this.OnMoveToNextNode.Invoke(connection.node, dir)) {
-        callback?.Invoke();
-      }
-    } 
-  }
 
+    if (connection.node != null &&
+        this.OnMoveToNextNode != null &&
+        this.OnMoveToNextNode.Invoke(connection.node, dir)) {
+      callback?.Invoke();
+    }
+  }
 }
 

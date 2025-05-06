@@ -8,15 +8,18 @@ public class MapCorridorDoor : MonoBehaviour
   public MapTypes.TileDirection Dir;
   SphereCollider doorTrigger;
   Collider doorCollider;
-  bool isActivated;
+  bool isUnLocked;
+  bool isOpened;
   Transform left;
   Transform right;
 
   public void SetAsUnActivated()
   {
-    this.isActivated = false;
+    this.isUnLocked = false;
     this.gameObject.SetActive(true);
-    this.Close();
+    if (this.isOpened) {
+      this.Close();
+    }
   }
 
   public void DestorySelf()
@@ -31,7 +34,8 @@ public class MapCorridorDoor : MonoBehaviour
 
   void Awake()
   {
-    this.isActivated = false;
+    this.isUnLocked = false;
+    this.isOpened = false;
     this.gameObject.name = "MapCorridorDoor";
     this.doorCollider = this.gameObject.GetComponent<Collider>();
     this.doorTrigger = this.gameObject.AddComponent<SphereCollider>();
@@ -46,12 +50,6 @@ public class MapCorridorDoor : MonoBehaviour
   {
     this.doorTrigger.radius = MapCorridorDoor.DOOR_ACTIAVATE_DIST;
     this.SetGeometry();
-  }
-
-  // Update is called once per frame
-  void Update()
-  {
-
   }
 
   void SetGeometry()
@@ -79,18 +77,28 @@ public class MapCorridorDoor : MonoBehaviour
   }
   
   void OnCollisionEnter(Collision collision) {
-    if (this.isActivated && collision.collider.tag == "Player") {
-      this.Open();
+    if (this.isUnLocked && collision.collider.tag == "Player") {
+      if (!this.isUnLocked) {
+        this.TryUnLock();
+      }
+      else if (!this.isOpened) {
+        this.Open();
+      }
     }
   }
 
   void OnTriggerEnter(Collider collider)
   {
-    if (!this.isActivated && 
+    if (!this.isUnLocked && 
         collider.tag == "Player" &&
         this.OnActivated != null) {
-      this.OnActivated.Invoke(() => this.isActivated = true);
+      this.TryUnLock();
     }
+  }
+
+  void TryUnLock()
+  {
+    this.OnActivated.Invoke(() => this.isUnLocked = true);
   }
 
   void Open()
@@ -100,8 +108,9 @@ public class MapCorridorDoor : MonoBehaviour
     }
     if (this.left != null && this.right != null) {
       this.left.transform.Rotate(new Vector3(0, 90, 0), Space.World);
-      this.right.transform.Rotate(new Vector3(0, - 90, 0), Space.World);
+      this.right.transform.Rotate(new Vector3(0, -90, 0), Space.World);
     }
+    this.isOpened = true;
   }
 
   void Close()
@@ -110,8 +119,9 @@ public class MapCorridorDoor : MonoBehaviour
       this.doorCollider.enabled = true;
     }
     if (this.left != null && this.right != null) {
-      this.left.transform.rotation = Quaternion.identity;
-      this.right.transform.rotation = Quaternion.identity;
+      this.left.transform.Rotate(new Vector3(0, -90, 0), Space.World);
+      this.right.transform.Rotate(new Vector3(0, 90, 0), Space.World);
     }
+    this.isOpened = false;
   }
 }

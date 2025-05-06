@@ -108,12 +108,12 @@ public class MapSpawner : MonoBehaviour
     return (pos + this.Center);
   }
 
-  public void CreateDoor(MapTypes.TileDirection dir)
+  public GameObject CreateDoor(MapTypes.TileDirection dir)
   {
     this.EdgeWalls[(int)dir].wallObj?.SetActive(false);
     if (this.Doors[(int)dir].door != null) {
       this.Doors[(int)dir].door.SetAsUnActivated();
-      return ;
+      return (null);
     }
     var container = (GameObject)UnityEngine.GameObject.Instantiate(this.doorPrefab);
     var door = container.GetComponent<MapCorridorDoor>();
@@ -125,6 +125,7 @@ public class MapSpawner : MonoBehaviour
       this.Doors[(int)dir].doorPos.z
       );
     door.OnActivated += (callback) => this.OnActivateDoor(dir, callback);
+    return (door.gameObject);
   }
 
   public void Spawn(bool background = false) 
