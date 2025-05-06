@@ -2,12 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 임시 플레이어 interface
-public interface IPlayer
-{
-  public event Action OnDie; 
-}
-
 public class GameManager: Singleton<GameManager> 
 {
   public enum GameState 
@@ -42,12 +36,7 @@ public class GameManager: Singleton<GameManager>
 
   [SerializeField]
   bool isPlaying;
-
-  /// <summary> player에는 OnDie, OnLevelUp등의 이벤트가 존재해야 함 </summary>
-  public void SetPlayerCharacter(IPlayer player) 
-  {
-    player.OnDie += this.OnGameOver; 
-  }
+  public int CollectedCoins { get; private set; }
 
   void Start() {
     this.Init();
@@ -56,6 +45,7 @@ public class GameManager: Singleton<GameManager>
 
   void Init() 
   {
+    this.CollectedCoins = 0;
     if (Debugging.Mode == Debugging.DebugMode.None) {
       GameSceneManager.Shared.OnSceneLoaded += this.OnGameSceneLoaded;
       GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.CombatScene);
@@ -74,6 +64,11 @@ public class GameManager: Singleton<GameManager>
       default:
         break;
     }
+  }
+
+  public void CollectCoin()
+  {
+    this.CollectedCoins += 1;
   }
 
   public void EndGame()

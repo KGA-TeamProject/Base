@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MapCorridorDoor : MonoBehaviour
 {
-  const float DOOR_ACTIAVATE_DIST = 7f;
+  const float DOOR_ACTIAVATE_DIST = 3f;
   public Action<Action> OnActivated;
   public MapTypes.TileDirection Dir;
   SphereCollider doorTrigger;

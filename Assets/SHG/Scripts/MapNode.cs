@@ -17,7 +17,7 @@ class MapNode
 
   public MapSpawner Spawner;
   public TileMapGenerator Tilemap;
-  public bool IsSpawned => this.Spawner.IsSpawned;
+  public bool IsSpawned => this.Spawner != null && this.Spawner.IsSpawned;
   public bool IsDestroyed { get; private set; }
   public Vector2Int MapSize { get; private set; }
   public Action OnGeneratedTilemap;
@@ -108,7 +108,9 @@ class MapNode
 
   public void ResetDoor(MapTypes.TileDirection dir)
   {
-    this.Spawner.CreateDoor(dir);
+    if (this.IsSpawned) {
+      this.Spawner.CreateDoor(dir);
+    }
   }
 
   public void SetConnection(MapTypes.TileDirection dir, MapNode node, MapCorridor corridor)

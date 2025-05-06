@@ -3,13 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// 임시 몬스터 interface
-interface IMonster
-{
-  int Id { get; }
-  public event Action<IMonster> OnDie;
-}
-
 public class StageManager : Singleton<StageManager> 
 {
 
@@ -30,28 +23,10 @@ public class StageManager : Singleton<StageManager>
   int remain_monsters;
   Dictionary<int, HashSet<GameObject>> monstersInRooms;
   Dictionary<int, List<Vector3>> storedMonsterPos;
+  Dictionary<int, HashSet<GameObject>> coinsInRooms;
   System.Random monsterRand = new ();
 
   private int nextMonsterId = 0;
-
-  void Awake()
-  {
-    this.LoadConfigs();
-    this.map = new MapManager();
-    this.playerPrefab = Resources.Load<GameObject>("TestPlayer");
-    this.monsterPrefab = Resources.Load<GameObject>("TestMonster");
-    this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/Flag");
-    this.map.OnStartingSpawned += this.OnStartingMapSpawned;
-    this.map.OnDestinationSpawned += this.OnSpawnDestination;
-    this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
-    this.map.OnRoomSpawned += this.OnRoomSpawned;
-    this.map.OnRoomUnSpawned += this.OnRoomUnSpawned;
-  }
-
-  void LoadConfigs() {
-    var json = Resources.Load<TextAsset>("Configs/StageConfigs").text;
-    this.config = JsonUtility.FromJson<StageConfig>(json);
-  }
 
   public void StartStage()
   {
@@ -61,6 +36,28 @@ public class StageManager : Singleton<StageManager>
     this.remain_monsters = this.MAX_MOSNTERS;
     this.monstersInRooms = new ();
     this.storedMonsterPos = new ();
+    this.coinsInRooms = new ();
+  }
+
+  void Awake()
+  {
+    this.LoadConfigs();
+    this.map = new MapManager();
+    this.playerPrefab = Resources.Load<GameObject>("TestPlayer");
+    this.monsterPrefab = Resources.Load<GameObject>("TestMonster");
+
+    this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/Flag");
+    this.map.OnStartingSpawned += this.OnStartingMapSpawned;
+    this.map.OnDestinationSpawned += this.OnSpawnDestination;
+    this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
+    this.map.OnRoomSpawned += this.OnRoomSpawned;
+    this.map.OnRoomUnSpawned += this.OnRoomUnSpawned;
+    this.SetCoins();
+  }
+
+  void LoadConfigs() {
+    var json = Resources.Load<TextAsset>("Configs/StageConfigs").text;
+    this.config = JsonUtility.FromJson<StageConfig>(json);
   }
 
   void ChangeBgm()
@@ -103,7 +100,7 @@ public class StageManager : Singleton<StageManager>
   void OnUnSpawnDestination()
   {
     if (this.finisher != null) {
-      this.finisher.Show();
+      this.finisher.Hide();
     }
   }
 
@@ -147,7 +144,8 @@ public class StageManager : Singleton<StageManager>
     this.finisher = null;
     this.HidePlayer(GameObject.FindWithTag("Player"));
     foreach (var room in this.monstersInRooms.Keys) {
-      this.UnSpawnMonsterAt(room);
+      this.UnSpawnMonstersIn(room);
+      this.UnSpawnCoinsIn(room);
     }
     this.monstersInRooms.Clear();
     this.storedMonsterPos.Clear();
@@ -178,6 +176,7 @@ public class StageManager : Singleton<StageManager>
   
   void OnClear() 
   {
+    AudioManager.Shared.PlayEffect(AudioManager.Shared.ClearEffect);
     this.FinishStage();
     if (this.currentStage < StageManager.MAX_STAGE) {
       this.currentStage += 1;
@@ -194,7 +193,8 @@ public class StageManager : Singleton<StageManager>
       var positions = this.map.GetFreePositions(roomId);
       if (!this.monstersInRooms.ContainsKey(roomId)) {
         this.monstersInRooms.Add(roomId, new());
-        this.SpawnMonsters(roomId, positions);
+        this.coinsInRooms.Add(roomId, new());
+        this.SpawnMonstersIn(roomId, positions);
       }
       else if (this.storedMonsterPos.ContainsKey(roomId)) {
         this.RestoreMonstersInRoom(roomId);
@@ -206,11 +206,12 @@ public class StageManager : Singleton<StageManager>
   {
     if (type == MapTypes.RoomType.Combat) {
       this.StoreMonsterPositions(roomId);
-      this.UnSpawnMonsterAt(roomId);
+      this.UnSpawnCoinsIn(roomId);
+      this.UnSpawnMonstersIn(roomId);
     }
   }
 
-  void SpawnMonsters(int roomId, List<Vector3> positions)
+  void SpawnMonstersIn(int roomId, List<Vector3> positions)
   {
     var monsterCount = Math.Min(this.MAX_NUMBER_OF_MONSTERS_IN_ROOM, this.remain_monsters);
     HashSet<Vector3> picked = new(monsterCount);
@@ -220,13 +221,37 @@ public class StageManager : Singleton<StageManager>
       if (!picked.Contains(pos)) {
         picked.Add(pos);
         var monster = this.SpawnMonsterAt(pos);
+        this.monstersInRooms[roomId].Add(monster);
         monster.GetComponent<LifeTimePublisher>().AfterDisabled =
           () => {
+            if (this.monstersInRooms[roomId].Contains(monster)) {
+              var coin = this.SpawnCoinAt(monster.transform.position, roomId);
+              this.coinsInRooms[roomId].Add(coin.gameObject);
+            }
             this.RemoveMonsterFrom(monster, roomId);
           };
         this.monstersInRooms[roomId].Add(monster);
       }
     }
+  }
+
+  Collectible SpawnCoinAt(Vector3 pos, int roomId)
+  {
+    var coin = PrefabObjectPool.Shared.GetPooledObject("coin").GetComponent<Collectible>();
+    coin.transform.parent = this.transform;
+    coin.transform.position = new (
+        pos.x, pos.y + 1f, pos.z
+        );
+    coin.OnCollected = () => this.OnCoinCollectedIn(coin, roomId);
+    coin.gameObject.SetActive(true);
+    return (coin.GetComponent<Collectible>());
+  }
+
+  void OnCoinCollectedIn(Collectible coin, int roomId) 
+  {
+    this.coinsInRooms[roomId].Remove(coin.gameObject);
+    PrefabObjectPool.Shared.ReturnObject(coin.gameObject, "coin");
+    GameManager.Shared.CollectCoin();
   }
 
   GameObject SpawnMonsterAt(Vector3 pos) 
@@ -267,9 +292,21 @@ public class StageManager : Singleton<StageManager>
     return (monster);
   }
 
-  void UnSpawnMonsterAt(int roomId)
+  void UnSpawnCoinsIn(int roomId)
   {
-    List<GameObject> monsters = new (this.monstersInRooms[roomId]);
+    GameObject[] coins = new GameObject[this.coinsInRooms[roomId].Count];
+    this.coinsInRooms[roomId].CopyTo(coins);
+    foreach (var coin in coins) {
+      this.coinsInRooms[roomId].Remove(coin);
+      PrefabObjectPool.Shared.ReturnObject(coin, "coin");
+    }
+    this.coinsInRooms[roomId].Clear();
+  }
+
+  void UnSpawnMonstersIn(int roomId)
+  {
+    GameObject[] monsters = new GameObject[this.monstersInRooms[roomId].Count];
+    this.monstersInRooms[roomId].CopyTo(monsters);
     foreach (var monster in monsters) {
       this.RemoveMonsterFrom(monster, roomId);
       this.UnSpawnMonster(monster);            
@@ -281,6 +318,22 @@ public class StageManager : Singleton<StageManager>
   {
     // TODO: Return to pool
     Destroy(monster.gameObject);
+  }
+
+  void SetCoins()
+  {
+    PrefabObjectPool.Shared.RegisterByName(
+      "coin", "Prefabs/MapObjects/coin", 
+      (loaded) => {
+        loaded.transform.localScale = new (0.7f, 0.7f, 0.7f);
+        var trigger = loaded.AddComponent<SphereCollider>();
+        trigger.isTrigger = true;
+        trigger.center = new();
+        trigger.includeLayers = LayerMask.NameToLayer("Player");
+        trigger.radius = 3; 
+        return (loaded);
+      }, 
+    50);
   }
 
   /*

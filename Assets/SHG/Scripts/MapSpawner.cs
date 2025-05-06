@@ -244,13 +244,15 @@ public class MapSpawner : MonoBehaviour
   }
   IEnumerator BackgroundSpawnTiles() 
   {
+    var count = 0;
     for (int y = 0; y < this.mapGenerator.tiles.GetLength(0); y++) {
       for (int x = 0; x < this.mapGenerator.tiles.GetLength(1); x++) {
         var tile = this.mapGenerator.tiles[y, x];
         if (tile != MapTypes.TileType.None) {
           this.SpawnTile(tile, new(x, y));
+          count += 1;
         }
-        if (x % 10 == 0) {
+        if (count % 40 == 0) {
           yield return (null);
         }
       }

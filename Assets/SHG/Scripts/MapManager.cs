@@ -336,10 +336,10 @@ public class MapManager
               this.CreateDoor(connection.node,(MapTypes.TileDirection)j);
             }
           }
+          spawnedNode.UnSpawn();
           if (this.OnRoomUnSpawned != null) {
             this.OnRoomUnSpawned.Invoke(spawnedNode.Type, spawnedNode.Id);
           }
-          spawnedNode.UnSpawn();
           this.SpawnedNodes.RemoveAt(i);
         }
       }
@@ -355,7 +355,7 @@ public class MapManager
   {
     foreach (var (tileType, prefabName) in tiles) {
       this.tilePrefabNames[(int)tileType] = prefabName;
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapTiles/{prefabName}", this.InitTile, 400);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapTiles/{prefabName}", this.InitTile, 200);
     }
   }
 
@@ -363,7 +363,7 @@ public class MapManager
   {
     foreach (var prefabName in prefabNames) {
       this.objectPrefabNames[(int)size].Add(prefabName);
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapObjects/{prefabName}", this.InitMapObject, 400);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapObjects/{prefabName}", this.InitMapObject, 10);
     }
   }
 
@@ -371,7 +371,7 @@ public class MapManager
   {
     foreach (var prefabName in names) {
       this.sectionNames.Add(prefabName); 
-      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapSections/{prefabName}", this.InitMapObject, 10);
+      PrefabObjectPool.Shared.RegisterByName(prefabName, $"Prefabs/MapSections/{prefabName}", this.InitMapObject, 3);
     }
   }
    
