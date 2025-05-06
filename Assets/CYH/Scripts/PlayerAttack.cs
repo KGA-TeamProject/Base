@@ -6,20 +6,13 @@ public class PlayerAttack : MonoBehaviour
     // 아이템 - 화살 속성 연결 방법2
     //public ArrowSkillData currentArrow;
     public Projectile prefab;
-    public PlayerMove2 playerMove;
-    public bool isDetect = false;
     private Coroutine shootCoroutine;
 
     [SerializeField] public float sightRange;       // 적 탐지 범위
-    [SerializeField] private bool isMove = false;
 
     private void Update()
     {
-        // 플레이어가 움직이지 않을 때만 공격
-        if (isMove == false)
-        {
-            DetectMonster();
-        }
+        DetectMonster();
     }
 
     IEnumerator ShootRoutine()
@@ -66,7 +59,7 @@ public class PlayerAttack : MonoBehaviour
             monsterController monsterController = hitInfo.collider.gameObject.GetComponent<monsterController>();
             if (monsterController != null)
             {
-                isDetect = true;
+                //isDetect = true;
                 Debug.DrawLine(transform.position, hitInfo.point, Color.red);
                 if (shootCoroutine == null)
                 {
@@ -75,7 +68,6 @@ public class PlayerAttack : MonoBehaviour
             }
             else
             {
-                isDetect = false;
                 // 범위에 몬스터가 없으면 발사 코루틴 삭제
                 if (shootCoroutine != null)
                 {
