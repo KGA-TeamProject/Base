@@ -17,8 +17,7 @@ public class PlayerHealthBar : MonoBehaviour
     void Update()
     {
         // 뚝뚝 끊기는 모션으로 인해 선형 보간 사용
-        float v = Mathf.Lerp(hpBar.value, currentHP / maxHP, Time.deltaTime * 3f);
-        hpBar.value = v;
+        hpBar.value = Mathf.Lerp(hpBar.value, currentHP / maxHP, Time.deltaTime * 3f);
 
         // 뒷쪽 슬라이드가 움직이도록 선형 보간 사용
         // 만약 뒷쪽 슬라이드가 움직인다면
