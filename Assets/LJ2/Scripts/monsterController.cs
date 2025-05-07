@@ -65,10 +65,18 @@ public class monsterController : MonoBehaviour
         Destroy(gameObject);
     }
 
-    /*private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
+
         // Player체력 감소 함수
         // 현재 Damage는 int로 사용 중
-    }*/
+        PlayerHealthBar PlayerHealthBar = collision.gameObject.GetComponent<PlayerHealthBar>();
+        if (PlayerHealthBar != null)
+        {
+            PlayerHealthBar.TakeDamage();
+        }
+
+        
+    }
 
 }
