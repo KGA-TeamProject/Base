@@ -35,7 +35,6 @@ public class Projectile : MonoBehaviour
         if (monsterController != null)
         {
             Instantiate(explosionEffect, transform.position, transform.rotation);
-            // 충돌한 몬스터 체력 감소 (merge 후 적용)
             monsterController.TakeDamage(damage);
         }
     }
