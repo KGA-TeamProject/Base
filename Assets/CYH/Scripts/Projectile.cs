@@ -36,7 +36,7 @@ public class Projectile : MonoBehaviour
         {
             Instantiate(explosionEffect, transform.position, transform.rotation);
             // 충돌한 몬스터 체력 감소 (merge 후 적용)
-            //monsterController.TakeDamage(damage);
+            monsterController.TakeDamage(damage);
         }
     }
 }
