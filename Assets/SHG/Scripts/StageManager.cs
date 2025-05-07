@@ -121,9 +121,12 @@ public class StageManager : Singleton<StageManager>
     }
     var lifeTimePublisher = player.AddComponent<LifeTimePublisher>();
     lifeTimePublisher.AfterDestroyed = GameManager.Shared.OnPlayerDied;
+    var light = Instantiate(Resources.Load<GameObject>("Prefabs/Player Light"));
     if (player.tag != "Player") {
       player.tag = "Player";
     }
+    light.transform.parent = player.transform;
+    light.transform.localPosition = new (0, 7, 0);
     UIManager.Shared.combatUI.Minimap.AddMinimapIconTo(player, UIManager.Shared.combatUI.Minimap.PlayerIcon, 2);
     return (player);
   }

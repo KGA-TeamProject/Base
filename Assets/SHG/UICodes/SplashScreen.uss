@@ -5,12 +5,12 @@
 }
 
 #title-container {
-  background-image: url("../Resources/Sprites/title_background.Png");
+  background-image: url("../../Import/Resources/Sprites/title_background.Png");
   justify-content: flex-end;
 }
 
 #ending-container {
-  background-image: url("../Resources/Sprites/ending_background.Png");
+  background-image: url("../../Import/Resources/Sprites/ending_background.Png");
   justify-content: space-between;
   padding: 10%;
 }

@@ -40,5 +40,5 @@
 }
 
 #statusview-coin-icon {
-  background-image: url("../Resources/Sprites/coin.png");
+  background-image: url("../../Import/Resources/Sprites/coin.png");
 }

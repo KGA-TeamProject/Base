@@ -55,6 +55,7 @@ public class Minimap : VisualElement
   public GameObject AddMinimapIconTo(GameObject obj, Sprite sprite, float scale = 1)
   {
     var minimapIcon = new GameObject();
+    minimapIcon.name = "Minimap Icon";
     minimapIcon.layer = LayerMask.NameToLayer("UIRenderOnly");
     minimapIcon.transform.parent = obj.transform;
     minimapIcon.transform.localPosition = new (0, MainCamera.CAMERA_HEIGHT, 0);

@@ -8,5 +8,5 @@ public static class Debugging
     DeactivateAll,
   }
 
-  public static DebugMode Mode = DebugMode.Manual;
+  public static DebugMode Mode = DebugMode.None;
 }
