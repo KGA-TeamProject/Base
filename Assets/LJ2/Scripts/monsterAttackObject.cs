@@ -62,10 +62,17 @@ public class NewBehaviourScript : MonoBehaviour
 
     }
 
-    /*private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
+        gameObject.SetActive(false);
         // Player체력 감소 함수
         // 현재 Damage는 int로 사용 중
-    }*/
+        // Player체력 감소 함수
+        PlayerHealthBar PlayerHealthBar = collision.gameObject.GetComponent<PlayerHealthBar>();
+        if (PlayerHealthBar != null)
+        {
+            PlayerHealthBar.TakeDamage();
+        }
+    }
 
 }
