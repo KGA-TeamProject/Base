@@ -72,6 +72,7 @@ MonoBehaviour:
   animator: {fileID: 1884217255884905655}
   Hp: 0
   moveSpeed: 4
+  noticeRadius: 50
   bumpDamage: 0
   targetLayer:
     serializedVersion: 2
@@ -90,7 +91,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterController: {fileID: 2157504753335343442}
   animator: {fileID: 1884217255884905655}
-  targetPos: {fileID: 0}
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
