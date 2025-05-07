@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 871730343672713522}
   - component: {fileID: 6603906019493392352}
-  - component: {fileID: 8130871393846185931}
+  - component: {fileID: 6438061743980297261}
   m_Layer: 7
-  m_Name: Arrow_CYH
+  m_Name: Fire_Arrow_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,7 +61,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &8130871393846185931
+--- !u!114 &6438061743980297261
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,12 +74,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  shootCount: 1
+  shootCount: 3
   speed: 10
-  angle: 15
-  delaySecond: 0.7
+  angle: 30
+  delaySecond: 2
   rigid: {fileID: 6603906019493392352}
-  explosionEffect: {fileID: 1802261868130759384, guid: 319e66ba0f01333b7bfdc248174f099d, type: 3}
+  explosionEffect: {fileID: 8914885502998522470, guid: 120b22545ec9dbe62a32a8c8efd77e2d, type: 3}
 --- !u!1 &8598022496436078112
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,8 +142,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 52c7def357bc910418df909d1c157606, type: 2}
-  - {fileID: 2100000, guid: 572e86b578f11bc429d1874131910b0b, type: 2}
+  - {fileID: 2100000, guid: e6adab012a4ec304c9f00affc399c1d4, type: 2}
+  - {fileID: 2100000, guid: c6b37ab97fba44846b71be1e2a8a4387, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
