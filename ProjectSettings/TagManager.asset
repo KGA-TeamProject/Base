@@ -11,6 +11,10 @@ TagManager:
   - 
   - Water
   - UI
+  - Player
+  - Arrow
+  - Monster
+  - MonsterAttack
   - 
   - 
   - 
@@ -19,13 +23,9 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - UIRenderOnly
+  - Map Object
+  - Map Tile
   - 
   - 
   - 
