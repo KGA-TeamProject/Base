@@ -11,6 +11,12 @@ static public class MapTypes
   }
   public static MapObjectSize[] AllObjectSizes = (MapObjectSize[])Enum.GetValues(typeof(MapTypes.MapObjectSize));
 
+  public enum RoomType
+  {
+    None,
+    Combat
+  }
+
   public enum TileType
   {
     None,
@@ -35,6 +41,13 @@ static public class MapTypes
     BottomRight
   }
   static public TileDirection[] AllTileDirection = (TileDirection[])Enum.GetValues(typeof(TileDirection));
+
+  static public TileDirection[] AllPerpendicularDirections = {
+    TileDirection.Top,
+    TileDirection.Bottom,
+    TileDirection.Left,
+    TileDirection.Right,
+  };
 
   static public bool IsPerpendicular(TileDirection dir)
   {

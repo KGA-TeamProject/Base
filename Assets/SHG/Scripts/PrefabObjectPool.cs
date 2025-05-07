@@ -15,7 +15,8 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
   Dictionary<string, Queue<UnityEngine.GameObject>> pooledObjects = new();
 
   Queue<UnityEngine.GameObject> GetQueue(string prefabName) {
-    if (this.pooledObjects.TryGetValue(prefabName, out Queue<UnityEngine.GameObject> queue)) {
+    if (this.pooledObjects.TryGetValue(prefabName, 
+          out Queue<UnityEngine.GameObject> queue)) {
       return (queue);
     }
     return (null);
@@ -25,6 +26,7 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
     Queue<UnityEngine.GameObject> queue = new();
     for (int i = 0; i < this.pools[prefabName].size; ++i) {
       var newObject = Instantiate(prefab);
+      newObject.transform.parent = this.transform;
       newObject.SetActive(false);
       queue.Enqueue(newObject); 
     }
@@ -39,11 +41,13 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
     var prefab = Resources.Load<UnityEngine.GameObject>(path);
     if (modifier != null) {
       prefab = modifier(Instantiate(prefab));
-      prefab.SetActive(false);
     }
+    prefab.transform.parent = this.transform;
+    prefab.SetActive(false);
     this.pools.TryAdd(
         prefabName, (prefab: prefab, size: poolSize)
         ); 
+    this.CreateQueue(prefabName, prefab);
   }
 
   public void RegisterPrefab(string name, GameObject prefab, int poolSize = PrefabObjectPool.POOL_SIZE)
@@ -51,6 +55,9 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
     if (this.pools.ContainsKey(name))
       return ;
     this.pools.TryAdd(name, (prefab: prefab, size: poolSize)) ;
+    prefab.transform.parent = this.transform;
+    prefab.SetActive(false);
+    this.CreateQueue(name, prefab);
   }
 
   public UnityEngine.GameObject GetPooledObject(string prefabName) {
@@ -70,11 +77,24 @@ public class PrefabObjectPool: Singleton<PrefabObjectPool>
     if (gameObject == null)
       throw (new ArgumentException($"{pooledObject} is not UnityEngine.GameObject"));
     gameObject.SetActive(false);
+    gameObject.transform.parent = this.transform;
     var queue = this.GetQueue(prefabName);
     if (this.pooledObjects[prefabName].Count < this.pools[prefabName].size)
       this.pooledObjects[prefabName].Enqueue(gameObject);
     else
       Destroy(gameObject);
+  }
+
+  public void ReleasePrefab(string prefabName)
+  {
+    var queue = this.GetQueue(prefabName);
+    if (queue == null) {
+      return;
+    }
+    foreach (var pooledObject in queue) {
+      Destroy(pooledObject.gameObject);
+    }
+    this.pooledObjects.Remove(prefabName);
   }
 
   void OnDestory() {

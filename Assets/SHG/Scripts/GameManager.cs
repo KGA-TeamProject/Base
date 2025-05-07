@@ -2,12 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 임시 플레이어 interface
-public interface IPlayer
-{
-  public event Action OnDie; 
-}
-
 public class GameManager: Singleton<GameManager> 
 {
   public enum GameState 
@@ -23,6 +17,7 @@ public class GameManager: Singleton<GameManager>
       return ;
     }
     Singleton<GameManager>.CreateInstance();
+    AudioManager.CreateInstance();
     PrefabObjectPool.CreateInstance();
     UIManager.CreateInstance();
     StageManager.CreateInstance();
@@ -41,12 +36,7 @@ public class GameManager: Singleton<GameManager>
 
   [SerializeField]
   bool isPlaying;
-
-  /// <summary> player에는 OnDie, OnLevelUp등의 이벤트가 존재해야 함 </summary>
-  public void SetPlayerCharacter(IPlayer player) 
-  {
-    player.OnDie += this.OnGameOver; 
-  }
+  public int CollectedCoins { get; private set; }
 
   void Start() {
     this.Init();
@@ -55,12 +45,61 @@ public class GameManager: Singleton<GameManager>
 
   void Init() 
   {
-    //GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.FirstScene);
+    this.CollectedCoins = 0;
+    if (Debugging.Mode == Debugging.DebugMode.None) {
+      GameSceneManager.Shared.OnSceneLoaded += this.OnGameSceneLoaded;
+    }
   }
 
-  public void StartGame()
+  public void OnGameSceneLoaded(GameSceneManager.SceneName sceneName)
   {
     this.isPlaying = true;
+    switch (sceneName)
+    {
+      case GameSceneManager.SceneName.CombatScene:
+        StageManager.Shared.OnStartStage += () => {
+          this.isPlaying = true; 
+          this.State = GameState.InCombat;
+          UIManager.Shared.loadingUI.Hide();
+          UIManager.Shared.combatUI.Show();
+        };
+        StageManager.Shared.OnStageClear += () => {
+          this.isPlaying = false;
+          UIManager.Shared.combatUI.Hide();
+          if (StageManager.Shared.CurrentStage < StageManager.MAX_STAGE) {
+            UIManager.Shared.loadingUI.Show();
+          }
+          else {
+            GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.EndingScene);
+          }
+        };
+        StageManager.Shared.StartStage();  
+        break;
+      default:
+        break;
+    }
+  }
+
+  public void CollectCoin()
+  {
+    this.CollectedCoins += 1;
+  }
+
+  public void EndGame()
+  {
+    this.isPlaying = false;
+    #if UNITY_EDITOR
+    UnityEditor.EditorApplication.isPlaying = false;
+    #else
+    Application.Quit();
+    #endif
+  }
+
+  public void OnPlayerDied()
+  {
+    if (this.isPlaying) {
+      GameSceneManager.Shared.StartLoadScene(GameSceneManager.SceneName.EndingScene);
+    }
   }
 
   /*

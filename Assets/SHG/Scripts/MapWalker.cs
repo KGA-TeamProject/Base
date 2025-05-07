@@ -17,18 +17,16 @@ struct MapWalker
   public Direction Dir;
   public Vector2Int Pos;
 
-  static public bool IsInRange(Vector2Int pos, Vector2Int Size) 
+  static public bool IsInRange(Vector2Int pos, Vector2Int size) 
   {
     return (pos.x > 0 && pos.y > 0 &&
-      pos.x < Size.x &&
-      pos.y < Size.y);
+      pos.x < size.x &&
+      pos.y < size.y);
   }
 
-  public bool IsInRange(Vector2Int Size) 
+  public bool IsInRange(Vector2Int size) 
   {
-    return (this.Pos.x > 0 && this.Pos.y > 0 &&
-      this.Pos.x < Size.x &&
-      this.Pos.y < Size.y);
+    return (MapWalker.IsInRange(this.Pos, size));
   }
 
   public Direction GetDirection()
@@ -67,18 +65,24 @@ struct MapWalker
     return (dir);
   }
 
-  public int CountNeigborTile(bool[] tileMask, MapTypes.TileType[,] map)
+  static public int CountNeigborTileFrom(Vector2Int pos, bool[] tilemask, MapTypes.TileType [,] map)
   {
     var mapSize = new Vector2Int(map.GetLength(1), map.GetLength(0));
     var count = 0;
     foreach (var dir in MapTypes.AllTileDirectionsOneStep) {
-      var cur = this.Pos + dir;
-      if (this.IsInRange(mapSize) &&
-          tileMask[(int)map[cur.y, cur.x]]) {
+      var cur = pos + dir;
+      if (MapWalker.IsInRange(cur, mapSize) &&
+          tilemask[(int)map[cur.y, cur.x]]) {
         count += 1;
       }
     }    
     return (count);
+
+  }
+
+  public int CountNeigborTile(bool[] tilemask, MapTypes.TileType[,] map)
+  {
+    return (MapWalker.CountNeigborTileFrom(this.Pos, tilemask, map));
   }
 
   public bool IsFacingTile(MapTypes.TileType tile, MapTypes.TileType[,] map)
