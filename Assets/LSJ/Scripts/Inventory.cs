@@ -29,7 +29,7 @@ public class Inventory : MonoBehaviour
         if (instance == null)
         {
             instance = this; // 인스턴스 설정
-            DontDestroyOnLoad(gameObject); // 씬 전환 시 파괴되지 않도록 설정
+            //DontDestroyOnLoad(gameObject); // 씬 전환 시 파괴되지 않도록 설정
         }
         else
         {
@@ -39,7 +39,7 @@ public class Inventory : MonoBehaviour
     #endregion
 
     #region Item
-    public List<Item> items;
+    public List<Item> items = new List<Item>(); // 아이템 목록
 
     // 아이템 추가
     public void AddItem(Item item)
@@ -49,6 +49,12 @@ public class Inventory : MonoBehaviour
         item.gameObject.SetActive(false); // 아이템 비활성화
         item.transform.parent = transform; // 아이템 부모를 인벤토리로 설정
     }
+
+    //public void AddPotion(GameObject potionPrefab)
+    //{
+    //    GameObject newPotion = Instantiate(potionPrefab);
+    //    // 인벤토리 UI에 연결 등 추가 작업
+    //}
 
     // 아이템 사용
     public void UseItem(Item item)
