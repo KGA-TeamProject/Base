@@ -9,6 +9,7 @@ public class UIManager : Singleton<UIManager>
   public PopupUI? CurrentPopup { get; private set; }
   public CombatUI combatUI;
   public LoadingUI loadingUI;
+  public Vector2 JoystickInput => this.combatUI.Joystick.Input;
   public Camera MinimapCamera { set {
     if (this.combatUI.Minimap == null) {
       return ;

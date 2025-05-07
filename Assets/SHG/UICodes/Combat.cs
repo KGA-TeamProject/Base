@@ -10,6 +10,7 @@ public class CombatUI : MonoBehaviour
   public Transform Player;
   public Minimap Minimap { get; private set; }
   public StatusView Status { get; private set; }
+  public Joystick Joystick { get; private set; }
   const string CONTAINER_NAME = "combatUI_container";
   VisualElement root;
   Coroutine zoomMinimapRoutine;
@@ -51,8 +52,10 @@ public class CombatUI : MonoBehaviour
     this.root.AddToClassList(CombatUI.CONTAINER_NAME);
     this.Minimap = new ();
     this.Status = new ();
+    this.Joystick = new ();
     this.root.Add(this.Minimap);
     this.root.Add(this.Status);
+    this.root.Add(this.Joystick);
   }
 
   public void ZoomMinimap()

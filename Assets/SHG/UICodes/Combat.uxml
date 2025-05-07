@@ -1,3 +1,4 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/SHG/UICodes/Combat.uss?fileID=7433441132597879392&amp;guid=4a498055269798563a2fc984e4f87856&amp;type=3#Combat" />
+    <Style src="project://database/Assets/SHG/UICodes/Joystick.uss?fileID=7433441132597879392&amp;guid=585f60411c7ccf931a831595440547db&amp;type=3#Joystick" />
 </ui:UXML>

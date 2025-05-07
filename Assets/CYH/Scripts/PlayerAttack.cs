@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    // 아이템 - 화살 속성 연결 방법2
-    //public ArrowSkillData currentArrow;
     public Projectile prefab;
     private Coroutine shootCoroutine;
 
