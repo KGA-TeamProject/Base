@@ -47,7 +47,7 @@ public class monsterController : MonoBehaviour
     {
         Hp -= damage;
         animator.Play("GetHit");
-        if (Hp < 0)
+        if (Hp <= 0)
         {
             Die();
         }
@@ -58,4 +58,11 @@ public class monsterController : MonoBehaviour
         animator.Play("Die");
         Destroy(gameObject);
     }
+
+    /*private void OnCollisionEnter(Collision collision)
+    {
+        // Player체력 감소 함수
+        // 현재 Damage는 int로 사용 중
+    }*/
+
 }
