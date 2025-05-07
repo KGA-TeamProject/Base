@@ -54,6 +54,11 @@ public class farAttack : MonoBehaviour
         detactPlayer();
     }
 
+    public int GiveDamage()
+    {
+        return attackDamage;
+    }
+
     // attackRadius 안에 들어오면
     private void detactPlayer()
     {

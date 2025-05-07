@@ -7,6 +7,9 @@ public class NewBehaviourScript : MonoBehaviour
     [SerializeField] private float deActiveTime;
     private Rigidbody rigid;
     private float countTime;
+
+    [SerializeField] farAttack farAttack;
+    private int givenDamage;
     [SerializeField] public int attackDamage;
     
     
@@ -18,7 +21,7 @@ public class NewBehaviourScript : MonoBehaviour
     }
     private void Start()
     {
-        
+        givenDamage = farAttack.GiveDamage();
     }
 
     private void OnEnable()
@@ -42,6 +45,7 @@ public class NewBehaviourScript : MonoBehaviour
         rigid = GetComponent<Rigidbody>();
     }
 
+
     // 생성과 동시에 카운트 다운 시작
     private void TimeCount()
     {
@@ -58,5 +62,10 @@ public class NewBehaviourScript : MonoBehaviour
 
     }
 
+    /*private void OnCollisionEnter(Collision collision)
+    {
+        // Player체력 감소 함수
+        // 현재 Damage는 int로 사용 중
+    }*/
 
 }
