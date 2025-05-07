@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SHG/Resources/Scenes/CombatScene.unity
+    path: Assets/Import/Resources/Scenes/CombatScene.unity
     guid: 1f5115452b6983b64b47d749b9250b5a
   - enabled: 1
-    path: Assets/SHG/Resources/Scenes/EndingScene.unity
+    path: Assets/Import/Resources/Scenes/EndingScene.unity
     guid: 99d0be612cf9d9cad83762a0cf5aa050
   m_configObjects: {}

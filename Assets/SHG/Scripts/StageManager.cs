@@ -46,7 +46,8 @@ public class StageManager : Singleton<StageManager>
     this.playerPrefab = Resources.Load<GameObject>("TestPlayer");
     this.monsterPrefab = Resources.Load<GameObject>("TestMonster");
 
-    this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/Flag");
+    this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/arrow_up");
+    this.flagPrefab.transform.localScale = new (2, 2, 2); 
     this.map.OnStartingSpawned += this.OnStartingMapSpawned;
     this.map.OnDestinationSpawned += this.OnSpawnDestination;
     this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
