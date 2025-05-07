@@ -4,12 +4,19 @@ using UnityEngine;
 
 public class LookAtCamera : MonoBehaviour
 {
-    // 체력바가 메인 카메라 바라보게 하기
+    [SerializeField] Transform player;
+    [SerializeField] Vector3 offset;
 
     // 빌드업 사용
     private void LateUpdate()
     {
         // 바라보는 방향을 카메라 방향으로 설정
+        Vector3 pos = Camera.main.WorldToScreenPoint(player.position);
+        
+        pos += offset;
+        pos.z -= 2f;
+
+        transform.position = Camera.main.ScreenToWorldPoint(pos);
         transform.forward = Camera.main.transform.forward;
     }
 
