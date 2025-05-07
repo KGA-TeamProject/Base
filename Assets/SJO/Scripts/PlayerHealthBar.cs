@@ -44,6 +44,9 @@ public class PlayerHealthBar : MonoBehaviour
     {
         currentHP -= 10;
         Invoke("NextHP", 0.5f);
+        if (this.currentHP <= 0 ) {
+          Destroy(this.gameObject);
+        }
     }
 
     public void NextHP()
