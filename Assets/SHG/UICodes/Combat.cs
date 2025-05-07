@@ -20,12 +20,14 @@ public class CombatUI : MonoBehaviour
     this.root.visible = true;
     this.IsShowing = true;
     this.Player = GameObject.FindWithTag("Player").transform;
+    this.root.BringToFront();
   }
 
   public void Hide() 
   { 
     this.root.visible = false;
     this.IsShowing = false;
+    this.root.SendToBack();
   }
 
   void Awake()
