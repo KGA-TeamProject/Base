@@ -140,6 +140,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6199499556025274825, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.3396795
+      objectReference: {fileID: 0}
     - target: {fileID: 7940101656766801831, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
       propertyPath: m_Name
       value: Player HP Bar Variant
@@ -148,8 +152,34 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5246043827287255771, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7940101656766801831, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 415725114564380026}
   m_SourcePrefab: {fileID: 100100000, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
+--- !u!1 &1458268278787120238 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7940101656766801831, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
+  m_PrefabInstance: {fileID: 8794447218997263305}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &415725114564380026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458268278787120238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03c8bba930e0a7921abbb4bab3713d25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hpBar: {fileID: 0}
+  nextHPBar: {fileID: 0}
+  nextHPHit: 0
+  maxHP: 100
+  currentHP: 100
