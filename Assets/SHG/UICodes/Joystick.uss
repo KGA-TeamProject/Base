@@ -1,0 +1,37 @@
+.joystickContainer {
+  position: absolute;
+  left: 5%;
+  bottom: 5%;
+  width: 200px;
+  min-width: 200px;
+  height: 200px;
+  min-height: 200px;
+  border-radius: 50%;
+  border-width: 4px;
+  border-color: rgba(120, 120, 120, 0.4);
+  background-color: rgba(120, 120, 120, 0.2);
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  scale: 1.0;
+}
+
+.joystickContainer:hover {
+  scale: 1.1;
+}
+
+.joystickContainer-active {
+  scale: 1.1;
+  border-color: white !important;
+}
+
+.joystickHandle {
+  border-radius: 50%;
+  border-width: 0;
+  background-color: rgba(3, 167, 145, 0.5);
+}
+
+.joystickHandle-active {
+  background-color: rgba(129, 231, 175, 1.0) !important;
+}
