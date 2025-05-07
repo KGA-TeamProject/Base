@@ -32,6 +32,7 @@ public class StageManager : Singleton<StageManager>
   {
     this.ApplyStageConfig(this.CurrentStage);
     this.ChangeBgm();
+    this.map.MAXIMUM_NODES = this.CurrentStage + 2;
     this.map.SpawnMap();
     this.remain_monsters = this.MAX_MOSNTERS;
     this.monstersInRooms = new ();
@@ -42,12 +43,11 @@ public class StageManager : Singleton<StageManager>
   void Awake()
   {
     this.LoadConfigs();
-    this.map = new MapManager();
+    this.map = new MapManager(this.CurrentStage + 2);
     this.playerPrefab = Resources.Load<GameObject>("TestPlayer");
     this.monsterPrefab = Resources.Load<GameObject>("TestMonster");
 
     this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/arrow_up");
-    this.flagPrefab.transform.localScale = new (2, 2, 2); 
     this.map.OnStartingSpawned += this.OnStartingMapSpawned;
     this.map.OnDestinationSpawned += this.OnSpawnDestination;
     this.map.OnDestinationUnSpawned += this.OnUnSpawnDestination;
@@ -89,7 +89,9 @@ public class StageManager : Singleton<StageManager>
   {
     if (this.finisher == null) {
       var pos = this.map.GetFinishPos();
+      pos.y += 1;
       var flag = Instantiate(this.flagPrefab, pos, Quaternion.identity);
+      flag.transform.localScale = new (2, 2, 2); 
       var minimapIcon = UIManager.Shared.combatUI.Minimap.AddMinimapIconTo(flag, UIManager.Shared.combatUI.Minimap.FlagIcon, 5);
       minimapIcon.name = "FlagMinimapIcon";
       this.finisher = flag.AddComponent<StageFinisher>();

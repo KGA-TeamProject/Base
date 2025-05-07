@@ -24,7 +24,7 @@ public class MapManager
       this.minimapCamera = value;
     }
   }
-  int MAXIMUM_NODES = 3;
+  public int MAXIMUM_NODES;
   int currentNodes = 0;
   public Action OnStartingSpawned;
   public Action OnDestinationSpawned;
@@ -46,8 +46,9 @@ public class MapManager
   List<MapNode> SpawnedNodes;
   (int depth, MapNode node) furthest;
 
-  public MapManager()
+  public MapManager(int maxRoom = 3)
   {
+    this.MAXIMUM_NODES = maxRoom;
     this.Init();
   }
 

@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MapCorridor: MonoBehaviour
 {
-  static public float LENGTH = 20;
+  static public float LENGTH = 25;
   const float TURNING_POINT = 0.7f;
   public Vector3 StartPos;
   public Vector3 EndPos;
