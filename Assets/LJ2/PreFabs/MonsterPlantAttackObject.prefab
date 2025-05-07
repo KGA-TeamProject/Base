@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7379925452241161789}
   - component: {fileID: 8754196816501571799}
   - component: {fileID: 4984630917840509654}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 5281941792488961769}
   - component: {fileID: 6287125739515285055}
   - component: {fileID: -1458001169516139189}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: MonsterPlantAttackObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}

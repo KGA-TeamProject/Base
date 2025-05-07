@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3050712983077629840}
   - component: {fileID: 2114301097299468393}
   - component: {fileID: -7702926579535372867}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: EvilMageAttackObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 1782690238032784274}
   - component: {fileID: 1852923568646793759}
   - component: {fileID: 5940373885750022132}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
