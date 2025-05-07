@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1394487184686903718, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 4015155102545756576, guid: 1281642c793fdc66896f9c191f13aa1d, type: 3}
     - target: {fileID: 1568982468023212936, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -146,7 +150,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7940101656766801831, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
       propertyPath: m_Name
-      value: Player HP Bar Variant
+      value: Player HP Bar
       objectReference: {fileID: 0}
     - target: {fileID: 7940101656766801831, guid: 91f0db4a6b6ca6548b070d307789e202, type: 3}
       propertyPath: m_IsActive
