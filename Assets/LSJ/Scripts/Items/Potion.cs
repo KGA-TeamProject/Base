@@ -5,6 +5,7 @@ using UnityEngine;
 public class Potion : Item
 {
     Player player; // 플레이어 객체
+    private float rotSpeed = 100f;        // 돌아가는 속도
 
     public Potion()
     {
@@ -14,7 +15,7 @@ public class Potion : Item
 
     public override void Use()
     {
-        Debug.Log("포션 사용"); // 포션 사용 로그 출력
+        Debug.Log("포션 사용 체력 30 회복"); // 포션 사용 로그 출력
         player.Heal(30); // 플레이어 체력 회복
     }
 
@@ -26,5 +27,15 @@ public class Potion : Item
             Use(); // 포션 사용
             Destroy(gameObject); // 포션 오브젝트 파괴
         }
+    }
+
+    void Update()
+    {
+        Rotate(); // 포션 회전
+    }
+
+    private void Rotate()
+    {
+        transform.Rotate(Vector3.up, rotSpeed * Time.deltaTime);    // Vector3.up 을 기준으로 돈다. -> Up 위를 기준!으로 도는 것 
     }
 }

@@ -50,6 +50,12 @@ public class Inventory : MonoBehaviour
         item.transform.parent = transform; // 아이템 부모를 인벤토리로 설정
     }
 
+    //public void AddPotion(GameObject potionPrefab)
+    //{
+    //    GameObject newPotion = Instantiate(potionPrefab);
+    //    // 인벤토리 UI에 연결 등 추가 작업
+    //}
+
     // 아이템 사용
     public void UseItem(Item item)
     {
