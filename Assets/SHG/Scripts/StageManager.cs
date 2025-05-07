@@ -330,6 +330,11 @@ public class StageManager : Singleton<StageManager>
   {
     monster.AddComponent<LifeTimePublisher>();
     monster.layer = LayerMask.NameToLayer("Monster");
+    if (monster.GetComponent<CapsuleCollider>() == null) {
+      var collider = monster.AddComponent<CapsuleCollider>();
+      collider.radius = 2f;
+      collider.center = new (0, 1f, 0);
+    }
     return (monster);
   }
 
