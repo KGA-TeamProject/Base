@@ -6,50 +6,49 @@ using UnityEngine.UI;
 public class PlayerHealthBar : MonoBehaviour
 {
     [SerializeField] Slider hpBar;
-    
-    #region 변경 전 체력바 코드
-    //private int hp;
-    //
-    //public int playerHP
-    //{
-    //    // get으로 PlayerHealthBar 이외에 접근하지 못하도록 설정
-    //    get => hp;
-    //    // 최소 / 최대값 설정으로 int가 0의 범위를 넘지 않도록 설정
-    //    private set => hp = Mathf.Clamp(value, 0, hp);
-    //}
-    //
-    //// Awake 단계에서 초기 세팅
-    //private void Awake()
-    //{
-    //    // 초기 체력 설정
-    //    hp = 100;
-    //    SetMaxHealth(hp);
-    //}
-    //
-    //// 체력 최대값 설정을 위한 함수 세팅
-    //public void SetMaxHealth(int playerHealth)
-    //{
-    //    hpBar.maxValue = playerHealth;
+    [SerializeField] Slider nextHPBar;
 
-    //}
-    //
-    //// 몬스터의 공격력 만큼 HP에 할당
-    //public void TakenDamage(int damage)
-    //{
-    //    int damageTaken = playerHP - damage;
-    //    playerHP = damageTaken;
-    //    hpBar.value = playerHP;
-    //}
-    #endregion
+    public bool nextHPHit = false;
 
     // 체력을 알 수 있는 변수 생성
-    public float maxHP = 1000;
-    public float currentHP = 1000;
+    public float maxHP = 100;
+    public float currentHP = 100;
 
-    public void Update()
+    void Update()
     {
         // 뚝뚝 끊기는 모션으로 인해 선형 보간 사용
         hpBar.value = Mathf.Lerp(hpBar.value, currentHP / maxHP, Time.deltaTime * 3f);
+
+        // 뒷쪽 슬라이드가 움직이도록 선형 보간 사용
+        // 만약 뒷쪽 슬라이드가 움직인다면
+        if (nextHPHit)
+        {
+            nextHPBar.value = Mathf.Lerp(nextHPBar.value, hpBar.value, Time.deltaTime * 10f);
+
+            // 동작 후 초기화 진행
+            // 앞 hpBar와 뒤 hpBar가 가까워지면
+            if (hpBar.value >= nextHPBar.value - 0.01f)
+            {
+                // 초기화
+                nextHPHit = false;
+                // 앞 뒤 hpBar 위치를 동일하게
+                nextHPBar.value = hpBar.value;
+            }
+        }
+    }
+
+    // 이 자체로 동작하지 않을시
+    // 몬스터 HP 깎는 쪽에 추가하면 됨
+    // OnCollisionEnter 쪽에 TakeDamage();
+    public void TakeDamage()
+    {
+        currentHP -= 10;
+        Invoke("NextHP", 0.5f);
+    }
+
+    public void NextHP()
+    {
+        nextHPHit = true;
     }
 
     #region Before
