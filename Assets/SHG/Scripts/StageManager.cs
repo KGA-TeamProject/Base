@@ -44,8 +44,8 @@ public class StageManager : Singleton<StageManager>
   {
     this.LoadConfigs();
     this.map = new MapManager(this.CurrentStage + 2);
-    this.playerPrefab = Resources.Load<GameObject>("TestPlayer");
-    this.monsterPrefab = Resources.Load<GameObject>("TestMonster");
+    this.playerPrefab = Resources.Load<GameObject>("Prefabs/Player") ?? Resources.Load<GameObject>("TestPlayer");
+    this.monsterPrefab = Resources.Load<GameObject>("Prefabs/TestMonster");
 
     this.flagPrefab = Resources.Load<GameObject>("Prefabs/MapObjects/arrow_up");
     this.map.OnStartingSpawned += this.OnStartingMapSpawned;
