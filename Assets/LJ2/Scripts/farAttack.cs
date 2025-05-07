@@ -8,7 +8,7 @@ public class farAttack : MonoBehaviour
     [SerializeField] monsterController monsterController;
     [SerializeField] private Animator animator;
 
-    [SerializeField] Transform targetPos;
+    //[SerializeField] Transform targetPos;
     [SerializeField] LayerMask targetLayer;
  
     [SerializeField] private float setDelay;
@@ -54,12 +54,17 @@ public class farAttack : MonoBehaviour
         detactPlayer();
     }
 
+    public int GiveDamage()
+    {
+        return attackDamage;
+    }
+
     // attackRadius 안에 들어오면
     private void detactPlayer()
     {
         if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0)
         {
-            
+            Transform targetPos = Physics.OverlapSphere(transform.position, attackRadius, targetLayer)[0].transform;
             Vector3 lookPos = new Vector3(targetPos.position.x, transform.position.y, targetPos.position.z);
             transform.LookAt(lookPos);
 
@@ -72,7 +77,7 @@ public class farAttack : MonoBehaviour
         }
         else
         {
-            monsterController.Move(targetPos);
+            monsterController.Move();
 
             if (attackCoroutine != null)
             {

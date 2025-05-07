@@ -7,31 +7,44 @@ public class CombatUI : MonoBehaviour
 {
   public const string PREFAB_NAME = "CombatUI";
   public bool IsShowing { get; private set; }
-  public Minimap minimap { get; private set; }
-  IUIComponent CharacterHpUI;
-  IUIComponent SkillListUI;
+  public Transform Player;
+  public Minimap Minimap { get; private set; }
+  public StatusView Status { get; private set; }
+  public Joystick Joystick { get; private set; }
   const string CONTAINER_NAME = "combatUI_container";
   VisualElement root;
-  Transform playerTransform;
   Coroutine zoomMinimapRoutine;
+
+  public void Show() 
+  { 
+    this.root.visible = true;
+    this.IsShowing = true;
+    this.Player = GameObject.FindWithTag("Player").transform;
+    this.root.BringToFront();
+  }
+
+  public void Hide() 
+  { 
+    this.root.visible = false;
+    this.IsShowing = false;
+    this.root.SendToBack();
+  }
 
   void Awake()
   {
     this.Init();
   }
-  // Start is called before the first frame update
-  void Start()
-  {
-    this.playerTransform = GameObject.FindWithTag("Player").transform;
-    this.Show();
-  }
 
   // Update is called once per frame
   void Update()
   {
+    if (!this.IsShowing) {
+      return ;
+    }
     if (GameManager.Shared.State == GameManager.GameState.InCombat &&
         GameManager.Shared.IsPlaying) {
       this.UpdateMinimap();
+      this.Status.CoinCount = GameManager.Shared.CollectedCoins;
     }
   }
 
@@ -39,20 +52,12 @@ public class CombatUI : MonoBehaviour
   {
     this.root = this.GetComponent<UIDocument>().rootVisualElement;
     this.root.AddToClassList(CombatUI.CONTAINER_NAME);
-    this.minimap = new ();
-    this.root.Add(this.minimap);
-  }
-
-  void Show() 
-  { 
-    this.root.visible = true;
-    this.IsShowing = true;
-  }
-
-  void Hide() 
-  { 
-    this.root.visible = false;
-    this.IsShowing = false;
+    this.Minimap = new ();
+    this.Status = new ();
+    this.Joystick = new ();
+    this.root.Add(this.Minimap);
+    this.root.Add(this.Status);
+    this.root.Add(this.Joystick);
   }
 
   public void ZoomMinimap()
@@ -61,21 +66,18 @@ public class CombatUI : MonoBehaviour
       this.StopCoroutine(this.zoomMinimapRoutine);
     }
     this.zoomMinimapRoutine = this.StartCoroutine(
-        this.minimap.Zoom(10f, () => this.zoomMinimapRoutine = null)
+        this.Minimap.Zoom(Minimap.DEFAULT_ZOOM, () => this.zoomMinimapRoutine = null)
         );
   }
 
   void UpdateMinimap()
   {
     var newPos = new Vector3(
-        this.playerTransform.position.x,
-        this.minimap.Camera.transform.position.y,
-        this.playerTransform.position.z
+        this.Player.position.x,
+        this.Minimap.Camera.transform.position.y,
+        this.Player.position.z
         );
-    this.minimap.MoveCameraCenterTo(newPos);
+    this.Minimap.MoveCameraCenterTo(newPos);
   }
 }
 
-public interface IUIComponent 
-{
-}

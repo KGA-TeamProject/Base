@@ -8,7 +8,7 @@ public class nearAttack : MonoBehaviour
     [SerializeField] monsterController monsterController;
     [SerializeField] private Animator animator;
 
-    [SerializeField] Transform targetPos;
+    //[SerializeField] Transform targetPos;
     [SerializeField] LayerMask targetLayer;
 
     
@@ -39,7 +39,7 @@ public class nearAttack : MonoBehaviour
     {
         if (Physics.OverlapSphere(transform.position, attackRadius, targetLayer).Length > 0) 
         {
-            
+            Transform targetPos = Physics.OverlapSphere(transform.position, attackRadius, targetLayer)[0].transform;
             Vector3 lookPos = new Vector3(targetPos.position.x, transform.position.y, targetPos.position.z);
             transform.LookAt(lookPos);
 
@@ -49,7 +49,7 @@ public class nearAttack : MonoBehaviour
         }
         else
         {
-            monsterController.Move(targetPos);
+            monsterController.Move();
             
             
             if (attackCoroutine != null)
@@ -75,7 +75,7 @@ public class nearAttack : MonoBehaviour
                     animator.Play("Attack");
                     transform.position = Vector3.MoveTowards(
                         transform.position,
-                        targetPos.position,
+                        hit.transform.position,
                         rushSpeed * Time.deltaTime);
                 }
             }

@@ -5,11 +5,10 @@ using UnityEngine;
 
 public class MapCorridor: MonoBehaviour
 {
-  static public float LENGTH = 20;
+  static public float LENGTH = 25;
   const float TURNING_POINT = 0.7f;
   public Vector3 StartPos;
   public Vector3 EndPos;
-  public GameObject Container;
   public string[] tilePrefabNames;
   public bool IsSpawned { get; private set; } = false;
   public Action OnSpawned;
@@ -27,6 +26,7 @@ public class MapCorridor: MonoBehaviour
 
   public void DestroySelf()
   {
+    this.IsSpawned = false;
     for (int i = 0; i < this.pooledTiles.Length; ++i) {
       var tileList = this.pooledTiles[i]; 
       if (tileList == null) {
@@ -37,11 +37,13 @@ public class MapCorridor: MonoBehaviour
         PrefabObjectPool.Shared.ReturnObject(tile, prefabName); 
       } 
     }
-    this.IsSpawned = false;
+    this.pooledTiles = null;
+    Destroy(this.gameObject);
   }
 
   void Awake()
   {
+    this.gameObject.name = "MapCorridor";
     this.pooledTiles = new List<GameObject>[MapTypes.AllTileTypes.Length];
     this.hasTurned = false;
   }
@@ -66,12 +68,18 @@ public class MapCorridor: MonoBehaviour
         Mathf.Ceil(this.EndPos.z - this.StartPos.z)
         );
     if (this.IsHorizontal) {
-      this.mainStep = new (steps.x > 1 ? 1: -1, 0);
-      this.subStep = new (0, steps.y > 1 ? 1: -1);
+      this.mainStep = new (steps.x > 0 ? 1: -1, 0);
+      this.subStep = new (0, steps.y > 0 ? 1: -1);
+      if (Math.Abs(this.StartPos.z - this.EndPos.z) < 0.5f) {
+        this.hasTurned = true;
+      }
     }
     else {
-      this.mainStep = new (0, steps.y > 1 ? 1: -1);
-      this.subStep = new (steps.x > 1 ? 1: -1, 0);
+      this.mainStep = new (0, steps.y > 0 ? 1: -1);
+      this.subStep = new (steps.x > 0 ? 1: -1, 0);
+      if (Math.Abs(this.StartPos.x - this.EndPos.x) < 0.5f) {
+        this.hasTurned = true;
+      }
     }
     for (int i = 0; i < this.pooledTiles.Length; ++i) {
        if (this.tilePrefabNames[i] != null) {
@@ -82,7 +90,7 @@ public class MapCorridor: MonoBehaviour
 
   IEnumerator CreateSpawnRoutine()
   {
-    while (Vector3.Distance(this.current, this.EndPos) > 0.9f)
+    while (Vector3.Distance(this.current, this.EndPos) > 1.5f)
     {
       this.WalkStep(this.isWalkingMainStep ? this.mainStep: this.subStep);
 
@@ -91,7 +99,7 @@ public class MapCorridor: MonoBehaviour
         this.SpwanWalls();
       }
       else {
-        this.SpwanCorner();
+        this.SpawnCorner();
       }
       yield return (null);
     }
@@ -122,12 +130,12 @@ public class MapCorridor: MonoBehaviour
       this.isWalkingMainStep = false;
       this.hasTurned = true;
       if (this.IsHorizontal) {
-        this.turnedDirection = this.StartPos.z < this.EndPos.z ? 
+        this.turnedDirection = this.StartPos.z <= this.EndPos.z ? 
           (MapTypes.TileDirection.Top, this.mainStep) :
           (MapTypes.TileDirection.Bottom, this.mainStep);
       }
       else {
-        this.turnedDirection = this.StartPos.x < this.EndPos.x ?
+        this.turnedDirection = this.StartPos.x <= this.EndPos.x ?
           (MapTypes.TileDirection.Right, this.mainStep):
           (MapTypes.TileDirection.Left, this.mainStep);
       }
@@ -151,32 +159,42 @@ public class MapCorridor: MonoBehaviour
     }
   }
 
-  void SpwanCorner()
+  void SpawnCorner()
   {
     Vector3 pos1 = this.current;
     Vector3 pos2 = this.current;
+    Vector3 pos3 = this.current;
     var (dir, beforeTurn) = this.turnedDirection.Value;
     switch (dir) {
       case MapTypes.TileDirection.Top:
         pos1.x += beforeTurn.x > 0 ? 1.0f: -1.0f;
         pos2.z -= 1.0f;
+        pos3.x += beforeTurn.x > 0 ? 1.0f: -1.0f;
+        pos3.z -= 1.0f;
         break;
       case MapTypes.TileDirection.Bottom:
         pos1.x += beforeTurn.x > 0 ? 1.0f: -1.0f;
         pos2.z += 1.0f;
+        pos3.x += beforeTurn.x > 0 ? 1.0f: -1.0f;
+        pos3.z += 1.0f;
         break;
       case MapTypes.TileDirection.Left:
         pos1.x += 1.0f;
         pos2.z += beforeTurn.y > 0 ? 1.0f: -1.0f;
+        pos3.x += 1.0f;
+        pos3.z += beforeTurn.y > 0 ? 1.0f: -1.0f;
         break;
       case MapTypes.TileDirection.Right:
         pos1.x -= 1.0f;
         pos2.z += beforeTurn.y > 0 ? 1.0f: -1.0f;
+        pos3.x -= 1.0f;
+        pos3.z += beforeTurn.y > 0 ? 1.0f: -1.0f;
         break;
       default: throw new NotImplementedException();
     }
     this.SetWall(pos1);
     this.SetWall(pos2);
+    this.SetWall(pos3);
   }
 
   void SpwanFloor()
@@ -203,10 +221,12 @@ public class MapCorridor: MonoBehaviour
   void SetWall(Vector3 pos) 
   {
     var wallName = this.tilePrefabNames[(int)MapTypes.TileType.Wall];
-    var wall = PrefabObjectPool.Shared.GetPooledObject(wallName);
-    this.SetTile(wall, pos);
-    this.SetTile(wall, new (pos.x, pos.y + 1.0f, pos.z));
-    this.pooledTiles[(int)MapTypes.TileType.Wall].Add(wall);
+    var wall1 = PrefabObjectPool.Shared.GetPooledObject(wallName);
+    this.SetTile(wall1, pos);
+    var wall2 = PrefabObjectPool.Shared.GetPooledObject(wallName);
+    this.SetTile(wall2, new (pos.x, pos.y + 1.0f, pos.z)); 
+    this.pooledTiles[(int)MapTypes.TileType.Wall].Add(wall1);
+    this.pooledTiles[(int)MapTypes.TileType.Wall].Add(wall2);
   }
 
   void SetTile(GameObject tile, Vector3 pos)

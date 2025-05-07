@@ -8,11 +8,13 @@ public class UIManager : Singleton<UIManager>
 
   public PopupUI? CurrentPopup { get; private set; }
   public CombatUI combatUI;
+  public LoadingUI loadingUI;
+  public Vector2 JoystickInput => this.combatUI.Joystick.Input;
   public Camera MinimapCamera { set {
-    if (this.combatUI.minimap == null) {
+    if (this.combatUI.Minimap == null) {
       return ;
     }
-    this.combatUI.minimap.Camera = value;
+    this.combatUI.Minimap.Camera = value;
     this.combatUI.ZoomMinimap();
   }}
 
@@ -22,6 +24,8 @@ public class UIManager : Singleton<UIManager>
     LevelUp,
     StageEnd
   }
+  GameObject combatUIPrefab;
+  GameObject loadingUIPrefab;
 
   void Awake()
   {
@@ -30,7 +34,13 @@ public class UIManager : Singleton<UIManager>
 
   void Init()
   {
-    var prefab = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
-    this.combatUI = Instantiate(prefab).GetComponent<CombatUI>();
+    this.loadingUIPrefab = ((GameObject)Resources.Load("Prefabs/" + LoadingUI.PREFAB_NAME));
+    this.loadingUI = Instantiate(this.loadingUIPrefab).GetComponent<LoadingUI>();
+    this.loadingUI.transform.parent = this.transform;
+    this.loadingUI.Hide();
+    this.combatUIPrefab = ((GameObject)Resources.Load("Prefabs/" + CombatUI.PREFAB_NAME));
+    this.combatUI = Instantiate(this.combatUIPrefab).GetComponent<CombatUI>();
+    this.combatUI.transform.parent = this.transform;
+    this.combatUI.Hide();
   }
 }

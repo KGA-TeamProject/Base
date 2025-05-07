@@ -2,11 +2,13 @@
 public class StageConfig
 {
   public MapConfig[] Maps;
+  public string[] Musics;
   [System.Serializable]
   public struct MapConfig
   {
     public TilePrefab Tiles;
     public ObjectPrefab Objects;
+    public string[] Sections;
 
     [System.Serializable]
     public struct TilePrefab

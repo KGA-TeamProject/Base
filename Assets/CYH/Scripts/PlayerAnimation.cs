@@ -21,5 +21,4 @@ public class PlayerAnimation : MonoBehaviour
             animator.Play("Run");
         }
     }
-
 }
