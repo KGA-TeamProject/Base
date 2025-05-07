@@ -12,31 +12,31 @@ public class PlayerMove2 : MonoBehaviour
 
     private void Update()
     {
-        //Vector2 joystickInput = UIManager.Shared.JoystickInput;
-        //if (joystickInput != Vector2.zero) 
-        //{
-        //    // 조이스틱 사용
-        //    // 별도로 조이스틱 입력값을 받아 이동을 수행하는 함수를 선언
-        //    // 함수 호출 조건 : 매개변수(JoystickInput)을 넣어주는 형태로
-        //    Vector3 direction = new Vector3 (joystickInput.x, 0, joystickInput.y);
-        //    if (direction == Vector3.zero)
-        //    {
-        //        isMove = false;
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        isMove = true;
-        //        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction), rotate * Time.deltaTime);
-        //        transform.position += moveSpeed * Time.deltaTime * direction;
-        //    }
-        //
-        //}
-        //else 
-        //{
-            // 키보드 사용
-            Move();
-        //}
+        Vector2 joystickInput = UIManager.Shared.JoystickInput;
+        if (joystickInput != Vector2.zero) 
+        {
+            // 조이스틱 사용
+            // 별도로 조이스틱 입력값을 받아 이동을 수행하는 함수를 선언
+            // 함수 호출 조건 : 매개변수(JoystickInput)을 넣어주는 형태로
+            Vector3 direction = new Vector3 (joystickInput.x, 0, joystickInput.y);
+            if (direction == Vector3.zero)
+            {
+                isMove = false;
+                return;
+            }
+            else
+            {
+                isMove = true;
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(direction), rotate * Time.deltaTime);
+                transform.position += moveSpeed * Time.deltaTime * direction;
+            }
+        
+        }
+        else 
+        {
+          // 키보드 사용
+          Move();
+        }
     }
 
 
