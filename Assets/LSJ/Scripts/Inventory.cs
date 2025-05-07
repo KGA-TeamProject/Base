@@ -39,7 +39,7 @@ public class Inventory : MonoBehaviour
     #endregion
 
     #region Item
-    public List<Item> items;
+    public List<Item> items = new List<Item>(); // 아이템 목록
 
     // 아이템 추가
     public void AddItem(Item item)

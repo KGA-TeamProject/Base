@@ -24,8 +24,10 @@ public class Potion : Item
         if(collision.gameObject.CompareTag("Player"))
         {
             player = collision.gameObject.GetComponent<Player>(); // 플레이어 컴포넌트 가져오기
+            Inventory inventory = collision.gameObject.GetComponentInChildren<Inventory>();
+            inventory.AddItem(this); 
             Use(); // 포션 사용
-            Destroy(gameObject); // 포션 오브젝트 파괴
+            //Destroy(gameObject); // 포션 오브젝트 파괴
         }
     }
 

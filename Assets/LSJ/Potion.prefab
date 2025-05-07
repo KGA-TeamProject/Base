@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2126578010326167437}
   - component: {fileID: 6481876469566037354}
   - component: {fileID: -3044017550683081205}
-  - component: {fileID: -6069854079656527525}
   - component: {fileID: -4989227167615449461}
   m_Layer: 0
   m_Name: Potion
@@ -102,19 +101,6 @@ MonoBehaviour:
   itemName: "\uD790\uB9C1 \uD3EC\uC158"
   itemDescription: "\uC18C\uB7C9\uC758 \uCCB4\uB825\uC744 \uD68C\uBCF5\uD558\uB294
     \uC544\uC774\uD15C"
---- !u!114 &-6069854079656527525
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3715714339846016829}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5496ac88b80dea4498c65ab70d20b86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  potionData: {fileID: -3044017550683081205}
 --- !u!65 &-4989227167615449461
 BoxCollider:
   m_ObjectHideFlags: 0
