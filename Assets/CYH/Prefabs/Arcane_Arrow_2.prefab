@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 871730343672713522}
   - component: {fileID: 6603906019493392352}
-  - component: {fileID: 8130871393846185931}
+  - component: {fileID: 3411454535065175306}
   m_Layer: 7
-  m_Name: Arrow_CYH
+  m_Name: Arcane_Arrow_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61,7 +61,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &8130871393846185931
+--- !u!114 &3411454535065175306
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,10 +74,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 1
-  shootCount: 1
+  shootCount: 2
   speed: 10
-  angle: 15
-  delaySecond: 0.7
+  angle: 30
+  delaySecond: 0.5
   rigid: {fileID: 6603906019493392352}
   explosionEffect: {fileID: 1802261868130759384, guid: 319e66ba0f01333b7bfdc248174f099d, type: 3}
 --- !u!1 &8598022496436078112
@@ -142,8 +142,8 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 52c7def357bc910418df909d1c157606, type: 2}
-  - {fileID: 2100000, guid: 572e86b578f11bc429d1874131910b0b, type: 2}
+  - {fileID: 2100000, guid: 61de73e60e3a5484db04899f00faab28, type: 2}
+  - {fileID: 2100000, guid: c4315a747bbf91341afe7e6702207088, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

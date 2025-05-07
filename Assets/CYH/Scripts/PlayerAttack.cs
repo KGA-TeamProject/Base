@@ -35,7 +35,7 @@ public class PlayerAttack : MonoBehaviour
 
     public void Shoot()
     {
-        Debug.Log("발사");
+        //Debug.Log("발사");
 
         // 획득한 스킬로 화살 속성 변경
         prefab.Init(prefab.damage, prefab.shootCount, prefab.speed, prefab.delaySecond, prefab.angle);
@@ -59,7 +59,6 @@ public class PlayerAttack : MonoBehaviour
             monsterController monsterController = hitInfo.collider.gameObject.GetComponent<monsterController>();
             if (monsterController != null)
             {
-                //isDetect = true;
                 Debug.DrawLine(transform.position, hitInfo.point, Color.red);
                 if (shootCoroutine == null)
                 {
