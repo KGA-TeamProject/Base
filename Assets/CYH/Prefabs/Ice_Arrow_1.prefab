@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6603906019493392352}
   - component: {fileID: 3713792216573861559}
   m_Layer: 7
-  m_Name: Ice_Arrow_CYH
+  m_Name: Ice_Arrow_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -73,10 +73,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb82d50a6fa399b9da4d0888375caaba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 2
-  shootCount: 3
+  damage: 1
+  shootCount: 1
   speed: 10
-  angle: 15
+  angle: 30
   delaySecond: 0.7
   rigid: {fileID: 6603906019493392352}
   explosionEffect: {fileID: 8303287279460505755, guid: b3c741288228cc000a0208dd3aeb1643, type: 3}
