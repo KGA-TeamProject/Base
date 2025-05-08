@@ -1,13 +1,10 @@
 # 공통 기획
+## 게임 플레이   
+<img src="https://github.com/user-attachments/assets/56001f78-f2b5-43f3-b427-fc93f6c1e9c6" width=480px height= 300px />    
+
 ## 게임 컨셉
 뱀파이어 서바이벌 류 + 미로  찾기
-- 게임 플레이   
-<video width="320" height="240" autoplay controls>
-  <source src="https://github.com/user-attachments/assets/77f8c389-7a7d-4982-b106-574c943a3e12" type="video/webm">
-</video>
 
-<table>
-<tr>
 <td>
 <a href="https://ko.wikipedia.org/wiki/%EB%B1%80%ED%8C%8C%EC%9D%B4%EC%96%B4_%EC%84%9C%EB%B0%94%EC%9D%B4%EB%B2%84%EC%A6%88">뱀파이어 서바이벌</a> <br/>    
 플레이어는 2021년 이탈리아의 시골에서 괴물 군단의 보스 비스콘테 드라큘로에 대항하는 벨파에제 가문과 다른 영웅 생존자들을 조종한다. 플레이어 캐릭터는 적을 향해 자동으로 공격하며 사방에서 끊임없이 몰려오는 괴물들을 물리치며 30분동안 생존하는 것이 목표이다. 플레이 성과에 따라 무기, 캐릭터, 유물들이 해금된다.
